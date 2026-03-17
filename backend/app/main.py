@@ -1,12 +1,7 @@
-# backend/app/main.py
-
 from fastapi import FastAPI
 
-app = FastAPI(title="Password Generator API")
+#from backend.
 
+app = FastAPI()
 
-@app.get("/")
-def root():
-    return {
-        "message": "Password generator backend is running"
-    }
+app.inc
