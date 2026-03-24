@@ -11,5 +11,3 @@ class InvalidLengthError(PasswordGeneratorError):
 class EmptyCharacterPoolError(PasswordGeneratorError):
     """Не выбран ни один набор символов"""
     pass
-
-

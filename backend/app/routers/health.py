@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
-router = APIRouter
+router = APIRouter()
+
 
 @router.get("/health")
-def health():
-    return {"status": "ok"}
+def health() -> dict:
+    return {"status": "ok", "service": "password-generator-backend"}

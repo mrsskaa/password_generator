@@ -1,16 +1,20 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class PasswordRequest(BaseModel):
-    length: int
-    use_lower: bool
-    use_upper: bool
-    use_digits: bool
-    use_symbols: bool
+    length: int = Field(..., example=12, ge=8, le=32)
+    use_lower: bool = Field(default=True, example=True)
+    use_upper: bool = Field(default=True, example=True)
+    use_digits: bool = Field(default=True, example=True)
+    use_symbols: bool = Field(default=True, example=True)
 
 
 class PasswordResponse(BaseModel):
-    password: str
-    length: int
+    password: str = Field(..., example="Ab7!xP9@Lm2#")
+    length: int = Field(..., example=12)
+    used_lower: bool = Field(..., example=True)
+    used_upper: bool = Field(..., example=True)
+    used_digits: bool = Field(..., example=True)
+    used_symbols: bool = Field(..., example=True)
 
 #Пока так, но надо обязательно будет сделать для рекомендации штуки
