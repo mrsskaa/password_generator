@@ -6,7 +6,7 @@ router = APIRouter()
 
 
 @router.post("/generate", response_model=PasswordResponse)
-async def generate_password(data: PasswordRequest) -> PasswordRequest:
+async def generate_password(data: PasswordRequest) -> PasswordResponse:
     try:
         password = generate_password(data.length, data.use_lower,
                                      data.use_upper, data.use_digits,
