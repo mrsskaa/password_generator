@@ -1,4 +1,5 @@
 import secrets
+from curses.ascii import isdigit
 
 from backend.app.core.constants import (
     LETTERS_LOW,
@@ -12,6 +13,14 @@ from backend.app.core.exceptions import (
     InvalidLengthError,
     EmptyCharacterPoolError
 )
+
+def validate_repetitive(password:str) -> bool:
+    "Проверка на подряд идущие цифры в прямом и обратном порядке, на подряд идущие одинаковые символы"
+    for i in range(0,len(password)-2):
+        if (password[i]==password[i+1]==password[i+2]) or (ord(password[i])==ord(password[i+1])-1==ord(password[i+2])-2) or (ord(password[i])-2==ord(password[i+1])-1==ord(password[i+2])):
+            return False
+    return True
+
 
 
 def validate_length(length: int) -> None:
@@ -103,6 +112,9 @@ def generate_password(
         password = "".join(password_chars)
 
         if contains_similar_characters(password):
+            continue
+
+        if not(validate_repetitive(password)):
             continue
 
         return password

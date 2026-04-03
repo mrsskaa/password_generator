@@ -12,3 +12,8 @@ SIMILAR_CHARACTERS = {
     ("1", "I"),
     ("l", "I"),    
 }
+
+
+
+
+
