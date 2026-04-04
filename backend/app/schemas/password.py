@@ -16,5 +16,8 @@ class PasswordResponse(BaseModel):
     used_upper: bool = Field(..., example=True)
     used_digits: bool = Field(..., example=True)
     used_symbols: bool = Field(..., example=True)
+    cracking_time: int | str = Field(..., example=24)
+    color: str = Field(..., example="yellow")
+    level: str = Field(..., example="хороший")
 
 #Пока так, но надо обязательно будет сделать для рекомендации штуки
