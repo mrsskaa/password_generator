@@ -4,7 +4,7 @@ LETTERS_LOW="abcdefghijklmnopqrstuvwxyz"
 
 LETTERS_HIGH="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-SPECIAL_CHARACTERS="!#$%&'()*+,-./:;<=>?@[\]^_`{|}~\""
+SPECIAL_CHARACTERS = r"!#$%&'()*+,-./:;<=>?@[\]^_`{|}~\""
 
 SIMILAR_CHARACTERS = {
     ("0", "O"),

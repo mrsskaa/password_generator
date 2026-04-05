@@ -1,7 +1,7 @@
 import secrets
 from curses.ascii import isdigit
 
-from backend.app.core.constants import (
+from app.core.constants import (
     LETTERS_LOW,
     LETTERS_HIGH,
     DIGITS,
@@ -9,7 +9,7 @@ from backend.app.core.constants import (
     SIMILAR_CHARACTERS
 )
 
-from backend.app.core.exceptions import (
+from app.core.exceptions import (
     InvalidLengthError,
     EmptyCharacterPoolError
 )

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from backend.app.services.password_generator import generate_password
-from backend.app.schemas.password import PasswordRequest, PasswordResponse
+from app.services.password_generator import generate_password
+from app.schemas.password import PasswordRequest, PasswordResponse
 
 router = APIRouter()
 
