@@ -80,7 +80,8 @@ def generate_password(
         use_upper: bool = True,
         use_digits: bool = True,
         use_symbols: bool = True,
-        max_attempts: int = 100
+        max_attempts: int = 100,
+        use_similar_symbols: bool = True
 ) -> str:
     """
     Основная функция генерации пароля
@@ -111,8 +112,11 @@ def generate_password(
 
         password = "".join(password_chars)
 
-        if contains_similar_characters(password):
-            continue
+        if not use_similar_symbols:
+            if contains_similar_characters(password):
+                continue
+
+
 
         if not(validate_repetitive(password)):
             continue

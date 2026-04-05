@@ -66,6 +66,7 @@ def generate(data: PasswordRequest) -> PasswordResponse:
             use_upper=data.use_upper,
             use_digits=data.use_digits,
             use_symbols=data.use_symbols,
+            use_similar_symbols=data.use_similar_symbols
         )
 
         crack_time_seconds = calculate_crack_time_seconds(data.length)
@@ -85,6 +86,7 @@ def generate(data: PasswordRequest) -> PasswordResponse:
             used_upper=data.use_upper,
             used_digits=data.use_digits,
             used_symbols=data.use_symbols,
+            use_similar_symbols=data.use_similar_symbols,
             crack_time_human=crack_time_human,
             crack_time_seconds=round(crack_time_seconds, 2),
             color=crack_color,
