@@ -87,7 +87,7 @@ def generate(data: PasswordRequest) -> PasswordResponse:
             used_symbols=data.use_symbols,
             crack_time_human=crack_time_human,
             crack_time_seconds=round(crack_time_seconds, 2),
-            crack_color=crack_color,
+            color=crack_color,
             strength_level=strength_level,
         )
 
