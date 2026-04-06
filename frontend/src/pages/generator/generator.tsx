@@ -1,9 +1,12 @@
+import { Row, Col, Button, Container } from "react-bootstrap"
 import "./generator.css"
 
 
 const Generator = () => {
     return (
-        <div>Generator</div>
+        <Container>
+            <Row></Row>
+        </Container>
     )
 }
 
