@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import './App.css'
 import Main from "./pages/generator/generator.tsx";
-import Register from "./pages/SignUp/register.tsx";
+import Register from "./pages/Register/register.tsx";
 import LogIn from "./pages/LogIn/LogIn.tsx";
 import HomePage from "./pages/HomePage/HomePage.tsx";
 
