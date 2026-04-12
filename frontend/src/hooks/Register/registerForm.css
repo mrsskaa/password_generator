@@ -1,4 +1,32 @@
-.formContainer {
-    flex-direction: column;
-    background-color: red;
+@import "../../index.css";
+
+.form-control.auth-form-password-confirm {
+    -webkit-text-security: disc !important;
+    background-color: var(--form-input-color);
 }
+
+.auth-form-bottom {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    margin-top: 15%;
+}
+
+a.auth-form-bottom-back-link,
+a.auth-form-bottom-back-link:hover {
+    justify-self: start;
+    color: var(--auth-form-text-link-color);
+}
+
+.auth-form-submit-button-container {
+    grid-column: 2 / 3;
+    justify-self: center;
+}
+
+.btn.auth-form-submit-button,
+.btn.auth-form-submit-button:hover {
+    padding: 5px 30px;
+    background-color: var(--confirm-auth-form-btn-color);
+    color: var(--text-color);
+}
+

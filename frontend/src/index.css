@@ -5,11 +5,25 @@ html, body {
     height: 100%;
 }
 
+:root {
+    --bg-color: #F5E1DD;
+    --form-shadow: #B56C58;
+    --confirm-auth-form-btn-color: #F9E7D3;
+    --text-color: #443025;
+    --header-btn-color: #B09082;
+    --header-btn-text-color: #F9E7D3;
+    --header-link-text-color: #ED4C78;
+    --auth-form-text-link-color: #CD7479;
+    --form-input-color: #FEFCFC;
+    --form-input-invalid: #FF0000;
+    --form-input-invalid-background: #FFE7E7;
+}
+
 body {
     /* фон пока закомментируем, потом добавим */
     /* background-image: url('/background.jpg'); */
     background-size: cover;
     background-position: center;
-    /* background-color: #F3C6BB;
-    opacity: 0.44; */
+    color: var(--text-color);
+    background-color: var(--bg-color);
 }

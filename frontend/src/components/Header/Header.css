@@ -1,4 +1,20 @@
-.shadow-sm {
-    background-color: #F3C6BB;
-    opacity: 0.44;
+@import '../../index.css';
+
+.header-text-link,
+.header-text-link:hover
+a.header-text-link,  /* Добавить селектор a */
+a.header-text-link:hover {
+    --bs-nav-link-color: var(--header-link-text-color);
+    color: var(--header-link-text-color);
+    text-decoration: underline;
+    text-decoration-style: dotted;
+}
+
+.btn.header-btn,
+.btn.header-btn:hover {
+    border: 1px solid var(--header-link-text-color);
+    border-radius: 15px;
+    background-color: var(--header-btn-color);
+    padding: 5px 30px;
+    color: var(--header-btn-text-color);
 }

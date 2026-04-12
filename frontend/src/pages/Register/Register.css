@@ -1,7 +1,13 @@
+@import '../../index.css';
+
 .registerForm {
     background-color: #F5E1DD;
 }
 
 .hh {
     justify-content: center;
+}
+
+.body {
+    background-color: red;
 }

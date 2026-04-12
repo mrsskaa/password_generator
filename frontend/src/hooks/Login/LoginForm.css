@@ -1,0 +1,9 @@
+@import '../../index.css';
+
+a.auth-form-forget-password-link,
+a.auth-form-forget-password-link:hover {
+    justify-self: end;
+    color: var(--auth-form-text-link-color);
+    text-decoration: underline;
+    text-decoration-style: dotted;
+}
