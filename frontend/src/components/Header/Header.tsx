@@ -19,7 +19,7 @@ const Header = () => {
     <Navbar.Toggle aria-controls="auth-navbar" />
     
 <Navbar.Collapse id="auth-navbar" className="justify-content-end d-md-flex">
-  {isAuthPage && (
+  {/* {isAuthPage && ( */}
     <>
     <div className="d-flex flex-column w-100 text-center d-md-none gap-2">  {/* Мобильное */}
       <Nav.Link as={Link} to="/register" className='header-text-link'>
@@ -47,7 +47,7 @@ const Header = () => {
         </Button>
     </div>
     </>
-  )}
+  {/* } )} */}
 </Navbar.Collapse>
   </Container>
 </Navbar>

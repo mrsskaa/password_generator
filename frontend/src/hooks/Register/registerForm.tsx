@@ -4,6 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import './registerForm.css'
 import { Button, Form, Nav } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useDispatch } from "react-redux";
+import { registerFailure, registerStart, registerSuccess } from '../../store/authSlice';
 
 export default function App() {
   const { register, handleSubmit, formState: { errors } } = useForm<registerFormData>({
@@ -15,10 +18,18 @@ export default function App() {
     // }
   });
   const navigate = useNavigate();
+  const API_URL = import.meta.env.REACT_APP_API_URL;
+  const dispatch = useDispatch();
 
-  const onSubmit = (data: registerFormData) => {
-    console.log("Register Form:", data);
-    navigate('/register/confirm');
+  const onSubmit = async (data: registerFormData) => {
+    dispatch(registerStart());
+    try {
+      const response= await axios.post('${API_URL}/api/register', data);
+      console.log("SUCCESS: ", response.data);
+      dispatch(registerSuccess(response.data.user));
+    } catch (error) {
+      dispatch(registerFailure("Регистрация не удалась."))
+    }
   };
   console.log(errors);
   

@@ -4,6 +4,9 @@ import { Form, Button, Nav } from "react-bootstrap";
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import './LoginForm.css';
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { loginFailure, loginStart, loginSuccess } from "../../store/authSlice";
 
 
 
@@ -11,13 +14,18 @@ function loginForm(){
     const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm<loginFormData>({
     resolver: zodResolver(loginSchema),
   });
+    const API_URL = import.meta.env.REACT_APP_API_URL;
+    const dispatch = useDispatch();
 
     const onSubmit = async (data: loginFormData) => {
+        dispatch(loginStart());
   try {
-    // const response = await loginApi(data);  // Ваш API
+    const response = await axios.post('${API_URL}/api/login', data);
     // Успех
-    console.log(data);
+    console.log('SUCCESS: ', response.data);
+    dispatch(loginSuccess(response.data.user));
   } catch (error) {
+    dispatch(loginFailure('Неверный логин или пароль.'));
     setError('root.serverError', {
       type: 'server',
       message: 'Неверный логин или пароль'
