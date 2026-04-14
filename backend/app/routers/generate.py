@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.services.password_generator import generate_password
+from app.services.password_generator import generate_password as pwd_generate
 from app.schemas.password import PasswordRequest, PasswordResponse
 
 router = APIRouter()
@@ -8,7 +8,7 @@ router = APIRouter()
 @router.post("/generate", response_model=PasswordResponse)
 async def generate_password(data: PasswordRequest) -> PasswordResponse:
     try:
-        password = generate_password(data.length, data.use_lower,
+        password = pwd_generate(data.length, data.use_lower,
                                      data.use_upper, data.use_digits,
                                      data.use_symbols, 100)
 
@@ -24,3 +24,4 @@ async def generate_password(data: PasswordRequest) -> PasswordResponse:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    

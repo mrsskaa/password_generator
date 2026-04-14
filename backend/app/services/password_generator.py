@@ -1,5 +1,5 @@
 import secrets
-from curses.ascii import isdigit
+#from curses.ascii import isdigit
 
 from app.core.constants import (
     LETTERS_LOW,
@@ -13,6 +13,9 @@ from app.core.exceptions import (
     InvalidLengthError,
     EmptyCharacterPoolError
 )
+
+def main():
+    print(generate_password(12))
 
 def validate_repetitive(password:str) -> bool:
     "Проверка на подряд идущие цифры в прямом и обратном порядке, на подряд идущие одинаковые символы"
@@ -126,4 +129,4 @@ def generate_password(
 
 if __name__ == "__main__":
     '''python3 -m backend.app.services.password_generator'''
-    print(generate_password(12))
+    main()
