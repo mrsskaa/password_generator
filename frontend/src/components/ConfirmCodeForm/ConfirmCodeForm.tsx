@@ -51,6 +51,8 @@ function ConfirmCodeForm({
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
     setError,
     clearErrors,
@@ -59,6 +61,7 @@ function ConfirmCodeForm({
     resolver: zodResolver(registerConfirmSchema),
     defaultValues: { code: '' },
   });
+  const codeValue = watch('code') ?? '';
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -115,14 +118,26 @@ function ConfirmCodeForm({
       )}
       <Form.Group className="mb-3">
         <Form.Label className="visually-hidden">Код подтверждения</Form.Label>
-        <Form.Control
-          {...register('code')}
-          maxLength={MAX_INPUT_LENGTH}
-          placeholder="код"
-          isInvalid={!!errors.code}
-          className="auth-form-body-input"
-          autoComplete="one-time-code"
-        />
+        <div className="input-field-wrapper">
+          <Form.Control
+            {...register('code')}
+            maxLength={MAX_INPUT_LENGTH}
+            placeholder="код"
+            isInvalid={!!errors.code}
+            className="auth-form-body-input"
+            autoComplete="one-time-code"
+          />
+          {codeValue && (
+            <button
+              type="button"
+              className="input-clear-btn"
+              onClick={() => setValue('code', '', { shouldValidate: true, shouldDirty: true })}
+              aria-label="Очистить поле кода"
+            >
+              <i className="bi bi-x-lg" aria-hidden />
+            </button>
+          )}
+        </div>
         {errors.code?.message && (
           <span className="auth-field-error" role="alert">
             {errors.code.message}

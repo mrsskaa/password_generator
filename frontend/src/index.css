@@ -19,11 +19,53 @@ html, body {
     --form-input-invalid: #FF0000;
     --form-input-invalid-background: #FFE7E7;
     --light-grey: #DEE2E6;
-    --font-size-45: 45px;
+    --font-size-30: 30px;
     --font-size-28: 28px;
+    --font-size-26: 26px;
+    --font-size-25: 25px;
+    --font-size-22: 22px;
+    --font-size-20: 20px;
     --font-size-18: 18px;
     --font-size-16: 16px;
     --font-size-14: 14px;
+    --font-size-36: 36px;
+    --font-size-38: 38px;
+    --font-size-48: 48px;
+    --font-size-34: 34px;
+    --font-size-46: 46px;
+
+    --gray-80: #808080;
+    --gray-text: #3f3736;
+    --gray-subtext: #7a716f;
+    --gray-subtitle: #7f706b;
+    --gray-modal-close: #3a3433;
+    --gray-light-btn: #DEE2E6;
+    --gray-light-btn-hover: #E8E8EA;
+    --pink-main-btn: #F4C9D6;
+    --pink-main-btn-hover: #F8D6E1;
+    --pink-icon: #B56C58;
+    --pink-accent: #CD7479;
+    --pink-border-main-btn: #B97D7B;
+    --pink-border-password-box: #E0D2CC;
+    --pink-password-box-bg: #F6EEEB;
+    --generator-content-bg: #F3F3F3;
+    --pink-length-badge-bg: #EDD9D3;
+    --pink-length-badge-text: #996557;
+    --pink-slider-track: #F9E7D3;
+    --pink-slider-thumb: #FFD5D5;
+    --slider-thumb-opacity: 0.62;
+    --slider-thumb-shadow: rgba(167, 0, 0, 0.62);
+    --modal-overlay: rgba(31, 22, 20, 0.55);
+    --modal-shadow: rgba(181, 108, 88, 0.4);
+    --content-box-shadow: rgba(181, 108, 88, 0.45);
+    --inset-shadow: rgba(167, 0, 0, 0.25);
+
+    --generator-slider-thumb-size: 22px;
+    --generator-title-size: 45px;
+    --generator-subtitle-size: 25px;
+    --generator-btn-height: 68px;
+    --generator-btn-main-width: 440px;
+    --generator-btn-secondary-width: 210px;
     /* высота шапки: форма под ней = оставшаяся часть экрана без лишнего скролла */
     --header-height: 56px;
 }
@@ -33,5 +75,5 @@ body {
     background-position: center;
     color: var(--text-color);
     background-color: var(--bg-color);
-    box-shadow: inset 0 4px 100px rgba(167, 0, 0, 0.25);
+    box-shadow: inset 0 4px 100px var(--inset-shadow);
 }

@@ -39,6 +39,35 @@ a.auth-form-bottom-back-link:hover {
   width: 100%;
 }
 
+.input-field-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-field-wrapper .form-control {
+  padding-right: 2.75rem;
+}
+
+.input-clear-btn {
+  position: absolute;
+  top: 50%;
+  right: 0.65rem;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  color: #808080;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
 .password-field-wrapper .form-control {
   padding-right: 2.75rem;
 }

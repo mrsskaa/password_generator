@@ -3,6 +3,13 @@
 .generator-page {
   max-width: 980px;
   margin: 0 auto;
+  height: calc(100vh - var(--header-height));
+  overflow: hidden;
+  padding-left: 0;
+}
+
+.generator-page.py-4 {
+  padding-top: 0 !important;
 }
 
 .generator-top {
@@ -15,15 +22,17 @@
 }
 
 .generator-title {
-  font-size: 45px;
+  font-size: var(--generator-title-size);
   font-weight: 600;
-  margin-bottom: 8px;
   line-height: 1.05;
+  margin-top: 0;
+  margin-left: 0;
+  transform: translateX(-1px);
 }
 
 .generator-subtitle {
-  font-size: 28px;
-  color: #7f706b;
+  font-size: var(--generator-subtitle-size);
+  color: var(--gray-subtitle);
   margin-bottom: 28px;
 }
 
@@ -31,9 +40,9 @@
   width: 100%;
   max-width: 760px;
   margin: 0 auto;
-  background: #f3f3f3;
+  background: var(--generator-content-bg);
   border-radius: 16px;
-  box-shadow: 0 0 25px rgba(181, 108, 88, 0.45);
+  box-shadow: 0 0 25px var(--content-box-shadow);
   padding: 36px 40px 28px;
 }
 
@@ -41,10 +50,10 @@
   width: 686px;
   max-width: 100%;
   margin: 0 auto;
-  min-height: 58px;
-  border: 1px solid #e0d2cc;
+  min-height: 45px;
+  border: 1px solid var(--pink-border-password-box);
   border-radius: 12px;
-  background: #f6eeeb;
+  background: var(--pink-password-box-bg);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -53,10 +62,15 @@
 }
 
 .generator-password-value {
-  font-size: 30px;
+  font-size: var(--font-size-30);
   font-weight: 600;
-  color: #7a716f;
+  color: var(--gray-subtext);
   letter-spacing: 0.02em;
+}
+
+.generator-password-value.is-placeholder {
+  font-size: var(--font-size-25);
+  font-weight: 500;
 }
 
 .generator-password-actions {
@@ -67,8 +81,8 @@
 .generator-icon-btn {
   border: none;
   background: transparent;
-  color: #d45486;
-  font-size: 26px;
+  color: var(--pink-icon);
+  font-size: var(--font-size-26);
   line-height: 1;
 }
 
@@ -81,31 +95,66 @@
 }
 
 .generator-label {
-  color: #a66a58;
-  font-size: var(--font-size-28);
-  font-weight: 700;
+  color: var(--pink-icon);
+  font-size: var(--font-size-20);
+  font-weight: 500;
 }
 
 .generator-length-badge {
   min-width: 42px;
   border-radius: 12px;
   padding: 2px 10px;
-  background: #edd9d3;
-  color: #996557;
+  background: var(--pink-length-badge-bg);
+  color: var(--pink-length-badge-text);
   text-align: center;
   font-size: var(--font-size-16);
 }
 
 .form-range {
-  --bs-form-range-track-bg: #f0dfd4;
-  --bs-form-range-thumb-bg: #e0b4a8;
+  --bs-form-range-track-bg: var(--pink-slider-track);
+  --bs-form-range-thumb-bg: var(--pink-slider-thumb);
+  --bs-form-range-thumb-width: var(--generator-slider-thumb-size);
+}
+
+#length-slider {
+  height: var(--generator-slider-thumb-size);
+}
+
+#length-slider::-webkit-slider-runnable-track {
+  background: var(--pink-slider-track);
+  height: var(--generator-slider-thumb-size);
+  border-radius: 999px;
+}
+
+#length-slider::-webkit-slider-thumb {
+  width: var(--generator-slider-thumb-size);
+  height: var(--generator-slider-thumb-size);
+  border-radius: 50%;
+  background: var(--pink-slider-thumb);
+  opacity: var(--slider-thumb-opacity);
+  box-shadow: 0 4px 4px 0 var(--slider-thumb-shadow);
+}
+
+#length-slider::-moz-range-track {
+  background: var(--pink-slider-track);
+  height: var(--generator-slider-thumb-size);
+  border-radius: 999px;
+}
+
+#length-slider::-moz-range-thumb {
+  width: var(--generator-slider-thumb-size);
+  height: var(--generator-slider-thumb-size);
+  border-radius: 50%;
+  background: var(--pink-slider-thumb);
+  opacity: var(--slider-thumb-opacity);
+  box-shadow: 0 4px 4px 0 var(--slider-thumb-shadow);
 }
 
 .generator-range-marks {
   display: flex;
   justify-content: space-between;
   font-size: var(--font-size-18);
-  color: #6b6767;
+  color: var(--gray-80);
   margin-bottom: 20px;
 }
 
@@ -122,7 +171,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #3f3736;
+  color: var(--gray-text);
   padding: 0;
   text-align: left;
   font-size: var(--font-size-18);
@@ -139,13 +188,13 @@
 }
 
 .generator-toggle-icon {
-  color: #d45486;
-  font-size: 30px;
+  color: var(--pink-icon);
+  font-size: var(--font-size-30);
   line-height: 1;
 }
 
 .generator-actions {
-  margin-top: 26px;
+  margin-top: 10px;
   width: 686px;
   max-width: 100%;
   margin-left: auto;
@@ -155,49 +204,71 @@
   gap: 0;
 }
 
-.generator-main-btn,
-.generator-main-btn:hover {
-  border: 1px solid #cf9db1;
-  background: #f4c9d6;
-  color: #945e56;
-  font-size: 28px;
+.generator-error-slot {
+  min-height: 24px;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.generator-error-text {
+  color: var(--form-input-invalid);
+  font-size: var(--font-size-16);
+}
+
+.btn.generator-main-btn,
+.btn.generator-main-btn:hover {
+  border: 1px solid var(--pink-border-main-btn);
+  background: var(--pink-main-btn);
+  color: var(--pink-icon);
+  font-size: var(--font-size-22);
   font-weight: 600;
   border-radius: 14px;
-  width: 465px;
-  height: 75px;
+  width: var(--generator-btn-main-width);
+  height: var(--generator-btn-height);
   padding: 0 22px;
   box-shadow: none;
   transition: background-color 0.2s ease, border-color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
 }
 
-.generator-secondary-btn,
-.generator-secondary-btn:hover {
-  border: 1px solid #b8b8bd;
-  color: #945e56;
-  font-size: 28px;
+.btn.generator-secondary-btn,
+.btn.generator-secondary-btn:hover {
+  border: 1px solid var(--pink-accent);
+  background: var(--gray-light-btn);
+  color: var(--pink-accent);
+  font-size: var(--font-size-22);
   font-weight: 600;
   border-radius: 14px;
-  width: 221px;
-  height: 75px;
+  width: var(--generator-btn-secondary-width);
+  height: var(--generator-btn-height);
   padding: 0 22px;
   box-shadow: none;
   transition: background-color 0.2s ease, border-color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.generator-save-icon {
+  transform: rotate(180deg);
 }
 
 .generator-main-btn:hover {
-  background: #f8d6e1;
+  background: var(--pink-main-btn-hover);
 }
 
-.generator-secondary-btn {
-  background: #dddddf;
-}
-
-.generator-secondary-btn:hover {
-  background: #e8e8ea;
+.btn.generator-secondary-btn:hover {
+  background: var(--gray-light-btn-hover);
 }
 
 .generator-login-backdrop {
-  background: rgba(31, 22, 20, 0.55);
+  background: var(--modal-overlay);
 }
 
 .generator-login-modal {
@@ -207,7 +278,7 @@
 .generator-login-modal-content {
   border: 0;
   border-radius: 14px;
-  box-shadow: 0 0 24px rgba(181, 108, 88, 0.4);
+  box-shadow: 0 4px 74px 0 rgba(167, 0, 0, 0.62);
 }
 
 .generator-login-modal .modal-body {
@@ -219,40 +290,41 @@
 .generator-login-modal-close {
   position: absolute;
   top: 16px;
-  left: 16px;
+  right: 16px;
   border: none;
   background: transparent;
-  font-size: 36px;
-  color: #3a3433;
+  font-size: var(--font-size-36);
+  color: var(--text-color);
   line-height: 1;
 }
 
 .generator-login-modal-text {
   margin-top: 56px;
-  font-size: 46px;
+  font-size: var(--font-size-25);
   line-height: 1.16;
   font-weight: 600;
-  color: #3f3736;
+  color: var(--gray-text);
+  text-shadow: 0 4px 74px rgba(167, 0, 0, 0.62);
 }
 
 .generator-login-modal-link {
-  color: #d45486;
+  color: var(--pink-accent);
   text-decoration: none;
 }
 
 .generator-login-modal-link:hover {
-  color: #d45486;
+  color: var(--pink-accent);
   text-decoration: underline;
   text-decoration-style: dotted;
 }
 
 @media (max-width: 900px) {
   .generator-title {
-    font-size: 48px;
+    font-size: var(--font-size-48);
   }
 
   .generator-subtitle {
-    font-size: 22px;
+    font-size: var(--font-size-22);
   }
 
   .generator-content-box {
@@ -260,7 +332,7 @@
   }
 
   .generator-password-value {
-    font-size: 20px;
+    font-size: var(--font-size-20);
   }
 
   .generator-options {
@@ -272,16 +344,16 @@
     width: 100%;
   }
 
-  .generator-main-btn,
-  .generator-secondary-btn,
-  .generator-main-btn:hover,
-  .generator-secondary-btn:hover {
+  .btn.generator-main-btn,
+  .btn.generator-secondary-btn,
+  .btn.generator-main-btn:hover,
+  .btn.generator-secondary-btn:hover {
     width: 100%;
     font-size: var(--font-size-18);
     height: 58px;
   }
 
   .generator-login-modal-text {
-    font-size: 34px;
+    font-size: var(--font-size-34);
   }
 }

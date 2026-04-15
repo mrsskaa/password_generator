@@ -17,11 +17,14 @@ const LogIn = () => {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
     setError,
   } = useForm<loginFormData>({
     resolver: zodResolver(loginSchema),
   });
+  const emailValue = watch('email') ?? '';
   const dispatch = useDispatch();
 
   const onSubmit = async (data: loginFormData) => {
@@ -42,14 +45,26 @@ const LogIn = () => {
     <Form className="login-form" noValidate onSubmit={handleSubmit(onSubmit)}>
       <Form.Group className="mb-3">
         <Form.Label className="auth-form-body-label">Почта:</Form.Label>
-        <Form.Control
-          type="email"
-          {...register('email')}
-          maxLength={MAX_INPUT_LENGTH}
-          placeholder="example@gmail.com"
-          isInvalid={!!errors.email}
-          className="auth-form-body-input"
-        />
+        <div className="input-field-wrapper">
+          <Form.Control
+            type="email"
+            {...register('email')}
+            maxLength={MAX_INPUT_LENGTH}
+            placeholder="example@gmail.com"
+            isInvalid={!!errors.email}
+            className="auth-form-body-input"
+          />
+          {emailValue && (
+            <button
+              type="button"
+              className="input-clear-btn"
+              onClick={() => setValue('email', '', { shouldValidate: true, shouldDirty: true })}
+              aria-label="Очистить поле почты"
+            >
+              <i className="bi bi-x-lg" aria-hidden />
+            </button>
+          )}
+        </div>
       </Form.Group>
       <Form.Group className="mb-3">
         <Form.Label className="auth-form-body-label">Пароль:</Form.Label>

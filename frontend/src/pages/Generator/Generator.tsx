@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Alert, Button, Container, Form, Modal } from 'react-bootstrap';
+import { useEffect, useMemo, useState } from 'react';
+import { Button, Container, Form, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import './Generator.css';
@@ -9,14 +9,15 @@ import Header from '../../components/Header/Header';
 import type { RootState } from '../../store/store';
 
 const MIN_LENGTH = 8;
-const MAX_LENGTH = 128;
+const MAX_LENGTH = 32;
+const PASSWORD_PLACEHOLDER = 'Нажмите "СГЕНЕРИРОВАТЬ"';
 
 function Generator() {
   const [length, setLength] = useState(16);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-  const [generatedPassword, setGeneratedPassword] = useState('Нажмите "ГЕНЕРИРОВАТЬ"');
+  const [generatedPassword, setGeneratedPassword] = useState(PASSWORD_PLACEHOLDER);
   const [error, setError] = useState('');
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const [options, setOptions] = useState({
@@ -26,6 +27,14 @@ function Generator() {
     includeSymbols: false,
     excludeSimilar: true,
   });
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
 
   const generatorPayload: GeneratePasswordPayload = useMemo(
     () => ({
@@ -53,7 +62,7 @@ function Generator() {
   };
 
   const handleCopy = async () => {
-    if (!generatedPassword || generatedPassword.startsWith('Нажмите')) {
+    if (!generatedPassword || generatedPassword === PASSWORD_PLACEHOLDER) {
       return;
     }
     await navigator.clipboard.writeText(generatedPassword);
@@ -83,8 +92,10 @@ function Generator() {
 
         <div className="generator-content-box">
         <div className="generator-password-box">
-          <span className="generator-password-value">
-            {showPassword ? generatedPassword : generatedPassword.replace(/./g, '*')}
+          <span
+            className={`generator-password-value ${generatedPassword === PASSWORD_PLACEHOLDER ? 'is-placeholder' : ''}`}
+          >
+            {showPassword ? generatedPassword : generatedPassword.replace(/./g, '•')}
           </span>
           <div className="generator-password-actions">
             <button type="button" onClick={handleGenerate} className="generator-icon-btn" aria-label="Сгенерировать">
@@ -145,19 +156,17 @@ function Generator() {
           </button>
         </div>
 
-        {error && (
-          <Alert variant="danger" className="mt-3 mb-0">
-            {error}
-          </Alert>
-        )}
+        <div className="generator-error-slot" aria-live="polite">
+          {error && <p className="generator-error-text mb-0">{error}</p>}
+        </div>
 
         <div className="generator-actions">
           <Button className="generator-main-btn" onClick={handleGenerate} disabled={isLoading}>
             <i className="bi bi-arrow-clockwise me-2" />
-            {isLoading ? 'ГЕНЕРАЦИЯ...' : 'ГЕНЕРИРОВАТЬ'}
+            {isLoading ? 'ГЕНЕРАЦИЯ...' : 'СГЕНЕРИРОВАТЬ'}
           </Button>
           <Button className="generator-secondary-btn" onClick={handleSave}>
-            <i className="bi bi-floppy me-2" />
+            <i className="bi bi-box-arrow-down generator-save-icon me-2" />
             СОХРАНИТЬ
           </Button>
         </div>

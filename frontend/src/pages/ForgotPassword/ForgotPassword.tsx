@@ -14,6 +14,8 @@ function ForgotPassword() {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
     setError,
     clearErrors,
@@ -21,6 +23,7 @@ function ForgotPassword() {
   } = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
   });
+  const emailValue = watch('email') ?? '';
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     clearErrors('root');
@@ -40,15 +43,27 @@ function ForgotPassword() {
     <Form className="forgot-password-form" noValidate onSubmit={handleSubmit(onSubmit)}>
       <Form.Group className="mb-3">
         <Form.Label className="auth-form-body-label">Введите электронную почту:</Form.Label>
-        <Form.Control
-          type="email"
-          {...register('email')}
-          maxLength={MAX_INPUT_LENGTH}
-          placeholder="example@gmail.com"
-          isInvalid={!!errors.email}
-          className="auth-form-body-input"
-          autoComplete="email"
-        />
+        <div className="input-field-wrapper">
+          <Form.Control
+            type="email"
+            {...register('email')}
+            maxLength={MAX_INPUT_LENGTH}
+            placeholder="example@gmail.com"
+            isInvalid={!!errors.email}
+            className="auth-form-body-input"
+            autoComplete="email"
+          />
+          {emailValue && (
+            <button
+              type="button"
+              className="input-clear-btn"
+              onClick={() => setValue('email', '', { shouldValidate: true, shouldDirty: true })}
+              aria-label="Очистить поле почты"
+            >
+              <i className="bi bi-x-lg" aria-hidden />
+            </button>
+          )}
+        </div>
         {errors.email?.message && (
           <span className="auth-field-error" role="alert">
             {errors.email.message}
