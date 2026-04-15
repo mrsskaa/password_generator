@@ -1,19 +1,29 @@
-import AuthForm from "../../components/AuthForm/AuthForm";
-import Header from "../../components/Header/Header";
-import LoginForm from "../../hooks/Login/loginForm";
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../../store/authSlice';
+import {
+  confirmRegistrationRequest,
+  resendRegistrationCodeRequest,
+} from '../../api/authApi';
+import ConfirmCodeForm from '../../components/ConfirmCodeForm/ConfirmCodeForm';
 
-function registerConfirm(){
-    return(
-        <>
-        <Header />
-        <AuthForm 
-            title="ВВЕДИТЕ КОД ИЗ ПИСЬМА"
-            linkText="Мы отправили подтверждение на"
-            linkTo="/"
-            form={<LoginForm />}
-        />
-        </>
-    );
+function RegisterConfirm() {
+  const dispatch = useDispatch();
+  return (
+    <ConfirmCodeForm
+      title="ВВЕДИТЕ КОД ИЗ ПИСЬМА"
+      backPath="/register"
+      successMessage="Аккаунт подтверждён. Сейчас откроется страница входа…"
+      errorMessage="Неверный код или срок действия истёк."
+      onConfirm={async ({ email, code }) => {
+        const response = await confirmRegistrationRequest({ email, code });
+        if (response.user) {
+          dispatch(loginSuccess(response.user));
+        }
+      }}
+      onResend={resendRegistrationCodeRequest}
+      onSuccessRedirect="/login"
+    />
+  );
 }
 
-export default registerConfirm;
+export default RegisterConfirm;

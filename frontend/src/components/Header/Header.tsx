@@ -1,18 +1,13 @@
 import { Navbar, Container, Nav, Button } from 'react-bootstrap';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './Header.css'
 import logo from '../../assets/images/password-generator-logo.svg';
 
 const Header = () => {
-    const location=useLocation();
-
-    const isAuthPage = ['/login', '/register'].includes(location.pathname);
-
-
   return (
-    <Navbar expand="md" className="shadow-sm">
-  <Container>
-    <Navbar.Brand as={Link} to="/">
+    <Navbar expand="md" className="header-navbar">
+  <Container className="header-container">
+    <Navbar.Brand className="header-brand">
       <img src={logo} height="40" className="logo" alt="Логотип" />
     </Navbar.Brand>
 
@@ -34,7 +29,7 @@ const Header = () => {
         </Button>
     </div>
     
-    <div className="d-none d-md-flex gap-2 ms-auto">
+    <div className="d-none d-md-flex ms-auto header-actions-desktop">
       <Nav.Link as={Link} to="/register" className='header-text-link'>
         РЕГИСТРАЦИЯ
       </Nav.Link>

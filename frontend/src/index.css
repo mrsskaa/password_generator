@@ -3,6 +3,7 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
+    font-family: "Geologica", "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 :root {
@@ -17,13 +18,20 @@ html, body {
     --form-input-color: #FEFCFC;
     --form-input-invalid: #FF0000;
     --form-input-invalid-background: #FFE7E7;
+    --light-grey: #DEE2E6;
+    --font-size-45: 45px;
+    --font-size-28: 28px;
+    --font-size-18: 18px;
+    --font-size-16: 16px;
+    --font-size-14: 14px;
+    /* высота шапки: форма под ней = оставшаяся часть экрана без лишнего скролла */
+    --header-height: 56px;
 }
 
 body {
-    /* фон пока закомментируем, потом добавим */
-    /* background-image: url('/background.jpg'); */
     background-size: cover;
     background-position: center;
     color: var(--text-color);
     background-color: var(--bg-color);
+    box-shadow: inset 0 4px 100px rgba(167, 0, 0, 0.25);
 }

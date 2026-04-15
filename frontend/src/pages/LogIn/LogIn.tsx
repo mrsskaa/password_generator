@@ -1,25 +1,114 @@
-import './LogIn.css'
-import Header from '../../components/Header/Header'
+import { useState } from 'react';
+import './LogIn.css';
+import Header from '../../components/Header/Header';
 import AuthForm from '../../components/AuthForm/AuthForm';
-import LoginForm from '../../hooks/Login/loginForm';
 import { Link } from 'react-router-dom';
-import { Nav } from 'react-bootstrap';
+import { Button, Form, Nav } from 'react-bootstrap';
+import loginSchema, { type loginFormData } from '../../schemas/loginSchema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
+import { loginFailure, loginStart, loginSuccess } from '../../store/authSlice';
+import { loginRequest } from '../../api/authApi';
+import { MAX_INPUT_LENGTH } from '../../constants/inputLimits';
 
 const LogIn = () => {
-    return (
-        <>
-            <Header />
-            <AuthForm 
-                title={<h2 className='text-center'>ВХОД</h2>}
-                description={
-                <div className='formClueText d-flex align-items-center gap-2'>
-                    <span>Ещё нет аккаунта</span>
-                    <Nav.Link as={Link} to={'/register'} className='p-0 m-0 auth-form-head-link-text'>Зарегестрироваться.</Nav.Link>
-                </div>}
-                form={<LoginForm />}
-            />
-        </>
-    );
-}
+  const [showPassword, setShowPassword] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+  } = useForm<loginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+  const dispatch = useDispatch();
+
+  const onSubmit = async (data: loginFormData) => {
+    dispatch(loginStart());
+    try {
+      const response = await loginRequest(data);
+      dispatch(loginSuccess(response.user));
+    } catch {
+      dispatch(loginFailure('Неверный логин или пароль.'));
+      setError('root.serverError', {
+        type: 'server',
+        message: 'Неверный логин или пароль',
+      });
+    }
+  };
+
+  const form = (
+    <Form className="login-form" noValidate onSubmit={handleSubmit(onSubmit)}>
+      <Form.Group className="mb-3">
+        <Form.Label className="auth-form-body-label">Почта:</Form.Label>
+        <Form.Control
+          type="email"
+          {...register('email')}
+          maxLength={MAX_INPUT_LENGTH}
+          placeholder="example@gmail.com"
+          isInvalid={!!errors.email}
+          className="auth-form-body-input"
+        />
+      </Form.Group>
+      <Form.Group className="mb-3">
+        <Form.Label className="auth-form-body-label">Пароль:</Form.Label>
+        <div className="password-field-wrapper">
+          <Form.Control
+            type={showPassword ? 'text' : 'password'}
+            {...register('password')}
+            maxLength={MAX_INPUT_LENGTH}
+            placeholder="password"
+            isInvalid={!!errors.password}
+            className="auth-form-body-input"
+          />
+          <button
+            type="button"
+            className="password-toggle-btn"
+            onClick={() => setShowPassword((prev) => !prev)}
+            aria-label="Показать пароль"
+          >
+            <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'} password-toggle-icon`} aria-hidden={true} />
+          </button>
+        </div>
+      </Form.Group>
+      <div className="auth-form-forget-password-container">
+        <Nav.Link as={Link} to="/forgot-password" className="auth-form-forget-password-link">
+          Забыли пароль?
+        </Nav.Link>
+      </div>
+      <div className="auth-form-bottom">
+        <div className="auth-form-bottom-back-link-container">
+          <Nav.Link as={Link} to="/" className="auth-form-bottom-back-link">
+            {'<< назад'}
+          </Nav.Link>
+        </div>
+        <div className="justify-content-center auth-form-submit-button-container">
+          <Button variant="default" type="submit" className="justify-content-center auth-form-submit-button">
+            ВОЙТИ
+          </Button>
+        </div>
+      </div>
+    </Form>
+  );
+
+  return (
+    <>
+      <Header />
+      <AuthForm
+        title={<h2 className="text-center">ВХОД</h2>}
+        description={
+          <div className="formClueText d-flex align-items-center gap-2">
+            <span className="auth-form-head-muted">Ещё нет аккаунта? </span>
+            <Nav.Link as={Link} to="/register" className="p-0 m-0 auth-form-head-link-text">
+              Зарегистрироваться
+            </Nav.Link>
+          </div>
+        }
+        form={form}
+      />
+    </>
+  );
+};
 
 export default LogIn;

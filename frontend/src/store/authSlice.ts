@@ -1,23 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit';
-
-interface User {
-  id: number;
-  email: string;
-  name: string;
-}
-
-interface AuthState {
-  // ========== ЛОГИН ==========
-  user: User | null;
-  isAuthenticated: boolean;
-  loginLoading: boolean;
-  loginError: string | null;
-  
-  // ========== РЕГИСТРАЦИЯ ==========
-  isRegistering: boolean;
-  registerError: string | null;
-  registerSuccess: boolean;
-}
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import type { AuthState, User } from '../types/auth';
 
 const initialState: AuthState = {
   // Логин
@@ -41,12 +23,12 @@ const authSlice = createSlice({
       state.loginLoading = true;
       state.loginError = null;
     },
-    loginSuccess: (state, action) => {
+    loginSuccess: (state, action: PayloadAction<User>) => {
       state.loginLoading = false;
       state.isAuthenticated = true;
-      state.user = action.payload.user;
+      state.user = action.payload;
     },
-    loginFailure: (state, action) => {
+    loginFailure: (state, action: PayloadAction<string>) => {
       state.loginLoading = false;
       state.loginError = action.payload;
     },
@@ -57,12 +39,12 @@ const authSlice = createSlice({
       state.registerError = null;
       state.registerSuccess = false;
     },
-    registerSuccess: (state, action) => {
+    registerSuccess: (state, action: PayloadAction<User>) => {
       state.isRegistering = false;
       state.registerSuccess = true;
-
+      state.user = action.payload;
     },
-    registerFailure: (state, action) => {
+    registerFailure: (state, action: PayloadAction<string>) => {
       state.isRegistering = false;
       state.registerError = action.payload;
       state.registerSuccess = false;
@@ -71,9 +53,7 @@ const authSlice = createSlice({
       state.registerSuccess = false;
     },
     
-    logout: (state) => {
-      return initialState;
-    },
+    logout: () => initialState,
     clearErrors: (state) => {
       state.loginError = null;
       state.registerError = null;  

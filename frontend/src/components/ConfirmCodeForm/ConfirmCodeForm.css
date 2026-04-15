@@ -1,6 +1,6 @@
 @import '../../index.css';
 
-.register-confirm-form .form-control::placeholder {
+.confirm-code-form .form-control::placeholder {
   color: #9a9a9a;
   font-size: 16px;
 }
@@ -19,7 +19,7 @@
   color: #808080;
 }
 
-.register-confirm-timer {
+.confirm-code-timer {
   margin-top: 1.25rem;
   margin-bottom: 0;
   text-align: center;
@@ -27,7 +27,7 @@
   color: #808080;
 }
 
-.register-confirm-resend-btn {
+.confirm-code-resend-btn {
   margin-top: 0.5rem;
   padding: 0;
   border: none;
@@ -39,7 +39,7 @@
   cursor: pointer;
 }
 
-.register-confirm-resend-btn:hover {
+.confirm-code-resend-btn:hover {
   color: var(--auth-form-text-link-color);
 }
 
