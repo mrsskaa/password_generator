@@ -10,6 +10,9 @@ from backend.app.routers.health import router as health_router
 from backend.app.routers.login import router as login_router
 from backend.app.routers.registr import router as registration_router
 from backend.app.routers.users_me import router as users_me_router
+from backend.app.routers.passwords import router as password_router
+from backend.app.routers.forgot_password import router as forgot_password_router
+from backend.app.routers.verify_code import router as verify_code_router
 
 logging.basicConfig(
     level=os.getenv("LOG_LEVEL", "INFO"),
@@ -58,8 +61,12 @@ app.include_router(generate_router, prefix="/api", tags=["password"])
 app.include_router(login_router)
 app.include_router(registration_router)
 app.include_router(users_me_router)
-
+app.include_router(password_router)
+app.include_router(forgot_password_router)
+app.include_router(verify_code_router)
 
 @app.get("/")
 def root() -> dict[str, str]:
     return {"message": "Password Generator API is running"}
+
+
