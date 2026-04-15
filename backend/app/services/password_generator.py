@@ -1,5 +1,4 @@
 import secrets
-from curses.ascii import isdigit
 
 from backend.app.core.constants import (
     LETTERS_LOW,
