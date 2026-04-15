@@ -1,9 +1,11 @@
 import logging
 import os
 import time
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 
 from backend.app.routers.generate import router as generate_router
 from backend.app.routers.health import router as health_router
@@ -13,6 +15,9 @@ from backend.app.routers.users_me import router as users_me_router
 from backend.app.routers.passwords import router as password_router
 from backend.app.routers.forgot_password import router as forgot_password_router
 from backend.app.routers.verify_code import router as verify_code_router
+from backend.app.routers.reset_password import router as reset_password_router
+
+load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 logging.basicConfig(
     level=os.getenv("LOG_LEVEL", "INFO"),
@@ -64,9 +69,8 @@ app.include_router(users_me_router)
 app.include_router(password_router)
 app.include_router(forgot_password_router)
 app.include_router(verify_code_router)
+app.include_router(reset_password_router)
 
 @app.get("/")
 def root() -> dict[str, str]:
     return {"message": "Password Generator API is running"}
-
-

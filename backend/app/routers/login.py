@@ -1,19 +1,21 @@
 import logging
-from fastapi import APIRouter, HTTPException, Response, status
-from backend.app.repositories.user_repo import SQLAlchemyRepository
+from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from backend.app.dependencies import get_auth_service
 from backend.app.schemas.auth import LoginRequest, UserPublic
 from backend.app.services.auth.auth import AuthService
 
 logger = logging.getLogger(__name__)
 
-repository = SQLAlchemyRepository()
-auth_service = AuthService(repository)
-
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 @router.post("/login")
-async def login(payload: LoginRequest, response: Response) -> dict:
+async def login(
+    payload: LoginRequest,
+    response: Response,
+    auth_service: Annotated[AuthService, Depends(get_auth_service)],
+) -> dict:
     user = auth_service.authenticate_user(payload.username, payload.password)
 
     if not user:
