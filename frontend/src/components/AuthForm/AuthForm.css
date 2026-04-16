@@ -1,0 +1,70 @@
+@import '../../index.css';
+
+/* область под хедером: ровно оставшаяся высота окна, без min-vh-100 + шапка = скролла */
+.auth-form-viewport {
+    min-height: calc(100vh - var(--header-height));
+    box-sizing: border-box;
+}
+
+.auth-form-head {
+    margin-bottom: 5%;
+}
+
+/* Подзаголовок под «ВХОД» / «РЕГИСТРАЦИЯ»: фраза + ссылки — 14px */
+.auth-form-head-descript-text {
+    font-size: var(--font-size-14);
+    line-height: 1.35;
+}
+
+.auth-form-head-descript-text .auth-form-head-muted {
+    font-size: inherit;
+}
+
+a.auth-form-head-link-text {
+    color: var(--auth-form-text-link-color);
+    font-size: var(--font-size-14);
+    text-decoration: none;
+}
+
+a.auth-form-head-link-text:hover {
+    color: var(--auth-form-text-link-color);
+    text-decoration: underline;
+    text-decoration-style: dotted;
+}
+
+.auth-form-body-label {
+    font-size: var(--font-size-18);
+}
+
+.form-control.auth-form-body-input {
+    background-color: var(--form-input-color);
+}
+
+.form-control:focus {
+    box-shadow: none !important;
+    background-color: var(--form-input-color) !important;
+    border-color: var(--bs-border-color) !important;
+    
+}
+
+.form-control.is-invalid {
+    background-color: var(--form-input-invalid-background);
+    background-image: none !important;
+}
+
+.auth-field-error {
+    display: block;
+    margin-top: 0.35rem;
+    color: var(--form-input-invalid);
+    font-size: var(--font-size-16);
+}
+
+.invalid-feedback {
+    color: var(--form-input-invalid) !important;
+    font-size: var(--font-size-16) !important;
+}
+
+.auth-form-head-title h2 {
+    font-size: var(--font-size-28);
+    font-weight: 600;
+}
