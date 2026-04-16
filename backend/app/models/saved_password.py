@@ -1,10 +1,8 @@
 import uuid
 from datetime import datetime, timezone
 from sqlalchemy import DateTime, String, ForeignKey, JSON
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-
-class Base(DeclarativeBase):
-    pass
+from sqlalchemy.orm import Mapped, mapped_column
+from backend.app.models.user import Base
 
 
 class SavedPassword(Base):
