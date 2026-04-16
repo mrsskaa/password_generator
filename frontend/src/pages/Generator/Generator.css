@@ -25,7 +25,7 @@
   font-size: var(--generator-title-size);
   font-weight: 600;
   line-height: 1.05;
-  margin-top: 0;
+  margin-top: 20px;
   margin-left: 0;
   transform: translateX(-1px);
 }
@@ -272,39 +272,52 @@
 }
 
 .generator-login-modal {
-  max-width: 560px;
+  max-width: 380px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .generator-login-modal-content {
   border: 0;
-  border-radius: 14px;
+  border-radius: 15px;
   box-shadow: 0 4px 74px 0 rgba(167, 0, 0, 0.62);
+  overflow: hidden;
 }
 
 .generator-login-modal .modal-body {
   position: relative;
-  min-height: 240px;
-  padding: 26px 38px 30px;
+  box-sizing: border-box;
+  min-height: 250px;
+  padding: 44px 22px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .generator-login-modal-close {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 12px;
+  left: 12px;
   border: none;
   background: transparent;
   font-size: var(--font-size-36);
   color: var(--text-color);
   line-height: 1;
+  z-index: 1;
 }
 
 .generator-login-modal-text {
-  margin-top: 56px;
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   font-size: var(--font-size-25);
-  line-height: 1.16;
+  line-height: 1.2;
   font-weight: 600;
   color: var(--gray-text);
+  text-align: center;
   text-shadow: 0 4px 74px rgba(167, 0, 0, 0.62);
+  align-self: center;
 }
 
 .generator-login-modal-link {
