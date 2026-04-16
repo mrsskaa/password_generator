@@ -9,7 +9,7 @@ interface AuthResponse {
 }
 
 const API_URL = import.meta.env.VITE_API_URL ?? '';
-const GENERATOR_ENDPOINT = import.meta.env.VITE_PASSWORD_GENERATOR_ENDPOINT ?? '/api/generate-password';
+const GENERATOR_ENDPOINT = import.meta.env.VITE_PASSWORD_GENERATOR_ENDPOINT ?? '/api/generate';
 const FORGOT_PASSWORD_PATH = import.meta.env.VITE_FORGOT_PASSWORD_ENDPOINT ?? '/api/forgot-password';
 const FORGOT_PASSWORD_CONFIRM_PATH =
   import.meta.env.VITE_FORGOT_PASSWORD_CONFIRM_ENDPOINT ?? '/api/forgot-password/confirm';
@@ -33,7 +33,16 @@ export const registerRequest = async (payload: registerFormData): Promise<AuthRe
 export const generatePasswordRequest = async (
   payload: GeneratePasswordPayload,
 ): Promise<GeneratePasswordResponse> => {
-  const response = await axios.post<GeneratePasswordResponse>(`${API_URL}${GENERATOR_ENDPOINT}`, payload);
+  const requestBody = {
+    length: payload.length,
+    use_lower: payload.includeLowercase,
+    use_upper: payload.includeUppercase,
+    use_digits: payload.includeNumbers,
+    use_symbols: payload.includeSymbols,
+    // excludeSimilar=true on UI means "do not use similar symbols".
+    use_similar_symbols: !payload.excludeSimilar,
+  };
+  const response = await axios.post<GeneratePasswordResponse>(`${API_URL}${GENERATOR_ENDPOINT}`, requestBody);
   return response.data;
 };
 

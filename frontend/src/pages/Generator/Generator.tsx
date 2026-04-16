@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Container, Form, Modal } from 'react-bootstrap';
+import { Button, Container, Form, Modal, OverlayTrigger, Popover } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import './Generator.css';
@@ -7,6 +7,7 @@ import { generatePasswordRequest } from '../../api/authApi';
 import type { GeneratePasswordPayload } from '../../types/generator';
 import Header from '../../components/Header/Header';
 import type { RootState } from '../../store/store';
+import { hexToRgba } from '../../utils/passwordStrength';
 
 const MIN_LENGTH = 8;
 const MAX_LENGTH = 32;
@@ -18,6 +19,11 @@ function Generator() {
   const [isLoading, setIsLoading] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState(PASSWORD_PLACEHOLDER);
+  const [strengthMeta, setStrengthMeta] = useState<{
+    crackTimeText: string;
+    strengthColor: string;
+    improvementHint: string;
+  } | null>(null);
   const [error, setError] = useState('');
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const [options, setOptions] = useState({
@@ -51,9 +57,15 @@ function Generator() {
   const handleGenerate = async () => {
     setIsLoading(true);
     setError('');
+    setStrengthMeta(null);
     try {
       const response = await generatePasswordRequest(generatorPayload);
       setGeneratedPassword(response.password);
+      setStrengthMeta({
+        crackTimeText: response.crack_time_human,
+        strengthColor: response.color,
+        improvementHint: response.hints?.join(' ') ?? '',
+      });
     } catch {
       setError('Не удалось сгенерировать пароль. Проверьте подключение к серверу.');
     } finally {
@@ -76,6 +88,17 @@ function Generator() {
     await handleCopy();
   };
 
+  const passwordBoxStyle =
+    strengthMeta && generatedPassword !== PASSWORD_PLACEHOLDER
+      ? {
+          borderColor: strengthMeta.strengthColor,
+          backgroundColor: hexToRgba(strengthMeta.strengthColor, 0.14),
+        }
+      : undefined;
+
+  const showStrengthMeta = strengthMeta !== null && generatedPassword !== PASSWORD_PLACEHOLDER;
+  const showHint = Boolean(strengthMeta?.improvementHint);
+
   const renderToggle = (enabled: boolean) => (
     <button type="button" className="generator-toggle-btn" aria-label={enabled ? 'Выключить' : 'Включить'}>
       <i className={`bi ${enabled ? 'bi-toggle-on' : 'bi-toggle-off'} generator-toggle-icon`} />
@@ -85,34 +108,68 @@ function Generator() {
   return (
     <>
       <Header />
-      <Container className="generator-page py-4">
-
-        <h1 className="generator-title">ГЕНЕРАТОР БЕЗОПАСНЫХ ПАРОЛЕЙ</h1>
-        <p className="generator-subtitle">Создавайте надежные пароли, которые невозможно взломать</p>
+      <main className="generator-main">
+        <Container className="generator-page py-4">
+        <div className="generator-heading">
+          <h1 className="generator-title">ГЕНЕРАТОР БЕЗОПАСНЫХ ПАРОЛЕЙ</h1>
+          <p className="generator-subtitle mb-0">Создавайте надежные пароли, которые невозможно взломать</p>
+        </div>
 
         <div className="generator-content-box">
-        <div className="generator-password-box">
-          <span
-            className={`generator-password-value ${generatedPassword === PASSWORD_PLACEHOLDER ? 'is-placeholder' : ''}`}
-          >
-            {showPassword ? generatedPassword : generatedPassword.replace(/./g, '•')}
-          </span>
-          <div className="generator-password-actions">
-            <button type="button" onClick={handleGenerate} className="generator-icon-btn" aria-label="Сгенерировать">
-              <i className="bi bi-arrow-clockwise" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowPassword((prev) => !prev)}
-              className="generator-icon-btn"
-              aria-label="Показать или скрыть пароль"
+        <div className="generator-password-row">
+          <div className="generator-password-box" style={passwordBoxStyle}>
+            <span
+              className={`generator-password-value ${generatedPassword === PASSWORD_PLACEHOLDER ? 'is-placeholder' : ''}`}
             >
-              <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
-            </button>
-            <button type="button" onClick={handleCopy} className="generator-icon-btn" aria-label="Скопировать пароль">
-              <i className="bi bi-copy" />
-            </button>
+              {showPassword ? generatedPassword : generatedPassword.replace(/./g, '•')}
+            </span>
+            <div className="generator-password-actions">
+              <button type="button" onClick={handleGenerate} className="generator-icon-btn" aria-label="Сгенерировать">
+                <i className="bi bi-arrow-clockwise" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="generator-icon-btn"
+                aria-label="Показать или скрыть пароль"
+              >
+                <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
+              </button>
+              <button type="button" onClick={handleCopy} className="generator-icon-btn" aria-label="Скопировать пароль">
+                <i className="bi bi-copy" />
+              </button>
+            </div>
           </div>
+          {showStrengthMeta && strengthMeta && (
+            <div className="generator-password-meta">
+              <p className="generator-crack-estimate mb-0" style={{ color: strengthMeta.strengthColor }}>
+                {strengthMeta.crackTimeText}
+              </p>
+              {showHint && (
+                <OverlayTrigger
+                  trigger="click"
+                  placement="auto"
+                  rootClose
+                  overlay={
+                    <Popover id="generator-password-hint" className="generator-hint-popover">
+                      <Popover.Body as="div" className="generator-hint-popover-body">
+                        {strengthMeta.improvementHint}
+                      </Popover.Body>
+                    </Popover>
+                  }
+                >
+                  <button
+                    type="button"
+                    className="generator-hint-btn"
+                    aria-label="Как улучшить пароль"
+                    style={{ color: strengthMeta.strengthColor }}
+                  >
+                    <i className="bi bi-question-circle" />
+                  </button>
+                </OverlayTrigger>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="generator-length-row">
@@ -172,6 +229,7 @@ function Generator() {
         </div>
         </div>
       </Container>
+      </main>
       <Modal
         show={showLoginPrompt}
         onHide={() => setShowLoginPrompt(false)}
