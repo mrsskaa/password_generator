@@ -1,47 +1,64 @@
 import uuid
-from datetime import datetime
-from fastapi import APIRouter
-from starlette import status
+from typing import Annotated, Any
 
-from backend.app.schemas.password_post import PasswordPostRequest, DescriptionPatchRequest, PasswordGetResponse, PatchResponse, DeleteResponse
+from fastapi import APIRouter, Depends, HTTPException, status
 
-from backend.app.schemas.auth import AuthResponse
+from backend.app.dependencies import get_password_service
+from backend.app.core.exceptions import NotFoundError
+from backend.app.schemas.password_post import (
+    DeleteResponse,
+    DescriptionPatchRequest,
+    PasswordGetResponse,
+    PasswordPostRequest,
+    PatchResponse,
+)
+from backend.app.services.get_current_user_from_cookie import get_current_user_from_cookie
+from backend.app.services.password_service.password_service import PasswordService
 
-router = APIRouter()
+router = APIRouter(tags=["passwords"])
 
-@router.get("/passwords",response_model=list[PasswordGetResponse],status_code=status.HTTP_200_OK)
-async def get_passwords():
-    return [
-        {"id" : uuid.uuid4(), "password" : "135792468", "description" : "privet", "created_at" : datetime.now().isoformat(), "settings_preview" : "settings"},
-        {"id": uuid.uuid4(), "password": "135792468", "description": "privet", "created_at": datetime.now().isoformat(),
-         "settings_preview": "settings"},
-        {"id": uuid.uuid4(), "password": "135792468", "description": "privet", "created_at": datetime.now().isoformat(),
-         "settings_preview": "settings"},
-        {"id": uuid.uuid4(), "password": "135792468", "description": "privet", "created_at": datetime.now().isoformat(),
-         "settings_preview": "settings"},
-        {"id": uuid.uuid4(), "password": "135792468", "description": "privet", "created_at": datetime.now().isoformat(),
-         "settings_preview": "settings"},
-        {"id": uuid.uuid4(), "password": "135792468", "description": "privet", "created_at": datetime.now().isoformat(),
-         "settings_preview": "settings"},
-        {"id": uuid.uuid4(), "password": "135792468", "description": "privet", "created_at": datetime.now().isoformat(),
-         "settings_preview": "settings"},
-        {"id": uuid.uuid4(), "password": "135792468", "description": "privet", "created_at": datetime.now().isoformat(),
-         "settings_preview": "settings"},
-        {"id": uuid.uuid4(), "password": "135792468", "description": "privet", "created_at": datetime.now().isoformat(),
-         "settings_preview": "settings"},
-        {"id": uuid.uuid4(), "password": "135792468", "description": "privet", "created_at": datetime.now().isoformat(),
-         "settings_preview": "settings"}
-    ]
 
-@router.post("/passwords",response_model=PasswordGetResponse,status_code=status.HTTP_201_CREATED)
-def create_password(data: PasswordPostRequest):
-    return {"id" : uuid.uuid4(), "password" : data.password, "description" : data.description, "created_at" : datetime.now().isoformat(), "settings_preview" : "poka"}
+@router.get("/passwords", response_model=list[PasswordGetResponse], status_code=status.HTTP_200_OK)
+async def get_passwords(
+    current_user: Annotated[dict[str, Any], Depends(get_current_user_from_cookie)],
+    service: Annotated[PasswordService, Depends(get_password_service)],
+) -> list[PasswordGetResponse]:
+    return service.get_user_passwords(current_user["id"])
 
-@router.delete("/passwords",response_model=DeleteResponse,status_code=status.HTTP_200_OK)
-def delete_password():
-    return {"message" : "Password deleted"}
 
-@router.patch("/passwords",response_model=PatchResponse,status_code=status.HTTP_200_OK)
-def update_password(data: DescriptionPatchRequest):
-    return {"id" : uuid.uuid4(), "description" : "privet", "created_at" : datetime.now().isoformat()}
+@router.post("/passwords", response_model=PasswordGetResponse, status_code=status.HTTP_201_CREATED)
+async def create_password(
+    data: PasswordPostRequest,
+    current_user: Annotated[dict[str, Any], Depends(get_current_user_from_cookie)],
+    service: Annotated[PasswordService, Depends(get_password_service)],
+) -> PasswordGetResponse:
+    return service.create_password(current_user["id"], data)
 
+
+@router.delete("/passwords/{password_id}", response_model=DeleteResponse, status_code=status.HTTP_200_OK)
+async def delete_password(
+    password_id: uuid.UUID,
+    current_user: Annotated[dict[str, Any], Depends(get_current_user_from_cookie)],
+    service: Annotated[PasswordService, Depends(get_password_service)],
+) -> DeleteResponse:
+    try:
+        return service.delete_password(current_user["id"], password_id)
+    except PermissionError:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    except NotFoundError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Password not found")
+
+
+@router.patch("/passwords/{password_id}", response_model=PatchResponse, status_code=status.HTTP_200_OK)
+async def update_password(
+    password_id: uuid.UUID,
+    data: DescriptionPatchRequest,
+    current_user: Annotated[dict[str, Any], Depends(get_current_user_from_cookie)],
+    service: Annotated[PasswordService, Depends(get_password_service)],
+) -> PatchResponse:
+    try:
+        return service.update_description(current_user["id"], password_id, data.description)
+    except PermissionError:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    except NotFoundError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Password not found")

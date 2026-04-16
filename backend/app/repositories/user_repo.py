@@ -1,10 +1,10 @@
 import os
-import uuid
 from datetime import datetime, timezone
 from typing import Any
-from sqlalchemy import DateTime, String, create_engine, delete, select, update, ForeignKey, JSON
-from sqlalchemy.orm import  Mapped, mapped_column, sessionmaker
-from backend.app.models.user import User,PasswordResetCode
+from sqlalchemy import create_engine, delete, select, update
+from sqlalchemy.orm import sessionmaker
+from backend.app.models.user import Base, User, PasswordResetCode
+from backend.app.models.saved_password import SavedPassword  # noqa: F401
 
 
 
