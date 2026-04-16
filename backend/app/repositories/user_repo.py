@@ -1,23 +1,11 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
-from sqlalchemy import DateTime, String, create_engine, select
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
+from sqlalchemy import create_engine, delete, select, update
+from sqlalchemy.orm import sessionmaker
+from backend.app.models.user import Base, User, PasswordResetCode
+from backend.app.models.saved_password import SavedPassword  # noqa: F401
 
-
-class Base(DeclarativeBase):
-    pass
-
-
-class User(Base):
-    __tablename__ = "users"
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    username: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
-    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
-    email: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
-    role: Mapped[str] = mapped_column(String(32), nullable=False, default="user")
-    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class SQLAlchemyRepository:
@@ -82,3 +70,83 @@ class SQLAlchemyRepository:
             user.role = role
             session.commit()
             return True
+
+    def get_user_by_email(self, email: str) -> dict[str, Any] | None:
+        with self.SessionLocal() as session:
+            user = session.scalar(select(User).where(User.email == email))
+            return self._to_dict(user) if user else None
+
+    def update_user_password_by_email(self, email: str, hashed_password: str) -> bool:
+        with self.SessionLocal() as session:
+            result = session.execute(
+                update(User).where(User.email == email).values(hashed_password=hashed_password)
+            )
+            session.commit()
+            return result.rowcount > 0
+
+    def get_latest_reset_code_for_email(self, email: str) -> dict[str, Any] | None:
+        with self.SessionLocal() as session:
+            code_row = session.scalar(
+                select(PasswordResetCode)
+                .where(PasswordResetCode.email == email)
+                .order_by(PasswordResetCode.created_at.desc())
+            )
+            if not code_row:
+                return None
+            return {
+                "id": code_row.id,
+                "email": code_row.email,
+                "code": code_row.code,
+                "created_at": code_row.created_at,
+                "expires_at": code_row.expires_at,
+                "used_at": code_row.used_at,
+            }
+
+    def create_password_reset_code(self, email: str, code: str, expires_at: datetime) -> dict[str, Any]:
+        with self.SessionLocal() as session:
+            reset_code = PasswordResetCode(email=email, code=code, expires_at=expires_at)
+            session.add(reset_code)
+            session.commit()
+            session.refresh(reset_code)
+            return {
+                "id": reset_code.id,
+                "email": reset_code.email,
+                "code": reset_code.code,
+                "created_at": reset_code.created_at,
+                "expires_at": reset_code.expires_at,
+                "used_at": reset_code.used_at,
+            }
+
+    def get_password_reset_code(self, email: str, code: str) -> dict[str, Any] | None:
+        with self.SessionLocal() as session:
+            code_row = session.scalar(
+                select(PasswordResetCode).where(
+                    PasswordResetCode.email == email,
+                    PasswordResetCode.code == code,
+                )
+            )
+            if not code_row:
+                return None
+            return {
+                "id": code_row.id,
+                "email": code_row.email,
+                "code": code_row.code,
+                "created_at": code_row.created_at,
+                "expires_at": code_row.expires_at,
+                "used_at": code_row.used_at,
+            }
+
+    def mark_password_reset_code_used(self, code_id: int) -> bool:
+        with self.SessionLocal() as session:
+            result = session.execute(
+                update(PasswordResetCode)
+                .where(PasswordResetCode.id == code_id)
+                .values(used_at=datetime.now(timezone.utc))
+            )
+            session.commit()
+            return result.rowcount > 0
+
+    def delete_reset_codes_for_email(self, email: str) -> None:
+        with self.SessionLocal() as session:
+            session.execute(delete(PasswordResetCode).where(PasswordResetCode.email == email))
+            session.commit()

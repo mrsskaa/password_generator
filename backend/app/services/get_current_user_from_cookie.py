@@ -1,14 +1,12 @@
 from collections.abc import Callable
 from typing import Annotated, Any, Optional
 from fastapi import Cookie, Depends, HTTPException, status
-from backend.app.repositories.user_repo import SQLAlchemyRepository
+from backend.app.dependencies import get_auth_service
 from backend.app.services.auth.auth import AuthService
-
-repository = SQLAlchemyRepository()
-auth_service = AuthService(repository)
 
 
 async def get_current_user_from_cookie(
+    auth_service: Annotated[AuthService, Depends(get_auth_service)],
     access_token: Annotated[Optional[str], Cookie()] = None,
 ) -> dict[str, Any]:
     if not access_token:
