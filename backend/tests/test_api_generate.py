@@ -11,7 +11,7 @@ def test_health():
     assert response.json()["status"]=="ok"
 
 def test_gen_password_Excepion():
-    with patch("app.routers.generate.pwd_generate") as mock_func:
+    with patch("app.routers.generate.generate") as mock_func:
         mock_func.side_effect=Exception("UwU")
         response=client.post("/api/generate", json={
             "length": 12,
@@ -23,7 +23,7 @@ def test_gen_password_Excepion():
     assert response.status_code==500
 
 def test_gen_password_ValueError():
-    with patch("app.routers.generate.pwd_generate") as mock_func:
+    with patch("app.routers.generate.generate") as mock_func:
         mock_func.side_effect=ValueError("boom")
         response=client.post("/api/generate", json={
             "length": 12,
