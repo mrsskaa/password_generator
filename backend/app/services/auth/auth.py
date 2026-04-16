@@ -19,6 +19,7 @@ class AuthService:
         self.secret_key = os.getenv("SECRET_KEY", "dev-secret-key-change-me")
         self.algorithm = os.getenv("ALGORITHM", "HS256")
         self.access_token_expire_minutes = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+        self.reset_token_expire_minutes = int(os.getenv("RESET_TOKEN_EXPIRE_MINUTES", "15"))
 
         if self.secret_key == "dev-secret-key-change-me":
             logger.warning("Using default SECRET_KEY. Set SECRET_KEY in env for production.")
@@ -44,6 +45,23 @@ class AuthService:
             return jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
         except InvalidTokenError:
             return None
+
+    def create_reset_token(self, email: str) -> str:
+        return self.create_access_token(
+            data={"sub": email, "token_type": "reset"},
+            expires_delta=timedelta(minutes=self.reset_token_expire_minutes),
+        )
+
+    def verify_reset_token(self, token: str) -> Optional[str]:
+        payload = self.verify_token(token)
+        if not payload:
+            return None
+        if payload.get("token_type") != "reset":
+            return None
+        email = payload.get("sub")
+        if not isinstance(email, str):
+            return None
+        return email
 
     def authenticate_user(self, username: str, password: str) -> Optional[Dict[str, Any]]:
         user = self.repository.get_user_by_username(username)
