@@ -1,0 +1,131 @@
+@import '../../index.css';
+
+.confirm-code-form .form-control::placeholder {
+  color: #9a9a9a;
+  font-size: 16px;
+}
+
+.input-field-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-field-wrapper .form-control {
+  padding-right: 2.75rem;
+}
+
+.input-clear-btn {
+  position: absolute;
+  top: 50%;
+  right: 0.65rem;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  margin: 0;
+  background: transparent;
+  color: #808080;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.auth-form-confirm-subtext {
+  font-size: var(--font-size-14);
+  color: #808080;
+  line-height: 1.4;
+  max-width: 26rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.auth-form-confirm-subtext strong {
+  font-weight: 600;
+  color: #808080;
+}
+
+.confirm-code-timer {
+  margin-top: 1.25rem;
+  margin-bottom: 0;
+  text-align: center;
+  font-size: var(--font-size-14);
+  color: #808080;
+}
+
+.confirm-code-resend-btn {
+  margin-top: 0.5rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--auth-form-text-link-color);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  font-size: var(--font-size-14);
+  cursor: pointer;
+}
+
+.confirm-code-resend-btn:hover {
+  color: var(--auth-form-text-link-color);
+}
+
+a.auth-form-bottom-back-link {
+  justify-self: start;
+  color: var(--auth-form-text-link-color);
+  text-decoration: none;
+}
+
+a.auth-form-bottom-back-link:hover {
+  color: var(--auth-form-text-link-color);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+.auth-form-bottom {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: calc(1.75rem + 4px);
+}
+
+.auth-form-bottom-back-link-container {
+  justify-self: start;
+}
+
+.auth-form-submit-button-container {
+  grid-column: 2;
+  justify-self: center;
+  width: max-content;
+}
+
+@media (max-width: 575.98px) {
+  .auth-form-bottom {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .auth-form-bottom-back-link-container {
+    justify-self: center;
+    grid-row: 2;
+  }
+
+  .auth-form-submit-button-container {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+
+.btn.auth-form-submit-button,
+.btn.auth-form-submit-button:hover {
+  padding: 5px 30px;
+  background-color: var(--confirm-auth-form-btn-color);
+  color: var(--text-color);
+  min-width: 240px;
+  min-height: 44px;
+  border: 1px solid var(--light-grey);
+  font-weight: 600;
+}

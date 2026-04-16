@@ -1,6 +1,6 @@
-import secrets
+﻿import secrets
 
-from backend.app.core.constants import (
+from app.core.constants import (
     LETTERS_LOW,
     LETTERS_HIGH,
     DIGITS,
@@ -8,15 +8,24 @@ from backend.app.core.constants import (
     SIMILAR_CHARACTERS
 )
 
-from backend.app.core.exceptions import (
+from app.core.exceptions import (
     InvalidLengthError,
     EmptyCharacterPoolError
 )
 
-def validate_repetitive(password:str) -> bool:
+
+def main():
+    print(generate_password(12))
+
+
+def validate_repetitive(password: str) -> bool:
     "Проверка на подряд идущие цифры в прямом и обратном порядке, на подряд идущие одинаковые символы"
-    for i in range(0,len(password)-2):
-        if (password[i]==password[i+1]==password[i+2]) or (ord(password[i])==ord(password[i+1])-1==ord(password[i+2])-2) or (ord(password[i])-2==ord(password[i+1])-1==ord(password[i+2])):
+    for i in range(0, len(password) - 2):
+        if (password[i] == password[i + 1] == password[i + 2]) or (
+            ord(password[i]) == ord(password[i + 1]) - 1 == ord(password[i + 2]) - 2
+        ) or (
+            ord(password[i]) - 2 == ord(password[i + 1]) - 1 == ord(password[i + 2])
+        ):
             return False
     return True
 
@@ -115,9 +124,7 @@ def generate_password(
             if contains_similar_characters(password):
                 continue
 
-
-
-        if not(validate_repetitive(password)):
+        if not validate_repetitive(password):
             continue
 
         return password
@@ -128,5 +135,5 @@ def generate_password(
 
 
 if __name__ == "__main__":
-    '''python3 -m backend.app.services.password_generator'''
-    print(generate_password(12))
+    """python3 -m app.services.password_generator"""
+    main()

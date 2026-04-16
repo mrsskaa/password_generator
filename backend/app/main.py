@@ -1,4 +1,4 @@
-import logging
+﻿import logging
 import os
 import time
 from pathlib import Path
@@ -7,15 +7,15 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from backend.app.routers.generate import router as generate_router
-from backend.app.routers.health import router as health_router
-from backend.app.routers.login import router as login_router
-from backend.app.routers.registr import router as registration_router
-from backend.app.routers.users_me import router as users_me_router
-from backend.app.routers.passwords import router as password_router
-from backend.app.routers.forgot_password import router as forgot_password_router
-from backend.app.routers.verify_code import router as verify_code_router
-from backend.app.routers.reset_password import router as reset_password_router
+from app.routers.generate import router as generate_router
+from app.routers.health import router as health_router
+from app.routers.login import router as login_router
+from app.routers.registr import router as registration_router
+from app.routers.users_me import router as users_me_router
+from app.routers.passwords import router as password_router
+from app.routers.forgot_password import router as forgot_password_router
+from app.routers.verify_code import router as verify_code_router
+from app.routers.reset_password import router as reset_password_router
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
@@ -27,8 +27,8 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Password Generator API",
-    version="0.2.0",
-    description="Backend API for password generation with auth and db",
+    version="0.1.0",
+    description="Backend API for password generation MVP",
 )
 
 allowed_origins_raw = os.getenv(
@@ -71,6 +71,7 @@ app.include_router(forgot_password_router)
 app.include_router(verify_code_router)
 app.include_router(reset_password_router)
 
+
 @app.get("/")
-def root() -> dict[str, str]:
+def root() -> dict:
     return {"message": "Password Generator API is running"}
