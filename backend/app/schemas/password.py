@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+﻿from pydantic import BaseModel, Field
 
 
 class PasswordRequest(BaseModel):
@@ -7,6 +7,7 @@ class PasswordRequest(BaseModel):
     use_upper: bool = Field(default=True, example=True)
     use_digits: bool = Field(default=True, example=True)
     use_symbols: bool = Field(default=True, example=True)
+    use_similar_symbols: bool = Field(default=False, example=False)
 
 
 class PasswordResponse(BaseModel):
@@ -16,5 +17,12 @@ class PasswordResponse(BaseModel):
     used_upper: bool = Field(..., example=True)
     used_digits: bool = Field(..., example=True)
     used_symbols: bool = Field(..., example=True)
-
-#Пока так, но надо обязательно будет сделать для рекомендации штуки
+    use_similar_symbols: bool = Field(..., example=True)
+    crack_time_human: str = Field(..., example="1 месяц, 2 часа, 3 минуты")
+    crack_time_seconds: float = Field(..., example=24547892.94)
+    color: str = Field(..., example="yellow")
+    strength_level: str = Field(..., example="сильный")
+    hints: list[str] = Field(
+        default_factory=list,
+        example=["Увеличьте длину пароля минимум до 12 символов."],
+    )
