@@ -150,3 +150,11 @@ class SQLAlchemyRepository:
         with self.SessionLocal() as session:
             session.execute(delete(PasswordResetCode).where(PasswordResetCode.email == email))
             session.commit()
+
+    def delete_password_reset_code_by_id(self, code_id: int) -> bool:
+        with self.SessionLocal() as session:
+            result = session.execute(
+                delete(PasswordResetCode).where(PasswordResetCode.id == code_id)
+            )
+            session.commit()
+            return result.rowcount > 0
