@@ -1,13 +1,13 @@
 ﻿from fastapi import APIRouter, HTTPException
 
-from backend.app.core.exceptions import (
+from app.core.exceptions import (
     EmptyCharacterPoolError,
     InvalidLengthError,
     PasswordGeneratorError,
 )
-from backend.app.schemas.password import PasswordRequest, PasswordResponse
-from backend.app.services.password_generator import generate_password as build_password
-from backend.app.services.password_recommendations import build_password_hints
+from app.schemas.password import PasswordRequest, PasswordResponse
+from app.services.password_generator import generate_password as build_password
+from app.services.password_recommendations import build_password_hints
 
 router = APIRouter()
 
