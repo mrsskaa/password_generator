@@ -68,6 +68,18 @@ html, body {
     --generator-btn-secondary-width: 210px;
     /* высота шапки: форма под ней = оставшаяся часть экрана без лишнего скролла */
     --header-height: 56px;
+
+    /* Сила пароля (текст времени взлома, подсказка, свечение поля) — подберите оттенки сами */
+    --password-red: #f32420;
+    --password-red-glow: rgba(229, 57, 53, 0.5);
+    --password-orange: #fb8c00;
+    --password-orange-glow: rgba(251, 140, 0, 0.5);
+    --password-yellow: #df9c00;
+    --password-yellow-glow: rgba(251, 192, 45, 0.5);
+    --password-lightgreen: #7cb342;
+    --password-lightgreen-glow: rgba(124, 179, 66, 0.5);
+    --password-green: #006805;
+    --password-green-glow: rgba(46, 125, 50, 0.5);
 }
 
 body {
