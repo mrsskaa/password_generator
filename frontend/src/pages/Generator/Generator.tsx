@@ -1,19 +1,22 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Container, Form, Modal, OverlayTrigger, Popover } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Alert, Button, Container, Form, Modal, OverlayTrigger, Popover } from 'react-bootstrap';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import './Generator.css';
 import { generatePasswordRequest } from '../../api/authApi';
 import type { GeneratePasswordPayload } from '../../types/generator';
 import Header from '../../components/Header/Header';
 import type { RootState } from '../../store/store';
-import { isStrengthBelowGood, tintFromBackendColor } from '../../utils/passwordStrength';
+import { isStrengthBelowGood, normalizeStrengthToken } from '../../utils/passwordStrength';
 
 const MIN_LENGTH = 8;
 const MAX_LENGTH = 32;
 const PASSWORD_PLACEHOLDER = 'Нажмите "СГЕНЕРИРОВАТЬ"';
 
 function Generator() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const flashMessage = (location.state as { flashMessage?: string } | null)?.flashMessage;
   const [length, setLength] = useState(16);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,6 +46,16 @@ function Generator() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!flashMessage) {
+      return;
+    }
+    const timerId = window.setTimeout(() => {
+      navigate('/', { replace: true, state: null });
+    }, 2500);
+    return () => window.clearTimeout(timerId);
+  }, [flashMessage, navigate]);
+
   const generatorPayload: GeneratePasswordPayload = useMemo(
     () => ({
       length,
@@ -68,8 +81,10 @@ function Generator() {
         strengthLevel: response.strength_level,
         hints: response.hints ?? [],
       });
-    } catch {
-      setError('Не удалось сгенерировать пароль. Проверьте подключение к серверу.');
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Не удалось сгенерировать пароль. Проверьте подключение к серверу.';
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -90,15 +105,9 @@ function Generator() {
     await handleCopy();
   };
 
-  const passwordBoxStyle =
-    strengthMeta && generatedPassword !== PASSWORD_PLACEHOLDER
-      ? {
-          borderColor: strengthMeta.strengthColor,
-          backgroundColor: tintFromBackendColor(strengthMeta.strengthColor, 0.14),
-        }
-      : undefined;
-
   const showStrengthMeta = strengthMeta !== null && generatedPassword !== PASSWORD_PLACEHOLDER;
+  const strengthClassSuffix =
+    showStrengthMeta && strengthMeta ? normalizeStrengthToken(strengthMeta.strengthColor) : null;
   const showHintButton =
     strengthMeta != null &&
     isStrengthBelowGood(strengthMeta.strengthLevel) &&
@@ -121,10 +130,21 @@ function Generator() {
         </div>
 
         <div className="generator-content-box">
-        <div className="generator-password-row">
-          <div className="generator-password-box" style={passwordBoxStyle}>
+        {flashMessage && (
+          <Alert variant="success" className="mb-3">
+            {flashMessage}
+          </Alert>
+        )}
+        <div className="generator-password-stack">
+          <div
+            className={
+              strengthClassSuffix
+                ? `generator-password-box generator-strength--${strengthClassSuffix}`
+                : 'generator-password-box'
+            }
+          >
             <span
-              className={`generator-password-value ${generatedPassword === PASSWORD_PLACEHOLDER ? 'is-placeholder' : ''}`}
+              className={`generator-password-value ${generatedPassword === PASSWORD_PLACEHOLDER ? 'is-placeholder' : 'is-generated'}`}
             >
               {showPassword ? generatedPassword : generatedPassword.replace(/./g, '•')}
             </span>
@@ -145,36 +165,37 @@ function Generator() {
               </button>
             </div>
           </div>
-          {showStrengthMeta && strengthMeta && (
-            <div className="generator-password-meta">
-              <p className="generator-crack-estimate mb-0" style={{ color: strengthMeta.strengthColor }}>
-                {strengthMeta.crackTimeText}
-              </p>
-              {showHintButton && (
-                <OverlayTrigger
-                  trigger="click"
-                  placement="auto"
-                  rootClose
-                  overlay={
-                    <Popover id="generator-password-hint" className="generator-hint-popover">
-                      <Popover.Body as="div" className="generator-hint-popover-body">
-                        {strengthMeta.hints.join(' ')}
-                      </Popover.Body>
-                    </Popover>
-                  }
-                >
-                  <button
-                    type="button"
-                    className="generator-hint-btn"
-                    aria-label="Подсказка по усилению пароля"
-                    style={{ color: strengthMeta.strengthColor }}
+          <div className="generator-password-meta-slot">
+            {showStrengthMeta && strengthMeta && strengthClassSuffix ? (
+              <div className={`generator-password-meta generator-strength--${strengthClassSuffix}`}>
+                <p className="generator-crack-estimate mb-0">
+                  Пароль будет взломан через {strengthMeta.crackTimeText}
+                </p>
+                {showHintButton && (
+                  <OverlayTrigger
+                    trigger="click"
+                    placement="bottom"
+                    rootClose
+                    overlay={
+                      <Popover id="generator-password-hint" className="generator-hint-popover">
+                        <Popover.Body as="div" className="generator-hint-popover-body">
+                          {strengthMeta.hints.join(' ')}
+                        </Popover.Body>
+                      </Popover>
+                    }
                   >
-                    <i className="bi bi-question-lg" aria-hidden />
-                  </button>
-                </OverlayTrigger>
-              )}
-            </div>
-          )}
+                    <button
+                      type="button"
+                      className="generator-hint-btn"
+                      aria-label="Подсказка по усилению пароля"
+                    >
+                      <i className="bi bi-question-circle" aria-hidden />
+                    </button>
+                  </OverlayTrigger>
+                )}
+              </div>
+            ) : null}
+          </div>
         </div>
 
         <div className="generator-length-row">

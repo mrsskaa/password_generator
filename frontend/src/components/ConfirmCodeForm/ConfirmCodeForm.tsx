@@ -6,8 +6,9 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-do
 import AuthForm from '../AuthForm/AuthForm';
 import Header from '../Header/Header';
 import registerConfirmSchema, { type RegisterConfirmFormData } from '../../schemas/registerConfirmSchema';
-import { MAX_INPUT_LENGTH } from '../../constants/inputLimits';
+import { getAxiosErrorMessage } from '../../api/authApi';
 import './ConfirmCodeForm.css';
+
 
 const RESEND_INTERVAL_SEC = 60;
 
@@ -95,10 +96,10 @@ function ConfirmCodeForm({
       reset();
       const redirectPath = typeof onSuccessRedirect === 'function' ? onSuccessRedirect(email) : onSuccessRedirect;
       window.setTimeout(() => navigate(redirectPath), 2000);
-    } catch {
+    } catch (err) {
       setError('root', {
         type: 'server',
-        message: errorMessage,
+        message: getAxiosErrorMessage(err, errorMessage),
       });
     }
   };
@@ -121,8 +122,9 @@ function ConfirmCodeForm({
         <div className="input-field-wrapper">
           <Form.Control
             {...register('code')}
-            maxLength={MAX_INPUT_LENGTH}
-            placeholder="код"
+            maxLength={6}
+            inputMode="numeric"
+            placeholder="000000"
             isInvalid={!!errors.code}
             className="auth-form-body-input"
             autoComplete="one-time-code"

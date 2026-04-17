@@ -2,17 +2,22 @@ import { useState } from 'react';
 import './LogIn.css';
 import Header from '../../components/Header/Header';
 import AuthForm from '../../components/AuthForm/AuthForm';
-import { Link } from 'react-router-dom';
-import { Button, Form, Nav } from 'react-bootstrap';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Alert, Button, Form, Nav } from 'react-bootstrap';
 import loginSchema, { type loginFormData } from '../../schemas/loginSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { loginFailure, loginStart, loginSuccess } from '../../store/authSlice';
-import { loginRequest } from '../../api/authApi';
+import { getAxiosErrorMessage, loginRequest } from '../../api/authApi';
 import { MAX_INPUT_LENGTH } from '../../constants/inputLimits';
 
 const LogIn = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const emailFromQuery = searchParams.get('email') ?? '';
+  const flashMessage = (location.state as { flashMessage?: string } | null)?.flashMessage;
   const [showPassword, setShowPassword] = useState(false);
   const {
     register,
@@ -23,6 +28,10 @@ const LogIn = () => {
     setError,
   } = useForm<loginFormData>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: emailFromQuery,
+      password: '',
+    },
   });
   const emailValue = watch('email') ?? '';
   const dispatch = useDispatch();
@@ -32,17 +41,26 @@ const LogIn = () => {
     try {
       const response = await loginRequest(data);
       dispatch(loginSuccess(response.user));
-    } catch {
-      dispatch(loginFailure('Неверный логин или пароль.'));
-      setError('root.serverError', {
+      navigate('/', {
+        state: { flashMessage: 'Успешный вход в аккаунт.' },
+      });
+    } catch (e) {
+      const msg = getAxiosErrorMessage(e, 'Неверный логин или пароль.');
+      dispatch(loginFailure(msg));
+      setError('root', {
         type: 'server',
-        message: 'Неверный логин или пароль',
+        message: msg,
       });
     }
   };
 
   const form = (
     <Form className="login-form" noValidate onSubmit={handleSubmit(onSubmit)}>
+      {flashMessage && (
+        <Alert variant="success" className="mb-3">
+          {flashMessage}
+        </Alert>
+      )}
       <Form.Group className="mb-3">
         <Form.Label className="auth-form-body-label">Почта:</Form.Label>
         <div className="input-field-wrapper">
@@ -92,6 +110,11 @@ const LogIn = () => {
           Забыли пароль?
         </Nav.Link>
       </div>
+      {errors.root?.message && (
+        <div className="auth-field-error mb-3" role="alert">
+          {errors.root.message}
+        </div>
+      )}
       <div className="auth-form-bottom">
         <div className="auth-form-bottom-back-link-container">
           <Nav.Link as={Link} to="/" className="auth-form-bottom-back-link">

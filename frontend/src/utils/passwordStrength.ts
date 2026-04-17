@@ -137,6 +137,27 @@ const BACKEND_COLOR_TO_HEX: Record<string, string> = {
   green: '#2e7d32',
 };
 
+export type PasswordStrengthToken = 'red' | 'orange' | 'yellow' | 'lightgreen' | 'green';
+
+const STRENGTH_TOKENS = new Set<string>(['red', 'orange', 'yellow', 'lightgreen', 'green']);
+
+/** Нормализует `color` из API (имя или #hex) к токену для классов `generator-strength--*`. */
+export function normalizeStrengthToken(color: string): PasswordStrengthToken {
+  const trimmed = color.trim().toLowerCase();
+  if (STRENGTH_TOKENS.has(trimmed)) {
+    return trimmed as PasswordStrengthToken;
+  }
+  if (trimmed.startsWith('#')) {
+    const hex = trimmed.toUpperCase();
+    for (const [name, h] of Object.entries(BACKEND_COLOR_TO_HEX)) {
+      if (h.toUpperCase() === hex) {
+        return name as PasswordStrengthToken;
+      }
+    }
+  }
+  return 'red';
+}
+
 /** Подсветка фона поля пароля: бек может отдать hex или имя цвета CSS */
 export function tintFromBackendColor(color: string, alpha: number): string {
   const trimmed = color.trim();
@@ -148,6 +169,12 @@ export function tintFromBackendColor(color: string, alpha: number): string {
     return hexToRgba(hex, alpha);
   }
   return `rgba(0, 0, 0, ${alpha})`;
+}
+
+/** Свечение вокруг поля пароля: размытие 20px, цвет с бэка с прозрачностью ~50 % */
+export function strengthGlowBoxShadow(color: string): string {
+  const rgba = tintFromBackendColor(color, 0.5);
+  return `0 0 20px ${rgba}`;
 }
 
 /** Уровень «Хорошо» и выше по ответу бэка (сильный / очень сильный) — подсказка не нужна */
