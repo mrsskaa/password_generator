@@ -78,8 +78,8 @@ html, body {
     --password-yellow-glow: rgba(251, 192, 45, 0.5);
     --password-lightgreen: #7cb342;
     --password-lightgreen-glow: rgba(124, 179, 66, 0.5);
-    --password-green: #006805;
-    --password-green-glow: rgba(46, 125, 50, 0.5);
+    --password-green: #00a106;
+    --password-green-glow: rgba(0, 227, 16, 0.5);
 }
 
 body {

@@ -7,12 +7,12 @@ const API_URL = import.meta.env.VITE_API_URL ?? '';
 
 axios.defaults.withCredentials = true;
 
-const FORGOT_PASSWORD_PATH = import.meta.env.VITE_FORGOT_PASSWORD_ENDPOINT ?? '/api/forgot-password';
+const FORGOT_PASSWORD_PATH = import.meta.env.VITE_FORGOT_PASSWORD_ENDPOINT ?? '/api/auth/forgot-password';
 const FORGOT_PASSWORD_CONFIRM_PATH =
-  import.meta.env.VITE_FORGOT_PASSWORD_CONFIRM_ENDPOINT ?? '/api/forgot-password/confirm';
+  import.meta.env.VITE_FORGOT_PASSWORD_CONFIRM_ENDPOINT ?? '/api/auth/verify-code';
 const RESEND_FORGOT_PASSWORD_CODE_PATH =
-  import.meta.env.VITE_RESEND_FORGOT_PASSWORD_CODE_ENDPOINT ?? '/api/forgot-password/resend-code';
-const RESET_FORGOT_PASSWORD_PATH = import.meta.env.VITE_RESET_FORGOT_PASSWORD_ENDPOINT ?? '/api/forgot-password/reset';
+  import.meta.env.VITE_RESEND_FORGOT_PASSWORD_CODE_ENDPOINT ?? '/api/auth/forgot-password/resend-code';
+const RESET_FORGOT_PASSWORD_PATH = import.meta.env.VITE_RESET_FORGOT_PASSWORD_ENDPOINT ?? '/api/auth/reset-password';
 
 export function mapBackendUser(raw: unknown): User {
   const u = raw as Record<string, unknown>;
@@ -120,8 +120,11 @@ export const forgotPasswordRequest = async (payload: {
 export const confirmForgotPasswordRequest = async (payload: {
   email: string;
   code: string;
-}): Promise<{ message?: string }> => {
-  const response = await axios.post<{ message?: string }>(`${API_URL}${FORGOT_PASSWORD_CONFIRM_PATH}`, payload);
+}): Promise<{ message?: string; reset_token?: string }> => {
+  const response = await axios.post<{ message?: string; reset_token?: string }>(
+    `${API_URL}${FORGOT_PASSWORD_CONFIRM_PATH}`,
+    payload,
+  );
   return response.data;
 };
 
@@ -131,9 +134,17 @@ export const resendForgotPasswordCodeRequest = async (payload: { email: string }
 };
 
 export const resetForgotPasswordRequest = async (payload: {
-  email: string;
-  password: string;
+  newPassword: string;
+  resetToken: string;
 }): Promise<{ message?: string }> => {
-  const response = await axios.post<{ message?: string }>(`${API_URL}${RESET_FORGOT_PASSWORD_PATH}`, payload);
+  const response = await axios.post<{ message?: string }>(
+    `${API_URL}${RESET_FORGOT_PASSWORD_PATH}`,
+    { new_password: payload.newPassword },
+    {
+      headers: {
+        Authorization: `Bearer ${payload.resetToken}`,
+      },
+    },
+  );
   return response.data;
 };

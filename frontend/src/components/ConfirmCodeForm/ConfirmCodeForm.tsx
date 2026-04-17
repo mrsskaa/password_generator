@@ -20,7 +20,7 @@ interface ConfirmCodeFormProps {
   initialMessage?: string;
   onConfirm: (payload: { email: string; code: string }) => Promise<unknown>;
   onResend: (payload: { email: string }) => Promise<unknown>;
-  onSuccessRedirect: string | ((email: string) => string);
+  onSuccessRedirect: string | ((ctx: { email: string; result: unknown }) => string);
 }
 
 function formatMmSs(totalSeconds: number): string {
@@ -104,10 +104,13 @@ function ConfirmCodeForm({
     clearErrors('root');
     setSubmitSuccess(false);
     try {
-      await onConfirm({ email, code: data.code });
+      const result = await onConfirm({ email, code: data.code });
       setSubmitSuccess(true);
       reset();
-      const redirectPath = typeof onSuccessRedirect === 'function' ? onSuccessRedirect(email) : onSuccessRedirect;
+      const redirectPath =
+        typeof onSuccessRedirect === 'function'
+          ? onSuccessRedirect({ email, result })
+          : onSuccessRedirect;
       window.setTimeout(() => navigate(redirectPath), 2000);
     } catch (err) {
       setError('root', {
