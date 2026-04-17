@@ -2,9 +2,9 @@ import logging
 import re
 import secrets
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
+from typing import Annotated, Any
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.dependencies import get_repository
 from app.repositories.user_repo import SQLAlchemyRepository
@@ -20,18 +20,17 @@ CODE_EXPIRE_MINUTES = 10
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
-def _create_reset_code(email: str, repository: SQLAlchemyRepository) -> str:
+def _create_reset_code(email: str, repository: SQLAlchemyRepository) -> dict[str, Any]:
     latest_code = repository.get_latest_reset_code_for_email(email)
     if latest_code and (datetime.now(timezone.utc) - latest_code["created_at"]).total_seconds() < RATE_LIMIT_SECONDS:
         raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Too many requests")
 
     code = str(secrets.randbelow(900000) + 100000)
-    repository.create_password_reset_code(
+    return repository.create_password_reset_code(
         email=email,
         code=code,
         expires_at=datetime.now(timezone.utc) + timedelta(minutes=CODE_EXPIRE_MINUTES),
     )
-    return code
 
 
 def _validate_recovery_email(payload: ForgotPasswordRequest, repository: SQLAlchemyRepository) -> str:
@@ -50,24 +49,40 @@ def _validate_recovery_email(payload: ForgotPasswordRequest, repository: SQLAlch
 @router.post("/forgot-password")
 async def forgot_password(
     payload: ForgotPasswordRequest,
-    background_tasks: BackgroundTasks,
     repository: Annotated[SQLAlchemyRepository, Depends(get_repository)],
 ) -> dict[str, str]:
     email = _validate_recovery_email(payload, repository)
-    code = _create_reset_code(email, repository)
-    background_tasks.add_task(send_password_reset_code, email, code)
-    logger.info("Password recovery code scheduled for email=%s", email)
+    code_row = _create_reset_code(email, repository)
+    try:
+        send_password_reset_code(email, code_row["code"])
+    except Exception as exc:
+        repository.delete_password_reset_code_by_id(code_row["id"])
+        logger.exception("Password recovery email failed for email=%s", email)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Failed to send recovery email",
+        ) from exc
+
+    logger.info("Password recovery code sent for email=%s", email)
     return {"message": "Code sent"}
 
 
 @router.post("/forgot-password/resend-code")
 async def resend_forgot_password_code(
     payload: ForgotPasswordRequest,
-    background_tasks: BackgroundTasks,
     repository: Annotated[SQLAlchemyRepository, Depends(get_repository)],
 ) -> dict[str, str]:
     email = _validate_recovery_email(payload, repository)
-    code = _create_reset_code(email, repository)
-    background_tasks.add_task(send_password_reset_code, email, code)
-    logger.info("Password recovery resend scheduled for email=%s", email)
+    code_row = _create_reset_code(email, repository)
+    try:
+        send_password_reset_code(email, code_row["code"])
+    except Exception as exc:
+        repository.delete_password_reset_code_by_id(code_row["id"])
+        logger.exception("Password recovery resend email failed for email=%s", email)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Failed to send recovery email",
+        ) from exc
+
+    logger.info("Password recovery resend sent for email=%s", email)
     return {"message": "Code sent"}

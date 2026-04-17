@@ -55,8 +55,8 @@ def send_password_reset_code(to_email: str, code: str) -> None:
     smtp_host, smtp_port, smtp_user, smtp_password, sender, use_tls = _get_smtp_settings()
 
     if not (smtp_host and smtp_user and smtp_password):
-        logger.info("SMTP is not configured. Recovery code for %s: %s", to_email, code)
-        return
+        logger.error("SMTP is not configured. Failed to send recovery code to %s", to_email)
+        raise RuntimeError("SMTP is not configured")
 
     msg = EmailMessage()
     msg["Subject"] = "Password recovery code"
@@ -77,3 +77,4 @@ def send_password_reset_code(to_email: str, code: str) -> None:
         logger.info("Recovery email sent to %s", to_email)
     except Exception:
         logger.exception("Failed to send recovery email to %s", to_email)
+        raise
