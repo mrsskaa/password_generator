@@ -7,7 +7,7 @@ services:
       - ./backend:/app
     environment:
       # хост БД — имя сервиса в сети compose (не localhost)
-      DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/password_generator
+      DATABASE_URL: ${DATABASE_URL}
     depends_on:
       db:
         condition: service_started
@@ -42,9 +42,9 @@ services:
     image: postgres:15
     container_name: postgres_db
     environment:
-      POSTGRES_DB: password_generator
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
