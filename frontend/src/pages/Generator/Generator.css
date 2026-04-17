@@ -122,6 +122,7 @@
   justify-content: flex-end;
   gap: 10px;
   flex-wrap: wrap;
+    margin-top: 5px;
 }
 
 .generator-password-meta.generator-strength--red {
@@ -200,12 +201,12 @@
 }
 
 .generator-password-value.is-generated {
-  font-size: 25px;
+  font-size: 22px;
 }
 
 .generator-password-value.is-placeholder {
   font-size: var(--font-size-25);
-  font-weight: 500;
+  font-weight: 400;
   white-space: nowrap;
 }
 
@@ -238,7 +239,7 @@
 
 .generator-label {
   color: var(--pink-icon);
-  font-size: var(--font-size-20);
+  font-size: var(--font-size-16);
   font-weight: 500;
 }
 
@@ -375,15 +376,23 @@
   justify-content: center;
   gap: 0.5rem;
   white-space: nowrap;
-  outline: none;
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .btn.generator-main-btn:focus,
 .btn.generator-main-btn:focus-visible,
 .btn.generator-main-btn:active {
-  background: #e8b7c8;
-  border-color: #aa6f6e;
+  background: var(--pink-main-btn);
+  border-color: var(--pink-border-main-btn);
+  outline: none !important;
   box-shadow: none !important;
+}
+
+.btn.generator-main-btn:active {
+  transform: scale(0.98);
 }
 
 .btn.generator-secondary-btn,
@@ -404,15 +413,23 @@
   justify-content: center;
   gap: 0.5rem;
   white-space: nowrap;
-  outline: none;
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .btn.generator-secondary-btn:focus,
 .btn.generator-secondary-btn:focus-visible,
 .btn.generator-secondary-btn:active {
-  background: #d2d6da;
-  border-color: #b0626a;
+  background: var(--gray-light-btn);
+  border-color: var(--pink-accent);
+  outline: none !important;
   box-shadow: none !important;
+}
+
+.btn.generator-secondary-btn:active {
+  transform: scale(0.98);
 }
 
 .generator-save-icon {

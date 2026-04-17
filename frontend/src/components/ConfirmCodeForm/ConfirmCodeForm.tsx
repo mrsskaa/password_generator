@@ -17,6 +17,7 @@ interface ConfirmCodeFormProps {
   backPath: string;
   successMessage: string;
   errorMessage: string;
+  initialMessage?: string;
   onConfirm: (payload: { email: string; code: string }) => Promise<unknown>;
   onResend: (payload: { email: string }) => Promise<unknown>;
   onSuccessRedirect: string | ((email: string) => string);
@@ -33,6 +34,7 @@ function ConfirmCodeForm({
   backPath,
   successMessage,
   errorMessage,
+  initialMessage,
   onConfirm,
   onResend,
   onSuccessRedirect,
@@ -47,7 +49,18 @@ function ConfirmCodeForm({
 
   const [secondsLeft, setSecondsLeft] = useState(RESEND_INTERVAL_SEC);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [showInitialMessage, setShowInitialMessage] = useState(Boolean(initialMessage));
   const canResend = secondsLeft === 0;
+
+  useEffect(() => {
+    if (!initialMessage) {
+      setShowInitialMessage(false);
+      return;
+    }
+    setShowInitialMessage(true);
+    const id = window.setTimeout(() => setShowInitialMessage(false), 2500);
+    return () => window.clearTimeout(id);
+  }, [initialMessage]);
 
   const {
     register,
@@ -112,8 +125,13 @@ function ConfirmCodeForm({
 
   const form = (
     <Form className="confirm-code-form" noValidate onSubmit={handleSubmit(onSubmit)}>
+      {showInitialMessage && initialMessage && (
+        <Alert variant="success" className="mb-3 auth-success-alert">
+          {initialMessage}
+        </Alert>
+      )}
       {submitSuccess && (
-        <Alert variant="success" className="mb-3">
+        <Alert variant="success" className="mb-3 auth-success-alert">
           {successMessage}
         </Alert>
       )}
