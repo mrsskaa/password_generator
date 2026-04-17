@@ -3,10 +3,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from backend.app.dependencies import get_auth_service, get_repository
-from backend.app.repositories.user_repo import SQLAlchemyRepository
-from backend.app.schemas.password_recovery import ResetPasswordRequest
-from backend.app.services.auth.auth import AuthService
+from app.dependencies import get_auth_service, get_repository
+from app.repositories.user_repo import SQLAlchemyRepository
+from app.schemas.password_recovery import ResetPasswordRequest
+from app.services.auth.auth import AuthService
 
 bearer_scheme = HTTPBearer(auto_error=False)
 router = APIRouter(prefix="/api/auth", tags=["auth"])

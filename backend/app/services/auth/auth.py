@@ -7,7 +7,7 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
 
-from backend.app.repositories.user_repo import SQLAlchemyRepository
+from app.repositories.user_repo import SQLAlchemyRepository
 
 logger = logging.getLogger(__name__)
 

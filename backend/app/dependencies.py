@@ -1,9 +1,9 @@
 from functools import lru_cache
 
-from backend.app.repositories.saved_password_repo import PasswordRepository
-from backend.app.repositories.user_repo import SQLAlchemyRepository
-from backend.app.services.auth.auth import AuthService
-from backend.app.services.password_service.password_service import PasswordService
+from app.repositories.saved_password_repo import PasswordRepository
+from app.repositories.user_repo import SQLAlchemyRepository
+from app.services.auth.auth import AuthService
+from app.services.password_service.password_service import PasswordService
 
 
 @lru_cache

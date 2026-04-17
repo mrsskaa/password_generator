@@ -1,9 +1,9 @@
 import logging
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Response, status
-from backend.app.dependencies import get_auth_service
-from backend.app.schemas.auth import LoginRequest, UserPublic
-from backend.app.services.auth.auth import AuthService
+from app.dependencies import get_auth_service
+from app.schemas.auth import LoginRequest, UserPublic
+from app.services.auth.auth import AuthService
 
 logger = logging.getLogger(__name__)
 

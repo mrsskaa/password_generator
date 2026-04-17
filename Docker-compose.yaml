@@ -1,18 +1,41 @@
 services:
   backend:
     build: ./backend
-    ports: 
+    ports:
       - "8000:8000"
     volumes:
       - ./backend:/app
+    environment:
+      # хост БД — имя сервиса в сети compose (не localhost)
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/password_generator
+    depends_on:
+      db:
+        condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/health')",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 8
+      start_period: 15s
     restart: always
 
   frontend:
     build: ./frontend
     ports:
       - "5173:5173"
+    environment:
+      DOCKER: "1"
+      # Внутри контейнера 127.0.0.1:8000 — не бэкенд; прокси Vite → сервис backend
+      API_PROXY_TARGET: http://backend:8000
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: always
   
   db:
