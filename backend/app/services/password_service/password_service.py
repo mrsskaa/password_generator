@@ -2,10 +2,10 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any
 
-from backend.app.core.exceptions import NotFoundError
-from backend.app.models.saved_password import SavedPassword
-from backend.app.repositories.saved_password_repo import PasswordRepository
-from backend.app.schemas.password_post import (
+from app.core.exceptions import NotFoundError
+from app.models.saved_password import SavedPassword
+from app.repositories.saved_password_repo import PasswordRepository
+from app.schemas.password_post import (
     DeleteResponse,
     PasswordGetResponse,
     PasswordPostRequest,

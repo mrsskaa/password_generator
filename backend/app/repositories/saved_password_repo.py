@@ -4,7 +4,7 @@ from typing import Optional
 from sqlalchemy import select, delete
 from sqlalchemy.orm import Session
 
-from backend.app.models.saved_password import SavedPassword
+from app.models.saved_password import SavedPassword
 
 
 class PasswordRepository:

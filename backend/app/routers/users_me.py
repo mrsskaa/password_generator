@@ -1,7 +1,7 @@
 from typing import Annotated, Any
 from fastapi import APIRouter, Depends
-from backend.app.schemas.auth import UserPublic
-from backend.app.services.get_current_user_from_cookie import (
+from app.schemas.auth import UserPublic
+from app.services.get_current_user_from_cookie import (
     get_current_user_from_cookie,
     require_role,
 )
