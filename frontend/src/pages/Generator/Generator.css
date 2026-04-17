@@ -221,12 +221,15 @@
   color: var(--pink-icon);
   font-size: var(--font-size-26);
   line-height: 1;
+  border-radius: 10px;
+  padding: 2px 6px;
   transition: color 0.15s ease;
 }
 
 .generator-icon-btn:hover,
 .generator-icon-btn:focus-visible {
   color: var(--pink-accent);
+  background: rgba(181, 108, 88, 0.14);
 }
 
 .generator-length-row {
@@ -358,6 +361,11 @@
   font-size: var(--font-size-16);
 }
 
+.generator-copy-text {
+  color: #2f6840;
+  font-size: var(--font-size-16);
+}
+
 .btn.generator-main-btn,
 .btn.generator-main-btn:hover {
   border: 1px solid var(--pink-border-main-btn);
@@ -437,13 +445,13 @@
 }
 
 .generator-main-btn:hover {
-  background: #ebc0cf;
-  border-color: #af7775;
+  background: var(--pink-main-btn);
+  border-color: var(--pink-border-main-btn);
 }
 
 .btn.generator-secondary-btn:hover {
-  background: #d7dbdf;
-  border-color: #bf6970;
+  background: var(--gray-light-btn);
+  border-color: var(--pink-accent);
 }
 
 .generator-login-backdrop {
