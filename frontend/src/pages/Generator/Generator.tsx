@@ -7,7 +7,7 @@ import { generatePasswordRequest } from '../../api/authApi';
 import type { GeneratePasswordPayload } from '../../types/generator';
 import Header from '../../components/Header/Header';
 import type { RootState } from '../../store/store';
-import { hexToRgba } from '../../utils/passwordStrength';
+import { isStrengthBelowGood, tintFromBackendColor } from '../../utils/passwordStrength';
 
 const MIN_LENGTH = 8;
 const MAX_LENGTH = 32;
@@ -22,7 +22,8 @@ function Generator() {
   const [strengthMeta, setStrengthMeta] = useState<{
     crackTimeText: string;
     strengthColor: string;
-    improvementHint: string;
+    strengthLevel: string;
+    hints: string[];
   } | null>(null);
   const [error, setError] = useState('');
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -64,7 +65,8 @@ function Generator() {
       setStrengthMeta({
         crackTimeText: response.crack_time_human,
         strengthColor: response.color,
-        improvementHint: response.hints?.join(' ') ?? '',
+        strengthLevel: response.strength_level,
+        hints: response.hints ?? [],
       });
     } catch {
       setError('Не удалось сгенерировать пароль. Проверьте подключение к серверу.');
@@ -92,12 +94,15 @@ function Generator() {
     strengthMeta && generatedPassword !== PASSWORD_PLACEHOLDER
       ? {
           borderColor: strengthMeta.strengthColor,
-          backgroundColor: hexToRgba(strengthMeta.strengthColor, 0.14),
+          backgroundColor: tintFromBackendColor(strengthMeta.strengthColor, 0.14),
         }
       : undefined;
 
   const showStrengthMeta = strengthMeta !== null && generatedPassword !== PASSWORD_PLACEHOLDER;
-  const showHint = Boolean(strengthMeta?.improvementHint);
+  const showHintButton =
+    strengthMeta != null &&
+    isStrengthBelowGood(strengthMeta.strengthLevel) &&
+    (strengthMeta.hints?.length ?? 0) > 0;
 
   const renderToggle = (enabled: boolean) => (
     <button type="button" className="generator-toggle-btn" aria-label={enabled ? 'Выключить' : 'Включить'}>
@@ -145,7 +150,7 @@ function Generator() {
               <p className="generator-crack-estimate mb-0" style={{ color: strengthMeta.strengthColor }}>
                 {strengthMeta.crackTimeText}
               </p>
-              {showHint && (
+              {showHintButton && (
                 <OverlayTrigger
                   trigger="click"
                   placement="auto"
@@ -153,7 +158,7 @@ function Generator() {
                   overlay={
                     <Popover id="generator-password-hint" className="generator-hint-popover">
                       <Popover.Body as="div" className="generator-hint-popover-body">
-                        {strengthMeta.improvementHint}
+                        {strengthMeta.hints.join(' ')}
                       </Popover.Body>
                     </Popover>
                   }
@@ -161,10 +166,10 @@ function Generator() {
                   <button
                     type="button"
                     className="generator-hint-btn"
-                    aria-label="Как улучшить пароль"
+                    aria-label="Подсказка по усилению пароля"
                     style={{ color: strengthMeta.strengthColor }}
                   >
-                    <i className="bi bi-question-circle" />
+                    <i className="bi bi-question-lg" aria-hidden />
                   </button>
                 </OverlayTrigger>
               )}

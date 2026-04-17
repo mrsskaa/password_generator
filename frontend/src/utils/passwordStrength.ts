@@ -127,3 +127,32 @@ export function hexToRgba(hex: string, alpha: number): string {
   const b = Number.parseInt(normalized.slice(4, 6), 16);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
+
+/** Имена цветов с бэка (например red, lightgreen) → hex для полупрозрачной подсветки поля */
+const BACKEND_COLOR_TO_HEX: Record<string, string> = {
+  red: '#e53935',
+  orange: '#fb8c00',
+  yellow: '#fbc02d',
+  lightgreen: '#7cb342',
+  green: '#2e7d32',
+};
+
+/** Подсветка фона поля пароля: бек может отдать hex или имя цвета CSS */
+export function tintFromBackendColor(color: string, alpha: number): string {
+  const trimmed = color.trim();
+  if (trimmed.startsWith('#')) {
+    return hexToRgba(trimmed, alpha);
+  }
+  const hex = BACKEND_COLOR_TO_HEX[trimmed.toLowerCase()];
+  if (hex) {
+    return hexToRgba(hex, alpha);
+  }
+  return `rgba(0, 0, 0, ${alpha})`;
+}
+
+/** Уровень «Хорошо» и выше по ответу бэка (сильный / очень сильный) — подсказка не нужна */
+export function isStrengthBelowGood(strengthLevel: string): boolean {
+  const level = strengthLevel.trim().toLowerCase();
+  const goodOrBetter = new Set(['сильный', 'очень сильный']);
+  return !goodOrBetter.has(level);
+}
