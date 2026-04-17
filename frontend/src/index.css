@@ -89,3 +89,30 @@ body {
     background-color: var(--bg-color);
     box-shadow: inset 0 4px 100px var(--inset-shadow);
 }
+
+.auth-success-alert {
+    border: 1px solid #9dd8ab !important;
+    background: #e6f6ea !important;
+    color: #2f6840 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 22px rgba(47, 104, 64, 0.16) !important;
+    position: fixed !important;
+    right: 20px;
+    bottom: 20px;
+    z-index: 2000;
+    min-width: 280px;
+    max-width: min(420px, calc(100vw - 32px));
+    margin: 0 !important;
+    animation: authSuccessSlideIn 180ms ease-out;
+}
+
+@keyframes authSuccessSlideIn {
+    from {
+        transform: translateY(6px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

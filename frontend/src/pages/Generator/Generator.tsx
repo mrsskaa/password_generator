@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Alert, Button, Container, Form, Modal, OverlayTrigger, Popover } from 'react-bootstrap';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import './Generator.css';
 import { generatePasswordRequest } from '../../api/authApi';
@@ -16,7 +16,12 @@ const PASSWORD_PLACEHOLDER = 'Нажмите "СГЕНЕРИРОВАТЬ"';
 function Generator() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const flashFromQuery = searchParams.get('flash');
+  const flashFromQueryMessage =
+    flashFromQuery === 'confirm_success' ? 'Успешное подтверждение кода. Вы вошли в аккаунт.' : undefined;
   const flashMessage = (location.state as { flashMessage?: string } | null)?.flashMessage;
+  const effectiveFlashMessage = flashMessage ?? flashFromQueryMessage;
   const [length, setLength] = useState(16);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,14 +52,14 @@ function Generator() {
   }, []);
 
   useEffect(() => {
-    if (!flashMessage) {
+    if (!effectiveFlashMessage) {
       return;
     }
     const timerId = window.setTimeout(() => {
       navigate('/', { replace: true, state: null });
     }, 2500);
     return () => window.clearTimeout(timerId);
-  }, [flashMessage, navigate]);
+  }, [effectiveFlashMessage, navigate]);
 
   const generatorPayload: GeneratePasswordPayload = useMemo(
     () => ({
@@ -130,9 +135,9 @@ function Generator() {
         </div>
 
         <div className="generator-content-box">
-        {flashMessage && (
-          <Alert variant="success" className="mb-3">
-            {flashMessage}
+        {effectiveFlashMessage && (
+          <Alert variant="success" className="mb-3 auth-success-alert">
+            {effectiveFlashMessage}
           </Alert>
         )}
         <div className="generator-password-stack">
