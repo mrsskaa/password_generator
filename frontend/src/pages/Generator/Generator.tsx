@@ -34,6 +34,7 @@ function Generator() {
     hints: string[];
   } | null>(null);
   const [error, setError] = useState('');
+  const [copyMessage, setCopyMessage] = useState('');
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const [options, setOptions] = useState({
     includeLowercase: true,
@@ -99,7 +100,45 @@ function Generator() {
     if (!generatedPassword || generatedPassword === PASSWORD_PLACEHOLDER) {
       return;
     }
-    await navigator.clipboard.writeText(generatedPassword);
+
+    const copyViaFallback = (): boolean => {
+      const textArea = document.createElement('textarea');
+      textArea.value = generatedPassword;
+      textArea.setAttribute('readonly', '');
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-9999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      let copied = false;
+      try {
+        copied = document.execCommand('copy');
+      } catch {
+        copied = false;
+      } finally {
+        document.body.removeChild(textArea);
+      }
+      return copied;
+    };
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(generatedPassword);
+      } else if (!copyViaFallback()) {
+        throw new Error('Clipboard API unavailable');
+      }
+      setError('');
+      setCopyMessage('Пароль скопирован');
+      window.setTimeout(() => setCopyMessage(''), 1800);
+    } catch {
+      if (copyViaFallback()) {
+        setError('');
+        setCopyMessage('Пароль скопирован');
+        window.setTimeout(() => setCopyMessage(''), 1800);
+        return;
+      }
+      setCopyMessage('');
+      setError('Не удалось скопировать пароль. Разрешите доступ к буферу обмена.');
+    }
   };
 
   const handleSave = async () => {
@@ -245,6 +284,7 @@ function Generator() {
         </div>
 
         <div className="generator-error-slot" aria-live="polite">
+          {copyMessage && <p className="generator-copy-text mb-0">{copyMessage}</p>}
           {error && <p className="generator-error-text mb-0">{error}</p>}
         </div>
 
