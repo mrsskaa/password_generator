@@ -14,7 +14,7 @@ function RegisterConfirm() {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
-  const state = location.state as { email?: string; password?: string } | null;
+  const state = location.state as { email?: string; password?: string; flashMessage?: string } | null;
 
   useEffect(() => {
     if (!state?.email || !state?.password) {
@@ -32,6 +32,7 @@ function RegisterConfirm() {
     <ConfirmCodeForm
       title="ВВЕДИТЕ КОД ИЗ ПИСЬМА"
       backPath="/register"
+      initialMessage={state.flashMessage}
       successMessage="Вход выполнен. Сейчас откроется генератор…"
       errorMessage="Не удалось войти. Проверьте данные и попробуйте снова."
       onConfirm={async ({ code }) => {
@@ -40,7 +41,7 @@ function RegisterConfirm() {
         dispatch(loginSuccess(response.user));
       }}
       onResend={resendRegistrationCodeRequest}
-      onSuccessRedirect="/"
+      onSuccessRedirect="/?flash=confirm_success"
     />
   );
 }
