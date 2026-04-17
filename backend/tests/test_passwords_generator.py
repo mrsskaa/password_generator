@@ -1,6 +1,7 @@
 import pytest 
 from app.services.password_generator import generate_password, build_groups, contains_similar_characters, validate_repetitive
 from unittest.mock import patch
+from app.core.exceptions import PasswordGeneratorError
 import runpy
 
 def test_generate_password_length():
@@ -29,12 +30,12 @@ def test_contains_similar_characters2():
 
 def test_generate_password_validate_repetetive():
     with patch("app.services.password_generator.contains_similar_characters",return_value=True):
-        with pytest.raises(RuntimeError):
-            generate_password(8,use_lower=True,use_upper=True,use_digits=True,use_symbols=True,max_attempts=3)
+        with pytest.raises(PasswordGeneratorError):
+            generate_password(8,use_similar_symbols=False)
 
 def test_generate_password_contains_characters():
     with patch("app.services.password_generator.validate_repetitive",return_value=False):
-        with pytest.raises(RuntimeError):
+        with pytest.raises(PasswordGeneratorError):
             generate_password(10,max_attempts=4)
 
 def test_main_execution():

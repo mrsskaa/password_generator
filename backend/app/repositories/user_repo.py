@@ -3,8 +3,8 @@ from datetime import datetime, timezone
 from typing import Any
 from sqlalchemy import create_engine, delete, select, update
 from sqlalchemy.orm import sessionmaker
-from backend.app.models.user import Base, User, PasswordResetCode
-from backend.app.models.saved_password import SavedPassword  # noqa: F401
+from app.models.user import Base, User, PasswordResetCode
+from app.models.saved_password import SavedPassword  # noqa: F401
 
 
 

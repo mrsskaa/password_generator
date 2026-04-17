@@ -3,17 +3,17 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from backend.app.dependencies import get_password_service
-from backend.app.core.exceptions import NotFoundError
-from backend.app.schemas.password_post import (
+from app.dependencies import get_password_service
+from app.core.exceptions import NotFoundError
+from app.schemas.password_post import (
     DeleteResponse,
     DescriptionPatchRequest,
     PasswordGetResponse,
     PasswordPostRequest,
     PatchResponse,
 )
-from backend.app.services.get_current_user_from_cookie import get_current_user_from_cookie
-from backend.app.services.password_service.password_service import PasswordService
+from app.services.get_current_user_from_cookie import get_current_user_from_cookie
+from app.services.password_service.password_service import PasswordService
 
 router = APIRouter(tags=["passwords"])
 

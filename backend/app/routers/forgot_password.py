@@ -6,10 +6,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from backend.app.dependencies import get_repository
-from backend.app.repositories.user_repo import SQLAlchemyRepository
-from backend.app.schemas.password_recovery import ForgotPasswordRequest
-from backend.app.services.mailer import send_password_reset_code
+from app.dependencies import get_repository
+from app.repositories.user_repo import SQLAlchemyRepository
+from app.schemas.password_recovery import ForgotPasswordRequest
+from app.services.mailer import send_password_reset_code
 
 logger = logging.getLogger(__name__)
 

@@ -1,8 +1,8 @@
 from collections.abc import Callable
 from typing import Annotated, Any, Optional
 from fastapi import Cookie, Depends, HTTPException, status
-from backend.app.dependencies import get_auth_service
-from backend.app.services.auth.auth import AuthService
+from app.dependencies import get_auth_service
+from app.services.auth.auth import AuthService
 
 
 async def get_current_user_from_cookie(

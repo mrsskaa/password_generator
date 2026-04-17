@@ -1,4 +1,5 @@
 ﻿import secrets
+from app.core.exceptions import PasswordGeneratorError
 
 from app.core.constants import (
     LETTERS_LOW,
@@ -129,9 +130,7 @@ def generate_password(
 
         return password
 
-    raise RuntimeError(
-        f"Failed to generate password after {max_attempts} attempts"
-    )
+    raise PasswordGeneratorError(f"Failed to generate password after {max_attempts} attempts")
 
 
 if __name__ == "__main__":
