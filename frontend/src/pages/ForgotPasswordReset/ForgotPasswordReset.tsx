@@ -13,7 +13,7 @@ import './ForgotPasswordReset.css';
 function ForgotPasswordReset() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const email = searchParams.get('email') ?? '';
+  const resetToken = searchParams.get('token') ?? '';
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -31,15 +31,15 @@ function ForgotPasswordReset() {
   const onSubmit = async (data: ResetPasswordFormData) => {
     clearErrors('root');
     setSubmitSuccess(false);
-    if (!email) {
+    if (!resetToken) {
       setError('root', {
         type: 'server',
-        message: 'Не удалось определить email. Пройдите восстановление заново.',
+        message: 'Не найден токен сброса. Пройдите восстановление заново.',
       });
       return;
     }
     try {
-      await resetForgotPasswordRequest({ email, password: data.password });
+      await resetForgotPasswordRequest({ newPassword: data.password, resetToken });
       setSubmitSuccess(true);
       window.setTimeout(() => navigate('/login'), 2000);
     } catch {

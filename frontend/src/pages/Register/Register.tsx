@@ -8,8 +8,8 @@ import { useForm } from 'react-hook-form';
 import regSchema, { type registerFormData } from '../../schemas/regSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDispatch } from 'react-redux';
-import { registerFailure, registerRequestFinished, registerStart } from '../../store/authSlice';
-import { getAxiosErrorMessage, registerRequest } from '../../api/authApi';
+import { loginSuccess, registerFailure, registerRequestFinished, registerStart } from '../../store/authSlice';
+import { getAxiosErrorMessage, loginRequest, registerRequest } from '../../api/authApi';
 import { MAX_INPUT_LENGTH } from '../../constants/inputLimits';
 
 
@@ -35,11 +35,14 @@ const Register = () => {
     try {
       await registerRequest(data);
       dispatch(registerRequestFinished());
-      navigate('/register/confirm', {
+      const loginResponse = await loginRequest({
+        email: data.email,
+        password: data.password,
+      });
+      dispatch(loginSuccess(loginResponse.user));
+      navigate('/', {
         state: {
-          email: data.email,
-          password: data.password,
-          flashMessage: 'Успешная регистрация. Введите код из письма.',
+          flashMessage: 'Успешная регистрация. Вы вошли в аккаунт.',
         },
       });
     } catch (e) {
