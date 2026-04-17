@@ -1,7 +1,7 @@
 import logging
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from app.dependencies import get_auth_service, get_repository
 from app.schemas.auth import AuthResponse, RegisterRequest, UserPublic
@@ -17,6 +17,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 @router.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
 async def register(
     payload: RegisterRequest,
+    background_tasks: BackgroundTasks,
     repository: Annotated[SQLAlchemyRepository, Depends(get_repository)],
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ) -> AuthResponse:
@@ -36,7 +37,11 @@ async def register(
     except IntegrityError:
         raise HTTPException(status_code=400, detail="User with this email already exists")
 
-    send_welcome_email(to_email=created_user.get("email"), username=created_user["username"])
+    background_tasks.add_task(
+        send_welcome_email,
+        to_email=created_user.get("email"),
+        username=created_user["username"],
+    )
     logger.info("User registered: username=%s", created_user["username"])
 
     return AuthResponse(message="User created", user=UserPublic(**created_user))

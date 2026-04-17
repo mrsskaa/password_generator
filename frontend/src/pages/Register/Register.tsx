@@ -35,7 +35,13 @@ const Register = () => {
     try {
       await registerRequest(data);
       dispatch(registerRequestFinished());
-      navigate('/register/confirm', { state: { email: data.email, password: data.password } });
+      navigate('/register/confirm', {
+        state: {
+          email: data.email,
+          password: data.password,
+          flashMessage: 'Успешная регистрация. Введите код из письма.',
+        },
+      });
     } catch (e) {
       const msg = getAxiosErrorMessage(e, 'Регистрация не удалась.');
       dispatch(registerFailure(msg));

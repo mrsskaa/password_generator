@@ -57,7 +57,7 @@ const LogIn = () => {
   const form = (
     <Form className="login-form" noValidate onSubmit={handleSubmit(onSubmit)}>
       {flashMessage && (
-        <Alert variant="success" className="mb-3">
+        <Alert variant="success" className="mb-3 auth-success-alert">
           {flashMessage}
         </Alert>
       )}
