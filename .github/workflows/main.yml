@@ -1,7 +1,15 @@
 name: CI/CD Pipeline
 
 on:
-  [push]
+  push:
+    branches:
+      - main
+      - feature/ci
+      - feature/deploy
+      - matvey
+      - frontend-liza
+      - frontend-maria
+      - develop
   pull_request:
     branches: [ main ]
 
