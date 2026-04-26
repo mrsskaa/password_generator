@@ -22,7 +22,13 @@ async def login(
         logger.warning("Login failed for username=%s", payload.username)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Неверное имя пользователя или пароль",
+        )
+
+    if user.get("email") and not user.get("email_verified", False):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Подтвердите email перед входом в аккаунт",
         )
 
     token_data = {"sub": user["username"], "role": user.get("role", "user")}
@@ -37,9 +43,9 @@ async def login(
         max_age=auth_service.access_token_expire_minutes * 60,
     )
 
-    logger.info("Login success for username=%s", payload.username)
+    logger.info("Успешный вход username=%s", payload.username)
     return {
-        "message": "Login successful",
+        "message": "Вход выполнен",
         "user": UserPublic(**{k: user[k] for k in ["id", "username", "email", "role", "created_at"]}).model_dump(),
     }
 
@@ -47,4 +53,4 @@ async def login(
 @router.post("/logout")
 async def logout(response: Response) -> dict[str, str]:
     response.delete_cookie("access_token")
-    return {"message": "Logout successful"}
+    return {"message": "Выход выполнен"}
