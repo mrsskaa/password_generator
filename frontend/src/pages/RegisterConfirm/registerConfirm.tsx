@@ -12,7 +12,7 @@ function RegisterConfirm() {
     <ConfirmCodeForm
       title="ВВЕДИТЕ КОД ИЗ ПИСЬМА"
       backPath="/register"
-      successMessage="Аккаунт подтверждён. Сейчас откроется страница входа…"
+      successMessage="Аккаунт подтверждён. Сейчас откроется генератор…"
       errorMessage="Неверный код или срок действия истёк."
       onConfirm={async ({ email, code }) => {
         const response = await confirmRegistrationRequest({ email, code });
@@ -21,7 +21,7 @@ function RegisterConfirm() {
         }
       }}
       onResend={resendRegistrationCodeRequest}
-      onSuccessRedirect="/login"
+      onSuccessRedirect="/"
     />
   );
 }

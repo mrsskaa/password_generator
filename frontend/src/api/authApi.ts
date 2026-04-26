@@ -9,24 +9,32 @@ interface AuthResponse {
 }
 
 const API_URL = import.meta.env.VITE_API_URL ?? '';
+axios.defaults.withCredentials = true;
 const GENERATOR_ENDPOINT = import.meta.env.VITE_PASSWORD_GENERATOR_ENDPOINT ?? '/api/generate-password';
-const FORGOT_PASSWORD_PATH = import.meta.env.VITE_FORGOT_PASSWORD_ENDPOINT ?? '/api/forgot-password';
+const FORGOT_PASSWORD_PATH = import.meta.env.VITE_FORGOT_PASSWORD_ENDPOINT ?? '/api/auth/forgot-password';
 const FORGOT_PASSWORD_CONFIRM_PATH =
-  import.meta.env.VITE_FORGOT_PASSWORD_CONFIRM_ENDPOINT ?? '/api/forgot-password/confirm';
+  import.meta.env.VITE_FORGOT_PASSWORD_CONFIRM_ENDPOINT ?? '/api/auth/verify-code';
 const RESEND_FORGOT_PASSWORD_CODE_PATH =
-  import.meta.env.VITE_RESEND_FORGOT_PASSWORD_CODE_ENDPOINT ?? '/api/forgot-password/resend-code';
-const RESET_FORGOT_PASSWORD_PATH = import.meta.env.VITE_RESET_FORGOT_PASSWORD_ENDPOINT ?? '/api/forgot-password/reset';
-const REGISTER_CONFIRM_PATH = import.meta.env.VITE_REGISTER_CONFIRM_ENDPOINT ?? '/api/register/confirm';
+  import.meta.env.VITE_RESEND_FORGOT_PASSWORD_CODE_ENDPOINT ?? '/api/auth/forgot-password/resend-code';
+const RESET_FORGOT_PASSWORD_PATH = import.meta.env.VITE_RESET_FORGOT_PASSWORD_ENDPOINT ?? '/api/auth/reset-password';
+const REGISTER_CONFIRM_PATH = import.meta.env.VITE_REGISTER_CONFIRM_ENDPOINT ?? '/api/auth/register/confirm';
 const RESEND_REGISTER_CODE_PATH =
-  import.meta.env.VITE_RESEND_REGISTER_CODE_ENDPOINT ?? '/api/register/resend-code';
+  import.meta.env.VITE_RESEND_REGISTER_CODE_ENDPOINT ?? '/api/auth/register/resend-code';
 
 export const loginRequest = async (payload: loginFormData): Promise<AuthResponse> => {
-  const response = await axios.post<AuthResponse>(`${API_URL}/api/login`, payload);
+  const response = await axios.post<AuthResponse>(`${API_URL}/api/auth/login`, {
+    username: payload.email,
+    password: payload.password,
+  });
   return response.data;
 };
 
 export const registerRequest = async (payload: registerFormData): Promise<AuthResponse> => {
-  const response = await axios.post<AuthResponse>(`${API_URL}/api/register`, payload);
+  const response = await axios.post<AuthResponse>(`${API_URL}/api/auth/register`, {
+    username: payload.email,
+    password: payload.password,
+    email: payload.email,
+  });
   return response.data;
 };
 

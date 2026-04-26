@@ -50,7 +50,8 @@
   width: 686px;
   max-width: 100%;
   margin: 0 auto;
-  min-height: 45px;
+  height: 56px;
+  min-height: 56px;
   border: 1px solid var(--pink-border-password-box);
   border-radius: 12px;
   background: var(--pink-password-box-bg);
@@ -66,10 +67,16 @@
   font-weight: 600;
   color: var(--gray-subtext);
   letter-spacing: 0.02em;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .generator-password-value.is-placeholder {
-  font-size: var(--font-size-25);
+  font-size: var(--font-size-30);
   font-weight: 500;
 }
 
