@@ -1,5 +1,5 @@
-import { Navbar, Container, Nav } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Navbar, Container, Nav, Dropdown } from 'react-bootstrap';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import './Header.css'
 import logo from '../../assets/images/password-generator-logo.svg';
@@ -10,6 +10,9 @@ import { logoutRequest } from '../../api/authApi';
 const Header = () => {
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isPasswordsPage = location.pathname.startsWith('/passwords');
 
   const handleLogout = async () => {
     try {
@@ -18,6 +21,7 @@ const Header = () => {
       // сеть/сервер: всё равно чистим локальное состояние
     } finally {
       dispatch(logout());
+      navigate('/');
     }
   };
 
@@ -28,7 +32,7 @@ const Header = () => {
       <img src={logo} height="40" className="logo" alt="Логотип" />
     </Navbar.Brand>
 
-    <Navbar.Toggle aria-controls="auth-navbar" />
+    {!isAuthenticated && <Navbar.Toggle aria-controls="auth-navbar" />}
     
 <Navbar.Collapse id="auth-navbar" className="justify-content-end d-md-flex">
   {!isAuthenticated ? (
@@ -54,14 +58,44 @@ const Header = () => {
   ) : (
     <>
     <div className="d-flex flex-column w-100 text-center d-md-none gap-2">
-      <button type="button" className="btn btn-sm btn-md-lg header-btn" onClick={handleLogout}>
-        ВЫХОД
-      </button>
+      <div className="header-auth-icons">
+        <Dropdown align="end">
+          <Dropdown.Toggle as="button" className="header-icon-btn" id="header-menu-mobile">
+            <i className="bi bi-list" aria-hidden />
+          </Dropdown.Toggle>
+          <Dropdown.Menu className="header-auth-menu">
+            <Dropdown.Item as={Link} to="/" className={`header-auth-menu-item ${!isPasswordsPage ? 'is-active' : ''}`}>
+              генератор
+            </Dropdown.Item>
+            <Dropdown.Item as={Link} to="/passwords" className={`header-auth-menu-item ${isPasswordsPage ? 'is-active' : ''}`}>
+              мои пароли
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+        <button type="button" className="header-icon-btn" onClick={handleLogout} aria-label="Выйти">
+          <i className="bi bi-arrow-right" aria-hidden />
+        </button>
+      </div>
     </div>
     <div className="d-none d-md-flex ms-auto header-actions-desktop">
-      <button type="button" className="btn btn-sm btn-md-lg header-btn" onClick={handleLogout}>
-        ВЫХОД
-      </button>
+      <div className="header-auth-icons">
+        <Dropdown align="end">
+          <Dropdown.Toggle as="button" className="header-icon-btn" id="header-menu-desktop">
+            <i className="bi bi-list" aria-hidden />
+          </Dropdown.Toggle>
+          <Dropdown.Menu className="header-auth-menu">
+            <Dropdown.Item as={Link} to="/" className={`header-auth-menu-item ${!isPasswordsPage ? 'is-active' : ''}`}>
+              генератор
+            </Dropdown.Item>
+            <Dropdown.Item as={Link} to="/passwords" className={`header-auth-menu-item ${isPasswordsPage ? 'is-active' : ''}`}>
+              мои пароли
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+        <button type="button" className="header-icon-btn" onClick={handleLogout} aria-label="Выйти">
+          <i className="bi bi-arrow-right" aria-hidden />
+        </button>
+      </div>
     </div>
     </>
   )}

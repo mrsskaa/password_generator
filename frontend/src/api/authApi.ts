@@ -160,3 +160,31 @@ export const resetForgotPasswordRequest = async (payload: {
   );
   return response.data;
 };
+
+export interface SavePasswordPayload {
+  password: string;
+  description: string;
+  generationSettings?: Record<string, unknown>;
+}
+
+export interface SavePasswordResponse {
+  id: string;
+  password: string;
+  description: string;
+  created_at: string;
+  settings_preview: string;
+}
+
+export const savePasswordRequest = async (payload: SavePasswordPayload): Promise<SavePasswordResponse> => {
+  const response = await axios.post<SavePasswordResponse>(`${API_URL}/passwords`, {
+    password: payload.password,
+    description: payload.description,
+    generation_settings: payload.generationSettings ?? {},
+  });
+  return response.data;
+};
+
+export const getSavedPasswordsRequest = async (): Promise<SavePasswordResponse[]> => {
+  const response = await axios.get<SavePasswordResponse[]>(`${API_URL}/passwords`);
+  return response.data;
+};
