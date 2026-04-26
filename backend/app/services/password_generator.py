@@ -1,7 +1,7 @@
-import secrets
-from curses.ascii import isdigit
+﻿import secrets
+from app.core.exceptions import PasswordGeneratorError
 
-from backend.app.core.constants import (
+from app.core.constants import (
     LETTERS_LOW,
     LETTERS_HIGH,
     DIGITS,
@@ -9,15 +9,24 @@ from backend.app.core.constants import (
     SIMILAR_CHARACTERS
 )
 
-from backend.app.core.exceptions import (
+from app.core.exceptions import (
     InvalidLengthError,
     EmptyCharacterPoolError
 )
 
-def validate_repetitive(password:str) -> bool:
+
+def main():
+    print(generate_password(12))
+
+
+def validate_repetitive(password: str) -> bool:
     "Проверка на подряд идущие цифры в прямом и обратном порядке, на подряд идущие одинаковые символы"
-    for i in range(0,len(password)-2):
-        if (password[i]==password[i+1]==password[i+2]) or (ord(password[i])==ord(password[i+1])-1==ord(password[i+2])-2) or (ord(password[i])-2==ord(password[i+1])-1==ord(password[i+2])):
+    for i in range(0, len(password) - 2):
+        if (password[i] == password[i + 1] == password[i + 2]) or (
+            ord(password[i]) == ord(password[i + 1]) - 1 == ord(password[i + 2]) - 2
+        ) or (
+            ord(password[i]) - 2 == ord(password[i + 1]) - 1 == ord(password[i + 2])
+        ):
             return False
     return True
 
@@ -28,7 +37,7 @@ def validate_length(length: int) -> None:
 
     if length < 8 or length > 32:
         raise InvalidLengthError(
-            "Password length must be between 8 and 32"
+            "Длина пароля должна быть от 8 до 32 символов"
         )
 
 
@@ -56,7 +65,7 @@ def build_groups(
 
     if not groups:
         raise EmptyCharacterPoolError(
-            "At least one character group must be selected"
+            "Необходимо выбрать хотя бы одну группу символов"
         )
 
     return groups
@@ -80,7 +89,8 @@ def generate_password(
         use_upper: bool = True,
         use_digits: bool = True,
         use_symbols: bool = True,
-        max_attempts: int = 100
+        max_attempts: int = 100,
+        use_similar_symbols: bool = True
 ) -> str:
     """
     Основная функция генерации пароля
@@ -111,19 +121,20 @@ def generate_password(
 
         password = "".join(password_chars)
 
-        if contains_similar_characters(password):
-            continue
+        if not use_similar_symbols:
+            if contains_similar_characters(password):
+                continue
 
-        if not(validate_repetitive(password)):
+        if not validate_repetitive(password):
             continue
 
         return password
 
-    raise RuntimeError(
-        f"Failed to generate password after {max_attempts} attempts"
+    raise PasswordGeneratorError(
+        f"Не удалось сгенерировать пароль за {max_attempts} попыток"
     )
 
 
 if __name__ == "__main__":
-    '''python3 -m backend.app.services.password_generator'''
-    print(generate_password(12))
+    """python3 -m app.services.password_generator"""
+    main()

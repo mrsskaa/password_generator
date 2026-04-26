@@ -68,6 +68,18 @@ html, body {
     --generator-btn-secondary-width: 210px;
     /* высота шапки: форма под ней = оставшаяся часть экрана без лишнего скролла */
     --header-height: 56px;
+
+    /* Сила пароля (текст времени взлома, подсказка, свечение поля) — подберите оттенки сами */
+    --password-red: #f32420;
+    --password-red-glow: rgba(229, 57, 53, 0.5);
+    --password-orange: #fb8c00;
+    --password-orange-glow: rgba(251, 140, 0, 0.5);
+    --password-yellow: #df9c00;
+    --password-yellow-glow: rgba(251, 192, 45, 0.5);
+    --password-lightgreen: #7cb342;
+    --password-lightgreen-glow: rgba(124, 179, 66, 0.5);
+    --password-green: #00a106;
+    --password-green-glow: rgba(0, 227, 16, 0.5);
 }
 
 body {
@@ -76,4 +88,31 @@ body {
     color: var(--text-color);
     background-color: var(--bg-color);
     box-shadow: inset 0 4px 100px var(--inset-shadow);
+}
+
+.auth-success-alert {
+    border: 1px solid #9dd8ab !important;
+    background: #e6f6ea !important;
+    color: #2f6840 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 22px rgba(47, 104, 64, 0.16) !important;
+    position: fixed !important;
+    right: 20px;
+    bottom: 20px;
+    z-index: 2000;
+    min-width: 280px;
+    max-width: min(420px, calc(100vw - 32px));
+    margin: 0 !important;
+    animation: authSuccessSlideIn 180ms ease-out;
+}
+
+@keyframes authSuccessSlideIn {
+    from {
+        transform: translateY(6px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }

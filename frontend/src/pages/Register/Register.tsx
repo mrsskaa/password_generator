@@ -8,8 +8,8 @@ import { useForm } from 'react-hook-form';
 import regSchema, { type registerFormData } from '../../schemas/regSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDispatch } from 'react-redux';
-import { registerFailure, registerStart, registerSuccess } from '../../store/authSlice';
-import { registerRequest } from '../../api/authApi';
+import { loginSuccess, registerFailure, registerRequestFinished, registerStart } from '../../store/authSlice';
+import { getAxiosErrorMessage, loginRequest, registerRequest } from '../../api/authApi';
 import { MAX_INPUT_LENGTH } from '../../constants/inputLimits';
 
 
@@ -23,6 +23,7 @@ const Register = () => {
     watch,
     setValue,
     formState: { errors },
+    setError,
   } = useForm<registerFormData>({
     resolver: zodResolver(regSchema),
   });
@@ -32,11 +33,22 @@ const Register = () => {
   const onSubmit = async (data: registerFormData) => {
     dispatch(registerStart());
     try {
-      const response = await registerRequest(data);
-      dispatch(registerSuccess(response.user));
-      navigate('/register/confirm', { state: { email: data.email } });
-    } catch {
-      dispatch(registerFailure('Регистрация не удалась.'));
+      await registerRequest(data);
+      dispatch(registerRequestFinished());
+      const loginResponse = await loginRequest({
+        email: data.email,
+        password: data.password,
+      });
+      dispatch(loginSuccess(loginResponse.user));
+      navigate('/', {
+        state: {
+          flashMessage: 'Успешная регистрация. Вы вошли в аккаунт.',
+        },
+      });
+    } catch (e) {
+      const msg = getAxiosErrorMessage(e, 'Регистрация не удалась.');
+      dispatch(registerFailure(msg));
+      setError('root', { type: 'server', message: msg });
     }
   };
 
@@ -125,6 +137,11 @@ const Register = () => {
           </span>
         )}
       </Form.Group>
+      {errors.root?.message && (
+        <div className="auth-field-error mb-3" role="alert">
+          {errors.root.message}
+        </div>
+      )}
       <div className="auth-form-bottom">
         <div className="auth-form-bottom-back-link-container">
           <Nav.Link as={Link} to="/" className="auth-form-bottom-back-link">

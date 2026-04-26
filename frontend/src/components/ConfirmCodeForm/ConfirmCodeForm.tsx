@@ -6,8 +6,9 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-do
 import AuthForm from '../AuthForm/AuthForm';
 import Header from '../Header/Header';
 import registerConfirmSchema, { type RegisterConfirmFormData } from '../../schemas/registerConfirmSchema';
-import { MAX_INPUT_LENGTH } from '../../constants/inputLimits';
+import { getAxiosErrorMessage } from '../../api/authApi';
 import './ConfirmCodeForm.css';
+
 
 const RESEND_INTERVAL_SEC = 60;
 
@@ -16,9 +17,10 @@ interface ConfirmCodeFormProps {
   backPath: string;
   successMessage: string;
   errorMessage: string;
+  initialMessage?: string;
   onConfirm: (payload: { email: string; code: string }) => Promise<unknown>;
   onResend: (payload: { email: string }) => Promise<unknown>;
-  onSuccessRedirect: string | ((email: string) => string);
+  onSuccessRedirect: string | ((ctx: { email: string; result: unknown }) => string);
 }
 
 function formatMmSs(totalSeconds: number): string {
@@ -32,6 +34,7 @@ function ConfirmCodeForm({
   backPath,
   successMessage,
   errorMessage,
+  initialMessage,
   onConfirm,
   onResend,
   onSuccessRedirect,
@@ -46,7 +49,18 @@ function ConfirmCodeForm({
 
   const [secondsLeft, setSecondsLeft] = useState(RESEND_INTERVAL_SEC);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [showInitialMessage, setShowInitialMessage] = useState(Boolean(initialMessage));
   const canResend = secondsLeft === 0;
+
+  useEffect(() => {
+    if (!initialMessage) {
+      setShowInitialMessage(false);
+      return;
+    }
+    setShowInitialMessage(true);
+    const id = window.setTimeout(() => setShowInitialMessage(false), 2500);
+    return () => window.clearTimeout(id);
+  }, [initialMessage]);
 
   const {
     register,
@@ -90,15 +104,18 @@ function ConfirmCodeForm({
     clearErrors('root');
     setSubmitSuccess(false);
     try {
-      await onConfirm({ email, code: data.code });
+      const result = await onConfirm({ email, code: data.code });
       setSubmitSuccess(true);
       reset();
-      const redirectPath = typeof onSuccessRedirect === 'function' ? onSuccessRedirect(email) : onSuccessRedirect;
+      const redirectPath =
+        typeof onSuccessRedirect === 'function'
+          ? onSuccessRedirect({ email, result })
+          : onSuccessRedirect;
       window.setTimeout(() => navigate(redirectPath), 2000);
-    } catch {
+    } catch (err) {
       setError('root', {
         type: 'server',
-        message: errorMessage,
+        message: getAxiosErrorMessage(err, errorMessage),
       });
     }
   };
@@ -111,8 +128,13 @@ function ConfirmCodeForm({
 
   const form = (
     <Form className="confirm-code-form" noValidate onSubmit={handleSubmit(onSubmit)}>
+      {showInitialMessage && initialMessage && (
+        <Alert variant="success" className="mb-3 auth-success-alert">
+          {initialMessage}
+        </Alert>
+      )}
       {submitSuccess && (
-        <Alert variant="success" className="mb-3">
+        <Alert variant="success" className="mb-3 auth-success-alert">
           {successMessage}
         </Alert>
       )}
@@ -121,8 +143,9 @@ function ConfirmCodeForm({
         <div className="input-field-wrapper">
           <Form.Control
             {...register('code')}
-            maxLength={MAX_INPUT_LENGTH}
-            placeholder="код"
+            maxLength={6}
+            inputMode="numeric"
+            placeholder="000000"
             isInvalid={!!errors.code}
             className="auth-form-body-input"
             autoComplete="one-time-code"

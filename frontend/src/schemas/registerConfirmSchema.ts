@@ -1,11 +1,7 @@
 import { z } from 'zod';
-import { MAX_INPUT_LENGTH } from '../constants/inputLimits';
 
 const registerConfirmSchema = z.object({
-  code: z
-    .string()
-    .min(1, 'Введите код')
-    .max(MAX_INPUT_LENGTH, 'Не более 150 символов'),
+  code: z.string().regex(/^\d{6}$/, 'Введите 6 цифр кода из письма'),
 });
 
 export type RegisterConfirmFormData = z.infer<typeof registerConfirmSchema>;

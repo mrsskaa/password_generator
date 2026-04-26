@@ -6,7 +6,7 @@ import { Button, Form, Nav } from 'react-bootstrap';
 import forgotPasswordSchema, { type ForgotPasswordFormData } from '../../schemas/forgotPasswordSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { forgotPasswordRequest } from '../../api/authApi';
+import { forgotPasswordRequest, getAxiosErrorMessage } from '../../api/authApi';
 import { MAX_INPUT_LENGTH } from '../../constants/inputLimits';
 
 function ForgotPassword() {
@@ -31,10 +31,10 @@ function ForgotPassword() {
       await forgotPasswordRequest({ email: data.email });
       reset({ email: data.email });
       navigate('/forgot-password/confirm', { state: { email: data.email } });
-    } catch {
+    } catch (err) {
       setError('root', {
         type: 'server',
-        message: 'Не удалось отправить письмо. Попробуйте позже.',
+        message: getAxiosErrorMessage(err, 'Не удалось отправить письмо. Попробуйте позже.'),
       });
     }
   };

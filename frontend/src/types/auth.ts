@@ -1,7 +1,10 @@
+/** Совпадает с `UserPublic` на бэкенде */
 export interface User {
   id: number;
-  email: string;
-  name: string;
+  username: string;
+  email: string | null;
+  role: string;
+  created_at: string;
 }
 
 export interface AuthState {
