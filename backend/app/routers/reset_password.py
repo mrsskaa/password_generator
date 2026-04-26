@@ -20,19 +20,19 @@ async def reset_password(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> dict[str, str]:
     if len(payload.new_password) < 8:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password too short")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Пароль слишком короткий")
 
     if not credentials or credentials.scheme.lower() != "bearer":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid reset token")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Недействительный токен сброса")
 
     email = auth_service.verify_reset_token(credentials.credentials)
     if not email:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid reset token")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Недействительный токен сброса")
 
     hashed_password = auth_service.get_password_hash(payload.new_password)
     updated = repository.update_user_password_by_email(email=email, hashed_password=hashed_password)
     if not updated:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid reset token")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Недействительный токен сброса")
 
     repository.delete_reset_codes_for_email(email)
-    return {"message": "Password updated"}
+    return {"message": "Пароль обновлен"}
