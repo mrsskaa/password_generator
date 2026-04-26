@@ -44,9 +44,9 @@ async def delete_password(
     try:
         return service.delete_password(current_user["id"], password_id)
     except PermissionError:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Доступ запрещен")
     except NotFoundError:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Password not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пароль не найден")
 
 
 @router.patch("/passwords/{password_id}", response_model=PatchResponse, status_code=status.HTTP_200_OK)
@@ -59,6 +59,6 @@ async def update_password(
     try:
         return service.update_description(current_user["id"], password_id, data.description)
     except PermissionError:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Доступ запрещен")
     except NotFoundError:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Password not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пароль не найден")

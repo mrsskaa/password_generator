@@ -37,7 +37,7 @@ def validate_length(length: int) -> None:
 
     if length < 8 or length > 32:
         raise InvalidLengthError(
-            "Password length must be between 8 and 32"
+            "Длина пароля должна быть от 8 до 32 символов"
         )
 
 
@@ -65,7 +65,7 @@ def build_groups(
 
     if not groups:
         raise EmptyCharacterPoolError(
-            "At least one character group must be selected"
+            "Необходимо выбрать хотя бы одну группу символов"
         )
 
     return groups
@@ -130,7 +130,9 @@ def generate_password(
 
         return password
 
-    raise PasswordGeneratorError(f"Failed to generate password after {max_attempts} attempts")
+    raise PasswordGeneratorError(
+        f"Не удалось сгенерировать пароль за {max_attempts} попыток"
+    )
 
 
 if __name__ == "__main__":

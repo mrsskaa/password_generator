@@ -23,7 +23,10 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 def _create_reset_code(email: str, repository: SQLAlchemyRepository) -> dict[str, Any]:
     latest_code = repository.get_latest_reset_code_for_email(email)
     if latest_code and (datetime.now(timezone.utc) - latest_code["created_at"]).total_seconds() < RATE_LIMIT_SECONDS:
-        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Too many requests")
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Слишком много запросов. Попробуйте через минуту",
+        )
 
     code = str(secrets.randbelow(900000) + 100000)
     return repository.create_password_reset_code(
@@ -37,11 +40,11 @@ def _validate_recovery_email(payload: ForgotPasswordRequest, repository: SQLAlch
     email = payload.email.strip().lower()
 
     if not EMAIL_RE.match(email):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid email")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Некорректный email")
 
     user = repository.get_user_by_email(email)
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Email not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь с таким email не найден")
 
     return email
 
@@ -60,11 +63,11 @@ async def forgot_password(
         logger.exception("Password recovery email failed for email=%s", email)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Failed to send recovery email",
+            detail="Не удалось отправить письмо для восстановления",
         ) from exc
 
     logger.info("Password recovery code sent for email=%s", email)
-    return {"message": "Code sent"}
+    return {"message": "Код отправлен"}
 
 
 @router.post("/forgot-password/resend-code")
@@ -81,8 +84,8 @@ async def resend_forgot_password_code(
         logger.exception("Password recovery resend email failed for email=%s", email)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Failed to send recovery email",
+            detail="Не удалось отправить письмо для восстановления",
         ) from exc
 
     logger.info("Password recovery resend sent for email=%s", email)
-    return {"message": "Code sent"}
+    return {"message": "Код отправлен"}
