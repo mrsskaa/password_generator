@@ -77,7 +77,6 @@ function Generator() {
   const handleGenerate = async () => {
     setIsLoading(true);
     setError('');
-    setStrengthMeta(null);
     try {
       const response = await generatePasswordRequest(generatorPayload);
       setGeneratedPassword(response.password);
