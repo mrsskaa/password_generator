@@ -25,6 +25,7 @@ const authSlice = createSlice({
     },
     loginSuccess: (state, action: PayloadAction<User>) => {
       state.loginLoading = false;
+      state.loginError = null;
       state.isAuthenticated = true;
       state.user = action.payload;
     },
@@ -39,10 +40,11 @@ const authSlice = createSlice({
       state.registerError = null;
       state.registerSuccess = false;
     },
-    registerSuccess: (state, action: PayloadAction<User>) => {
+    /** Регистрация на сервере прошла; пользователь ещё не залогинен (сессия после подтверждения). */
+    registerRequestFinished: (state) => {
       state.isRegistering = false;
+      state.registerError = null;
       state.registerSuccess = true;
-      state.user = action.payload;
     },
     registerFailure: (state, action: PayloadAction<string>) => {
       state.isRegistering = false;
@@ -69,7 +71,7 @@ export const {
   loginFailure,
   // Регистрация
   registerStart,
-  registerSuccess,
+  registerRequestFinished,
   registerFailure,
   clearRegisterSuccess,
   // Общие

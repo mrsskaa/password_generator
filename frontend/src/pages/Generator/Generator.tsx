@@ -1,24 +1,40 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Container, Form, Modal } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Alert, Button, Container, Form, Modal, OverlayTrigger, Popover } from 'react-bootstrap';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import './Generator.css';
 import { generatePasswordRequest } from '../../api/authApi';
 import type { GeneratePasswordPayload } from '../../types/generator';
 import Header from '../../components/Header/Header';
 import type { RootState } from '../../store/store';
+import { isStrengthBelowGood, normalizeStrengthToken } from '../../utils/passwordStrength';
 
 const MIN_LENGTH = 8;
 const MAX_LENGTH = 32;
 const PASSWORD_PLACEHOLDER = 'Нажмите "СГЕНЕРИРОВАТЬ"';
 
 function Generator() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const flashFromQuery = searchParams.get('flash');
+  const flashFromQueryMessage =
+    flashFromQuery === 'confirm_success' ? 'Успешное подтверждение кода. Вы вошли в аккаунт.' : undefined;
+  const flashMessage = (location.state as { flashMessage?: string } | null)?.flashMessage;
+  const effectiveFlashMessage = flashMessage ?? flashFromQueryMessage;
   const [length, setLength] = useState(16);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState(PASSWORD_PLACEHOLDER);
+  const [strengthMeta, setStrengthMeta] = useState<{
+    crackTimeText: string;
+    strengthColor: string;
+    strengthLevel: string;
+    hints: string[];
+  } | null>(null);
   const [error, setError] = useState('');
+  const [copyMessage, setCopyMessage] = useState('');
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const [options, setOptions] = useState({
     includeLowercase: true,
@@ -36,6 +52,16 @@ function Generator() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!effectiveFlashMessage) {
+      return;
+    }
+    const timerId = window.setTimeout(() => {
+      navigate('/', { replace: true, state: null });
+    }, 2500);
+    return () => window.clearTimeout(timerId);
+  }, [effectiveFlashMessage, navigate]);
+
   const generatorPayload: GeneratePasswordPayload = useMemo(
     () => ({
       length,
@@ -51,11 +77,20 @@ function Generator() {
   const handleGenerate = async () => {
     setIsLoading(true);
     setError('');
+    setStrengthMeta(null);
     try {
       const response = await generatePasswordRequest(generatorPayload);
       setGeneratedPassword(response.password);
-    } catch {
-      setError('Не удалось сгенерировать пароль. Проверьте подключение к серверу.');
+      setStrengthMeta({
+        crackTimeText: response.crack_time_human,
+        strengthColor: response.color,
+        strengthLevel: response.strength_level,
+        hints: response.hints ?? [],
+      });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Не удалось сгенерировать пароль. Проверьте подключение к серверу.';
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -65,7 +100,45 @@ function Generator() {
     if (!generatedPassword || generatedPassword === PASSWORD_PLACEHOLDER) {
       return;
     }
-    await navigator.clipboard.writeText(generatedPassword);
+
+    const copyViaFallback = (): boolean => {
+      const textArea = document.createElement('textarea');
+      textArea.value = generatedPassword;
+      textArea.setAttribute('readonly', '');
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-9999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      let copied = false;
+      try {
+        copied = document.execCommand('copy');
+      } catch {
+        copied = false;
+      } finally {
+        document.body.removeChild(textArea);
+      }
+      return copied;
+    };
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(generatedPassword);
+      } else if (!copyViaFallback()) {
+        throw new Error('Clipboard API unavailable');
+      }
+      setError('');
+      setCopyMessage('Пароль скопирован');
+      window.setTimeout(() => setCopyMessage(''), 1800);
+    } catch {
+      if (copyViaFallback()) {
+        setError('');
+        setCopyMessage('Пароль скопирован');
+        window.setTimeout(() => setCopyMessage(''), 1800);
+        return;
+      }
+      setCopyMessage('');
+      setError('Не удалось скопировать пароль. Разрешите доступ к буферу обмена.');
+    }
   };
 
   const handleSave = async () => {
@@ -76,6 +149,14 @@ function Generator() {
     await handleCopy();
   };
 
+  const showStrengthMeta = strengthMeta !== null && generatedPassword !== PASSWORD_PLACEHOLDER;
+  const strengthClassSuffix =
+    showStrengthMeta && strengthMeta ? normalizeStrengthToken(strengthMeta.strengthColor) : null;
+  const showHintButton =
+    strengthMeta != null &&
+    isStrengthBelowGood(strengthMeta.strengthLevel) &&
+    (strengthMeta.hints?.length ?? 0) > 0;
+
   const renderToggle = (enabled: boolean) => (
     <button type="button" className="generator-toggle-btn" aria-label={enabled ? 'Выключить' : 'Включить'}>
       <i className={`bi ${enabled ? 'bi-toggle-on' : 'bi-toggle-off'} generator-toggle-icon`} />
@@ -85,33 +166,79 @@ function Generator() {
   return (
     <>
       <Header />
-      <Container className="generator-page py-4">
-
-        <h1 className="generator-title">ГЕНЕРАТОР БЕЗОПАСНЫХ ПАРОЛЕЙ</h1>
-        <p className="generator-subtitle">Создавайте надежные пароли, которые невозможно взломать</p>
+      <main className="generator-main">
+        <Container className="generator-page py-4">
+        <div className="generator-heading">
+          <h1 className="generator-title">ГЕНЕРАТОР БЕЗОПАСНЫХ ПАРОЛЕЙ</h1>
+          <p className="generator-subtitle mb-0">Создавайте надежные пароли, которые невозможно взломать</p>
+        </div>
 
         <div className="generator-content-box">
-        <div className="generator-password-box">
-          <span
-            className={`generator-password-value ${generatedPassword === PASSWORD_PLACEHOLDER ? 'is-placeholder' : ''}`}
+        {effectiveFlashMessage && (
+          <Alert variant="success" className="mb-3 auth-success-alert">
+            {effectiveFlashMessage}
+          </Alert>
+        )}
+        <div className="generator-password-stack">
+          <div
+            className={
+              strengthClassSuffix
+                ? `generator-password-box generator-strength--${strengthClassSuffix}`
+                : 'generator-password-box'
+            }
           >
-            {showPassword ? generatedPassword : generatedPassword.replace(/./g, '•')}
-          </span>
-          <div className="generator-password-actions">
-            <button type="button" onClick={handleGenerate} className="generator-icon-btn" aria-label="Сгенерировать">
-              <i className="bi bi-arrow-clockwise" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowPassword((prev) => !prev)}
-              className="generator-icon-btn"
-              aria-label="Показать или скрыть пароль"
+            <span
+              className={`generator-password-value ${generatedPassword === PASSWORD_PLACEHOLDER ? 'is-placeholder' : 'is-generated'}`}
             >
-              <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
-            </button>
-            <button type="button" onClick={handleCopy} className="generator-icon-btn" aria-label="Скопировать пароль">
-              <i className="bi bi-copy" />
-            </button>
+              {showPassword ? generatedPassword : generatedPassword.replace(/./g, '•')}
+            </span>
+            <div className="generator-password-actions">
+              <button type="button" onClick={handleGenerate} className="generator-icon-btn" aria-label="Сгенерировать">
+                <i className="bi bi-arrow-clockwise" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="generator-icon-btn"
+                aria-label="Показать или скрыть пароль"
+              >
+                <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
+              </button>
+              <button type="button" onClick={handleCopy} className="generator-icon-btn" aria-label="Скопировать пароль">
+                <i className="bi bi-copy" />
+              </button>
+            </div>
+          </div>
+          <div className="generator-password-meta-slot">
+            {showStrengthMeta && strengthMeta && strengthClassSuffix ? (
+              <div className={`generator-password-meta generator-strength--${strengthClassSuffix}`}>
+                <p className="generator-crack-estimate mb-0">
+                  Пароль будет взломан через {strengthMeta.crackTimeText}
+                </p>
+                {showHintButton && (
+                  <OverlayTrigger
+                    trigger="click"
+                    placement="bottom"
+                    rootClose
+                    overlay={
+                      <Popover id="generator-password-hint" className="generator-hint-popover">
+                        <Popover.Body as="div" className="generator-hint-popover-body">
+                          {strengthMeta.hints.join(' ')}
+                        </Popover.Body>
+                      </Popover>
+                    }
+                  >
+                    <button
+                      type="button"
+                      className="generator-hint-btn"
+                      aria-label="Подсказка по усилению пароля"
+                    >
+                      <i className="bi bi-question-circle" aria-hidden />
+                    </button>
+                  </OverlayTrigger>
+                )}
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -157,6 +284,7 @@ function Generator() {
         </div>
 
         <div className="generator-error-slot" aria-live="polite">
+          {copyMessage && <p className="generator-copy-text mb-0">{copyMessage}</p>}
           {error && <p className="generator-error-text mb-0">{error}</p>}
         </div>
 
@@ -172,6 +300,7 @@ function Generator() {
         </div>
         </div>
       </Container>
+      </main>
       <Modal
         show={showLoginPrompt}
         onHide={() => setShowLoginPrompt(false)}
