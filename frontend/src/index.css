@@ -34,6 +34,12 @@ html, body {
     --font-size-34: 34px;
     --font-size-46: 46px;
 
+    --not-found-context-color: #7F5836;
+    --not-found-button-color: #EC9C9D;
+    --not-found-button-height: 95px;
+    --not-found-button-width: 380px;
+    --not-found-margin: 40px;
+
     --gray-80: #808080;
     --gray-text: #3f3736;
     --gray-subtext: #7a716f;
