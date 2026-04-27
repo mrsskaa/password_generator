@@ -114,6 +114,25 @@ class SQLAlchemyRepository:
             session.commit()
             return result.rowcount > 0
 
+    def update_unverified_user_credentials(
+        self,
+        user_id: int,
+        username: str,
+        email: str,
+        hashed_password: str,
+    ) -> dict[str, Any] | None:
+        with self.SessionLocal() as session:
+            user = session.scalar(select(User).where(User.id == user_id))
+            if not user:
+                return None
+            user.username = username
+            user.email = email
+            user.hashed_password = hashed_password
+            user.email_verified = False
+            session.commit()
+            session.refresh(user)
+            return self._to_dict(user)
+
     def get_latest_reset_code_for_email(self, email: str) -> dict[str, Any] | None:
         with self.SessionLocal() as session:
             code_row = session.scalar(

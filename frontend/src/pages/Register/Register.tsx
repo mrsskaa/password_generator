@@ -36,20 +36,30 @@ const Register = () => {
     navigate('/register/confirm', {
       state: {
         email: data.email,
-        flashMessage: 'Успешная регистрация. Введите код из письма.',
+        flashMessage: 'Проверяем регистрацию и отправляем код...',
       },
     });
 
     void registerRequest(data)
-      .then(() => {
+      .then((response) => {
         dispatch(registerRequestFinished());
+        navigate('/register/confirm', {
+          replace: true,
+          state: {
+            email: data.email,
+            flashMessage: response.message || 'Успешная регистрация. Введите код из письма.',
+          },
+        });
       })
       .catch((e) => {
         const msg = getAxiosErrorMessage(e, 'Регистрация не удалась.');
         dispatch(registerFailure(msg));
-        navigate('/register', {
+        navigate('/register/confirm', {
           replace: true,
-          state: { flashMessage: msg },
+          state: {
+            email: data.email,
+            initialError: msg,
+          },
         });
       });
   };

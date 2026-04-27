@@ -16,7 +16,7 @@ function RegisterConfirm() {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
-  const state = location.state as { email?: string; flashMessage?: string } | null;
+  const state = location.state as { email?: string; flashMessage?: string; initialError?: string } | null;
 
   useEffect(() => {
     if (!state?.email) {
@@ -33,6 +33,7 @@ function RegisterConfirm() {
       title="ВВЕДИТЕ КОД ИЗ ПИСЬМА"
       backPath="/register"
       initialMessage={state.flashMessage}
+      initialError={state.initialError}
       successMessage="Аккаунт подтверждён. Сейчас откроется генератор…"
       errorMessage="Неверный код или срок действия истёк."
       onConfirm={async ({ email, code }) => {
