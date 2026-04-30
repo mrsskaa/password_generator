@@ -1,10 +1,16 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+from app.core.password_policy import validate_password_policy
 
 
 class RegisterRequest(BaseModel):
-    username: str = Field(..., min_length=3, max_length=64)
-    password: str = Field(..., min_length=8, max_length=128)
-    email: str | None = Field(default=None, max_length=255)
+    password: str = Field(...)
+    email: str = Field(..., max_length=255)
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, value: str) -> str:
+        return validate_password_policy(value)
 
 
 class LoginRequest(BaseModel):

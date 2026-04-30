@@ -19,8 +19,6 @@ async def reset_password(
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> dict[str, str]:
-    if len(payload.new_password) < 8:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Пароль слишком короткий")
 
     if not credentials or credentials.scheme.lower() != "bearer":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Недействительный токен сброса")
