@@ -9,6 +9,8 @@ import RegisterConfirm from "./pages/RegisterConfirm/registerConfirm";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import ForgotPasswordConfirm from "./pages/ForgotPasswordConfirm/ForgotPasswordConfirm";
 import ForgotPasswordReset from "./pages/ForgotPasswordReset/ForgotPasswordReset";
+import SavePassword from "./pages/SavePassword/SavePassword";
+import MyPasswords from "./pages/MyPasswords/MyPasswords";
 import { loginSuccess } from "./store/authSlice";
 import { fetchCurrentUser } from "./api/authApi";
 import type { AppDispatch } from "./store/store";
@@ -41,6 +43,8 @@ function App() {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/forgot-password/confirm" element={<ForgotPasswordConfirm />} />
                 <Route path="/forgot-password/reset" element={<ForgotPasswordReset />} />
+                <Route path="/passwords/save" element={<SavePassword />} />
+                <Route path="/passwords" element={<MyPasswords />} />
             </Routes>
         </BrowserRouter>
     )

@@ -4,7 +4,7 @@ import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 
 from app.dependencies import get_repository
 from app.repositories.user_repo import SQLAlchemyRepository
@@ -49,43 +49,33 @@ def _validate_recovery_email(payload: ForgotPasswordRequest, repository: SQLAlch
     return email
 
 
+def _with_debug_code_message(message: str, code: str) -> str:
+    return f"{message} [DEV code: {code}]"
+
+
 @router.post("/forgot-password")
 async def forgot_password(
     payload: ForgotPasswordRequest,
+    background_tasks: BackgroundTasks,
     repository: Annotated[SQLAlchemyRepository, Depends(get_repository)],
 ) -> dict[str, str]:
     email = _validate_recovery_email(payload, repository)
     code_row = _create_reset_code(email, repository)
-    try:
-        send_password_reset_code(email, code_row["code"])
-    except Exception as exc:
-        repository.delete_password_reset_code_by_id(code_row["id"])
-        logger.exception("Password recovery email failed for email=%s", email)
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Не удалось отправить письмо для восстановления",
-        ) from exc
+    background_tasks.add_task(send_password_reset_code, email, code_row["code"])
 
     logger.info("Password recovery code sent for email=%s", email)
-    return {"message": "Код отправлен"}
+    return {"message": _with_debug_code_message("Код скоро придет", code_row["code"])}
 
 
 @router.post("/forgot-password/resend-code")
 async def resend_forgot_password_code(
     payload: ForgotPasswordRequest,
+    background_tasks: BackgroundTasks,
     repository: Annotated[SQLAlchemyRepository, Depends(get_repository)],
 ) -> dict[str, str]:
     email = _validate_recovery_email(payload, repository)
     code_row = _create_reset_code(email, repository)
-    try:
-        send_password_reset_code(email, code_row["code"])
-    except Exception as exc:
-        repository.delete_password_reset_code_by_id(code_row["id"])
-        logger.exception("Password recovery resend email failed for email=%s", email)
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Не удалось отправить письмо для восстановления",
-        ) from exc
+    background_tasks.add_task(send_password_reset_code, email, code_row["code"])
 
     logger.info("Password recovery resend sent for email=%s", email)
-    return {"message": "Код отправлен"}
+    return {"message": _with_debug_code_message("Код скоро придет", code_row["code"])}
