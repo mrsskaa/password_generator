@@ -13,6 +13,9 @@ const FORGOT_PASSWORD_CONFIRM_PATH =
 const RESEND_FORGOT_PASSWORD_CODE_PATH =
   import.meta.env.VITE_RESEND_FORGOT_PASSWORD_CODE_ENDPOINT ?? '/api/auth/forgot-password/resend-code';
 const RESET_FORGOT_PASSWORD_PATH = import.meta.env.VITE_RESET_FORGOT_PASSWORD_ENDPOINT ?? '/api/auth/reset-password';
+const REGISTER_CONFIRM_PATH = import.meta.env.VITE_REGISTER_CONFIRM_ENDPOINT ?? '/api/auth/register/verify-code';
+const RESEND_REGISTER_CODE_PATH =
+  import.meta.env.VITE_RESEND_REGISTER_CODE_ENDPOINT ?? '/api/auth/register/resend-code';
 
 export function mapBackendUser(raw: unknown): User {
   const u = raw as Record<string, unknown>;
@@ -95,14 +98,23 @@ export async function logoutRequest(): Promise<void> {
   await axios.post(`${API_URL}/api/auth/logout`);
 }
 
-/**
- * Повторная отправка кода регистрации на бэкенде пока не реализована.
- * Оставляем успешный no-op, чтобы не ломать UI таймера «получить код снова».
- */
-export async function resendRegistrationCodeRequest(_payload: { email: string }): Promise<{ message: string }> {
-  void _payload;
-  return { message: 'Повторная отправка будет доступна после подключения API.' };
+export interface RegisterConfirmResponse {
+  message?: string;
+  user?: User;
 }
+
+export const confirmRegistrationRequest = async (payload: {
+  email: string;
+  code: string;
+}): Promise<RegisterConfirmResponse> => {
+  const response = await axios.post<RegisterConfirmResponse>(`${API_URL}${REGISTER_CONFIRM_PATH}`, payload);
+  return response.data;
+};
+
+export const resendRegistrationCodeRequest = async (payload: { email: string }): Promise<{ message?: string }> => {
+  const response = await axios.post<{ message?: string }>(`${API_URL}${RESEND_REGISTER_CODE_PATH}`, payload);
+  return response.data;
+};
 
 export { generatePasswordRequest } from './generatorApi';
 
@@ -146,5 +158,33 @@ export const resetForgotPasswordRequest = async (payload: {
       },
     },
   );
+  return response.data;
+};
+
+export interface SavePasswordPayload {
+  password: string;
+  description: string;
+  generationSettings?: Record<string, unknown>;
+}
+
+export interface SavePasswordResponse {
+  id: string;
+  password: string;
+  description: string;
+  created_at: string;
+  settings_preview: string;
+}
+
+export const savePasswordRequest = async (payload: SavePasswordPayload): Promise<SavePasswordResponse> => {
+  const response = await axios.post<SavePasswordResponse>(`${API_URL}/passwords`, {
+    password: payload.password,
+    description: payload.description,
+    generation_settings: payload.generationSettings ?? {},
+  });
+  return response.data;
+};
+
+export const getSavedPasswordsRequest = async (): Promise<SavePasswordResponse[]> => {
+  const response = await axios.get<SavePasswordResponse[]>(`${API_URL}/passwords`);
   return response.data;
 };

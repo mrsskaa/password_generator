@@ -77,7 +77,6 @@ function Generator() {
   const handleGenerate = async () => {
     setIsLoading(true);
     setError('');
-    setStrengthMeta(null);
     try {
       const response = await generatePasswordRequest(generatorPayload);
       setGeneratedPassword(response.password);
@@ -146,7 +145,12 @@ function Generator() {
       setShowLoginPrompt(true);
       return;
     }
-    await handleCopy();
+    navigate('/passwords/save', {
+      state: {
+        password: generatedPassword === PASSWORD_PLACEHOLDER ? '' : generatedPassword,
+        generationSettings: generatorPayload,
+      },
+    });
   };
 
   const showStrengthMeta = strengthMeta !== null && generatedPassword !== PASSWORD_PLACEHOLDER;

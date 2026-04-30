@@ -17,7 +17,6 @@ function ForgotPassword() {
     watch,
     setValue,
     formState: { errors },
-    setError,
     clearErrors,
     reset,
   } = useForm<ForgotPasswordFormData>({
@@ -27,16 +26,27 @@ function ForgotPassword() {
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     clearErrors('root');
-    try {
-      await forgotPasswordRequest({ email: data.email });
-      reset({ email: data.email });
-      navigate('/forgot-password/confirm', { state: { email: data.email } });
-    } catch (err) {
-      setError('root', {
-        type: 'server',
-        message: getAxiosErrorMessage(err, 'Не удалось отправить письмо. Попробуйте позже.'),
+    reset({ email: data.email });
+    navigate('/forgot-password/confirm', {
+      state: { email: data.email, flashMessage: 'Отправляем код на почту...' },
+    });
+
+    void forgotPasswordRequest({ email: data.email })
+      .then((response) => {
+        navigate('/forgot-password/confirm', {
+          replace: true,
+          state: { email: data.email, flashMessage: response.message },
+        });
+      })
+      .catch((err) => {
+        navigate('/forgot-password/confirm', {
+          replace: true,
+          state: {
+            email: data.email,
+            initialError: getAxiosErrorMessage(err, 'Не удалось отправить письмо. Попробуйте позже.'),
+          },
+        });
       });
-    }
   };
 
   const form = (
