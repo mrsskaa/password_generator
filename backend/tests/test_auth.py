@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
 from app.main import app
 
@@ -28,7 +28,7 @@ def test_login_success(mock_auth_service):
     payload = {"username": "testuser", "password": "correct_password"}
     response = client.post("/api/auth/login", json=payload)
     assert response.status_code == 200
-    assert response.json()["message"] == "Login successful"
+    assert response.json()["message"] == "Вход выполнен"
     assert response.json()["user"]["username"] == "testuser"
     assert "access_token" in response.cookies
     assert response.cookies["access_token"] == "fake-jwt-token"
@@ -38,11 +38,11 @@ def test_login_invalid_credentials(mock_auth_service):
     payload = {"username": "testuser", "password": "wrong_password"}
     response = client.post("/api/auth/login", json=payload)
     assert response.status_code == 401
-    assert response.json()["detail"] == "Incorrect username or password"
+    assert response.json()["detail"] == "Неверное имя пользователя или пароль"
     assert "access_token" not in response.cookies
 
 def test_logout(mock_auth_service):
     response = client.post("/api/auth/logout")
     assert response.status_code == 200
-    assert response.json()["message"] == "Logout successful"
+    assert response.json()["message"] == "Выход выполнен"
     assert response.cookies.get("access_token") is None
