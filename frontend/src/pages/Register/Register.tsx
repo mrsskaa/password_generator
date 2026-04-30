@@ -2,19 +2,21 @@ import { useState } from 'react';
 import Header from '../../components/Header/Header';
 import './Register.css';
 import AuthForm from '../../components/AuthForm/AuthForm'
-import { Link, useNavigate } from 'react-router-dom';
-import { Button, Form, Nav } from 'react-bootstrap';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Alert, Button, Form, Nav } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 import regSchema, { type registerFormData } from '../../schemas/regSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDispatch } from 'react-redux';
-import { loginSuccess, registerFailure, registerRequestFinished, registerStart } from '../../store/authSlice';
-import { getAxiosErrorMessage, loginRequest, registerRequest } from '../../api/authApi';
+import { registerFailure, registerRequestFinished, registerStart } from '../../store/authSlice';
+import { getAxiosErrorMessage, registerRequest } from '../../api/authApi';
 import { MAX_INPUT_LENGTH } from '../../constants/inputLimits';
 
 
 const Register = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const flashMessage = (location.state as { flashMessage?: string } | null)?.flashMessage;
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const {
@@ -23,7 +25,6 @@ const Register = () => {
     watch,
     setValue,
     formState: { errors },
-    setError,
   } = useForm<registerFormData>({
     resolver: zodResolver(regSchema),
   });
@@ -32,28 +33,44 @@ const Register = () => {
 
   const onSubmit = async (data: registerFormData) => {
     dispatch(registerStart());
-    try {
-      await registerRequest(data);
-      dispatch(registerRequestFinished());
-      const loginResponse = await loginRequest({
+    navigate('/register/confirm', {
+      state: {
         email: data.email,
-        password: data.password,
+        flashMessage: 'Проверяем регистрацию и отправляем код...',
+      },
+    });
+
+    void registerRequest(data)
+      .then((response) => {
+        dispatch(registerRequestFinished());
+        navigate('/register/confirm', {
+          replace: true,
+          state: {
+            email: data.email,
+            flashMessage: response.message || 'Успешная регистрация. Введите код из письма.',
+          },
+        });
+      })
+      .catch((e) => {
+        const msg = getAxiosErrorMessage(e, 'Регистрация не удалась.');
+        dispatch(registerFailure(msg));
+        navigate('/register/confirm', {
+          replace: true,
+          state: {
+            email: data.email,
+            initialError: msg,
+          },
+        });
       });
-      dispatch(loginSuccess(loginResponse.user));
-      navigate('/', {
-        state: {
-          flashMessage: 'Успешная регистрация. Вы вошли в аккаунт.',
-        },
-      });
-    } catch (e) {
-      const msg = getAxiosErrorMessage(e, 'Регистрация не удалась.');
-      dispatch(registerFailure(msg));
-      setError('root', { type: 'server', message: msg });
-    }
   };
 
   const form = (
     <Form className="register-form" noValidate onSubmit={handleSubmit(onSubmit)}>
+      {flashMessage && (
+        <Alert variant="warning" className="mb-3">
+          {flashMessage}
+        </Alert>
+      )}
       <Form.Group className="mb-3">
         <Form.Label className="auth-form-body-label">Почта:</Form.Label>
         <div className="input-field-wrapper">

@@ -56,3 +56,48 @@ a.header-text-link:hover {
   gap: 10px;
   margin-right: -48px;
 }
+
+.header-auth-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-icon-btn {
+  border: none;
+  background: transparent;
+  color: #4e342c;
+  font-size: 36px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.header-icon-btn::after {
+  display: none !important;
+}
+
+.header-auth-menu.dropdown-menu {
+  border: none;
+  border-radius: 22px;
+  padding: 16px;
+  min-width: 290px;
+  box-shadow: 0 10px 26px rgba(181, 108, 88, 0.25);
+}
+
+.header-auth-menu-item.dropdown-item {
+  border-radius: 999px;
+  background: transparent;
+  color: #4e342c;
+  font-size: 20px;
+  font-weight: 500;
+  padding: 14px 22px;
+}
+
+.header-auth-menu-item.dropdown-item.is-active,
+.header-auth-menu-item.dropdown-item:hover {
+  background: #efe4d7;
+  color: #4e342c;
+}
