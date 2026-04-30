@@ -8,6 +8,7 @@ ISO8601 = Annotated[str, "ISO8601 datetime string"]
 
 class PasswordPostRequest(BaseModel):
     password: str = Field(..., min_length=8, max_length=128)
+    code_word: str = Field(..., min_length=1, max_length=128)
     description: str = Field(..., min_length=1, max_length=500)
     generation_settings: dict[str, Any]
 
@@ -18,10 +19,24 @@ class DescriptionPatchRequest(BaseModel):
 
 class PasswordGetResponse(BaseModel):
     id: uuid.UUID
-    password: str = Field(..., max_length=255)
     description: str = Field(..., min_length=1, max_length=500)
     created_at: ISO8601
     settings_preview: str
+
+
+class PasswordListResponse(BaseModel):
+    items: list[PasswordGetResponse]
+    total: int = Field(..., ge=0)
+    limit: int = Field(..., ge=1)
+    offset: int = Field(..., ge=0)
+
+
+class PasswordRevealRequest(BaseModel):
+    code_word: str = Field(..., min_length=1, max_length=128)
+
+
+class PasswordRevealResponse(BaseModel):
+    password: str
 
 
 class PatchResponse(BaseModel):
@@ -31,4 +46,4 @@ class PatchResponse(BaseModel):
 
 
 class DeleteResponse(BaseModel):
-    message: str = "Password deleted"
+    message: str = "Пароль удалён"
