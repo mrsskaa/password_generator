@@ -1,7 +1,7 @@
 import uuid
 from typing import Optional
 
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, func
 from sqlalchemy.orm import Session
 
 from app.models.saved_password import SavedPassword
@@ -17,7 +17,9 @@ class PasswordRepository:
     def create(
         self,
         user_id: int,
-        hashed_password: str,
+        encrypted_password: str,
+        salt: str,
+        nonce: str,
         description: str,
         generation_settings: dict,
         settings_preview: str,
@@ -25,7 +27,9 @@ class PasswordRepository:
         with self._get_session() as session:
             new_password = SavedPassword(
                 user_id=user_id,
-                hashed_password=hashed_password,
+                encrypted_password=encrypted_password,
+                salt=salt,
+                nonce=nonce,
                 description=description,
                 generation_settings=generation_settings,
                 settings_preview=settings_preview,
@@ -35,16 +39,22 @@ class PasswordRepository:
             session.refresh(new_password)
             return new_password
 
-    def list_by_user(self, user_id: int, limit: int = 10) -> list[SavedPassword]:
+    def list_by_user(self, user_id: int, limit: int = 10, offset: int = 0) -> list[SavedPassword]:
         with self._get_session() as session:
             stmt = (
                 select(SavedPassword)
                 .where(SavedPassword.user_id == user_id)
                 .order_by(SavedPassword.created_at.desc())
                 .limit(limit)
+                .offset(offset)
             )
             result = session.execute(stmt)
             return list(result.scalars().all())
+
+    def count_by_user(self, user_id: int) -> int:
+        with self._get_session() as session:
+            stmt = select(func.count()).select_from(SavedPassword).where(SavedPassword.user_id == user_id)
+            return int(session.scalar(stmt) or 0)
 
     def get_by_id_and_user(self, password_id: uuid.UUID, user_id: int) -> Optional[SavedPassword]:
         with self._get_session() as session:
