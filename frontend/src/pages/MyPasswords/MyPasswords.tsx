@@ -12,6 +12,7 @@ import {
   type SavePasswordResponse,
 } from '../../api/authApi';
 import './MyPasswords.css';
+import ContentBox from '../../components/ContentBox/ContentBox';
 
 const PAGE_SIZE = 5;
 
@@ -69,10 +70,14 @@ function MyPasswords() {
     setError('');
     void getSavedPasswordsRequest()
       .then((data) => {
-        setItems(data);
+        // Гарантируем, что data — массив
+        const safeData = Array.isArray(data) ? data : [];
+        setItems(safeData);
       })
       .catch((e) => {
         setError(getAxiosErrorMessage(e, 'Не удалось загрузить сохранённые пароли.'));
+        // При ошибке тоже устанавливаем пустой массив
+        setItems([]);
       });
   }, [isAuthenticated, isCheckingSession]);
 
@@ -105,90 +110,98 @@ function MyPasswords() {
     <>
       <Header />
       <main className="my-passwords-main">
-        <section className="my-passwords-container">
-          {flashMessage && (
-            <Alert variant="success" className="auth-success-alert">
-              {flashMessage}
-            </Alert>
-          )}
-          <div className="my-passwords-top">
-            <h1 className="my-passwords-title mb-0">МОИ ПАРОЛИ</h1>
-            <div className="my-passwords-search-wrap">
-              <i className="bi bi-search my-passwords-search-icon" aria-hidden />
-              <Form.Control
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                className="my-passwords-search"
-                aria-label="Поиск сохранённых паролей"
-              />
-              <i className="bi bi-sliders2 my-passwords-filter-icon" aria-hidden />
+        
+          <section className="my-passwords-container">
+            {flashMessage && (
+              <Alert variant="success" className="auth-success-alert">
+                {flashMessage}
+              </Alert>
+            )}
+            <div className="my-passwords-top">
+              <h1 className="my-passwords-title mb-0">МОИ ПАРОЛИ</h1>
+              <div className="my-passwords-search-wrap">
+                <i className="bi bi-search my-passwords-search-icon" aria-hidden />
+                <Form.Control
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  className="my-passwords-search"
+                  aria-label="Поиск сохранённых паролей"
+                />
+                <i className="bi bi-sliders2 my-passwords-filter-icon" aria-hidden />
+              </div>
             </div>
-          </div>
+          <ContentBox className='my-passwords-table-layout'>
+            <div className="my-passwords-table-box table-responsive">
+              {error && <p className="my-passwords-error mb-3">{error}</p>}
 
-          <div className="my-passwords-table-box">
-            {error && <p className="my-passwords-error mb-3">{error}</p>}
-
-            <Table borderless className="my-passwords-table mb-0">
-              <thead>
-                <tr>
-                  <th>ДАТА</th>
-                  <th>ОПИСАНИЕ</th>
-                  <th>ПАРОЛЬ</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {isCheckingSession && (
-                  <tr>
-                    <td colSpan={4} className="my-passwords-empty">
-                      Загрузка...
-                    </td>
+              <Table borderless className="my-passwords-table ">
+                <thead >
+                  <tr className='my-passwords-table-head'>
+                    <th>ДАТА</th>
+                    <th>ОПИСАНИЕ</th>
+                    <th>ПАРОЛЬ</th>
+                    <th />
                   </tr>
-                )}
-                {visibleItems.map((item) => {
-                  const isExpanded = Boolean(expandedIds[item.id]);
-                  return (
-                    <tr key={item.id}>
-                      <td>{formatDate(item.created_at)}</td>
-                      <td className="my-passwords-description-cell">{item.description}</td>
-                      <td>{isExpanded ? item.password : maskPassword(item.password)}</td>
-                      <td>
-                        <button
-                          type="button"
-                          className="my-passwords-details-btn"
-                          onClick={() => toggleDetails(item.id)}
-                        >
-                          {isExpanded ? 'скрыть' : 'подробнее'}
-                        </button>
+                </thead>
+                <tbody>
+                  {isCheckingSession && (
+                    <tr>
+                      <td colSpan={4} className="my-passwords-empty">
+                        Загрузка...
                       </td>
                     </tr>
-                  );
-                })}
-                {!isCheckingSession && visibleItems.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="my-passwords-empty">
-                      Пока нет сохранённых паролей.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </Table>
+                  )}
+                  {visibleItems.map((item) => {
+                    const isExpanded = Boolean(expandedIds[item.id]);
+                    return (
+                      <tr key={item.id}>
+                        <td>{formatDate(item.created_at)}</td>
+                        <td className="my-passwords-description-cell">{item.description}</td>
+                        <td>{isExpanded ? item.password : maskPassword(item.password)}</td>
+                        <td>
+                          <button
+                            type="button"
+                            className="my-passwords-details-btn"
+                            onClick={() => toggleDetails(item.id)}
+                          >
+                            {isExpanded ? 'скрыть' : 'подробнее'}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {!isCheckingSession && visibleItems.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="my-passwords-empty">
+                        Пока нет сохранённых паролей.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </Table>
 
-            <div className="my-passwords-bottom">
-              <Link to="/" className="my-passwords-back-link">
-                {'<< НАЗАД'}
-              </Link>
-              <Button
-                type="button"
-                className="my-passwords-more-btn"
-                onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
-                disabled={!canShowMore}
-              >
-                СМОТРЕТЬ ЕЩЕ
-              </Button>
+              <div className="my-passwords-bottom">
+                <div className='my-passwords-back-link-container'>
+                  <Link to="/" className="my-passwords-back-link">
+                    {'<< НАЗАД'}
+                  </Link>
+                </div>
+                
+                <div className='justify-content-center my-password-more-btn-layout'>
+                  <Button
+                    type="button"
+                    className="my-passwords-more-btn"
+                    onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+                    disabled={!canShowMore}
+                  >
+                    СМОТРЕТЬ ЕЩЕ
+                  </Button>
+                </div>
+              </div>
             </div>
-          </div>
-        </section>
+          </ContentBox>  
+          </section>
+        
       </main>
     </>
   );
