@@ -13,6 +13,10 @@ const FORGOT_PASSWORD_CONFIRM_PATH =
 const RESEND_FORGOT_PASSWORD_CODE_PATH =
   import.meta.env.VITE_RESEND_FORGOT_PASSWORD_CODE_ENDPOINT ?? '/api/auth/forgot-password/resend-code';
 const RESET_FORGOT_PASSWORD_PATH = import.meta.env.VITE_RESET_FORGOT_PASSWORD_ENDPOINT ?? '/api/auth/reset-password';
+const REGISTER_CONFIRM_PATH =
+  import.meta.env.VITE_REGISTER_CONFIRM_ENDPOINT ?? '/api/auth/register/verify-code';
+const RESEND_REGISTER_CODE_PATH =
+  import.meta.env.VITE_RESEND_REGISTER_CODE_ENDPOINT ?? '/api/auth/register/resend-code';
 
 export function mapBackendUser(raw: unknown): User {
   const u = raw as Record<string, unknown>;
@@ -26,21 +30,26 @@ export function mapBackendUser(raw: unknown): User {
 }
 
 export function getAxiosErrorMessage(error: unknown, fallback: string): string {
-  if (axios.isAxiosError(error) && error.response?.data) {
-    const data = error.response.data as { detail?: unknown };
-    const { detail } = data;
-    if (typeof detail === 'string') {
-      return detail;
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data as { detail?: unknown } | undefined;
+    if (data?.detail !== undefined) {
+      const { detail } = data;
+      if (typeof detail === 'string') {
+        return detail;
+      }
+      if (Array.isArray(detail)) {
+        return detail
+          .map((item) => {
+            if (item && typeof item === 'object' && 'msg' in item) {
+              return String((item as { msg: string }).msg);
+            }
+            return String(item);
+          })
+          .join(', ');
+      }
     }
-    if (Array.isArray(detail)) {
-      return detail
-        .map((item) => {
-          if (item && typeof item === 'object' && 'msg' in item) {
-            return String((item as { msg: string }).msg);
-          }
-          return String(item);
-        })
-        .join(', ');
+    if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+      return 'Нет соединения с сервером. Проверьте, что бэкенд запущен.';
     }
   }
   if (error instanceof Error) {
@@ -95,14 +104,20 @@ export async function logoutRequest(): Promise<void> {
   await axios.post(`${API_URL}/api/auth/logout`);
 }
 
-/**
- * Повторная отправка кода регистрации на бэкенде пока не реализована.
- * Оставляем успешный no-op, чтобы не ломать UI таймера «получить код снова».
- */
-export async function resendRegistrationCodeRequest(_payload: { email: string }): Promise<{ message: string }> {
-  void _payload;
-  return { message: 'Повторная отправка будет доступна после подключения API.' };
-}
+export const confirmRegistrationRequest = async (payload: {
+  email: string;
+  code: string;
+}): Promise<{ message?: string }> => {
+  const response = await axios.post<{ message?: string }>(`${API_URL}${REGISTER_CONFIRM_PATH}`, payload);
+  return response.data;
+};
+
+export const resendRegistrationCodeRequest = async (payload: {
+  email: string;
+}): Promise<{ message?: string }> => {
+  const response = await axios.post<{ message?: string }>(`${API_URL}${RESEND_REGISTER_CODE_PATH}`, payload);
+  return response.data;
+};
 
 export { generatePasswordRequest } from './generatorApi';
 

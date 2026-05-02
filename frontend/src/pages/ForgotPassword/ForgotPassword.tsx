@@ -29,14 +29,15 @@ function ForgotPassword() {
     clearErrors('root');
     try {
       await forgotPasswordRequest({ email: data.email });
-      reset({ email: data.email });
-      navigate('/forgot-password/confirm', { state: { email: data.email } });
     } catch (err) {
       setError('root', {
         type: 'server',
         message: getAxiosErrorMessage(err, 'Не удалось отправить письмо. Попробуйте позже.'),
       });
+      return;
     }
+    reset({ email: data.email });
+    navigate('/forgot-password/confirm', { state: { email: data.email } });
   };
 
   const form = (

@@ -57,26 +57,41 @@ async def register(
     repository: Annotated[SQLAlchemyRepository, Depends(get_repository)],
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ) -> AuthResponse:
-    existing = repository.get_user_by_username(payload.username)
-    if existing:
-        raise HTTPException(status_code=400, detail="Пользователь с таким именем уже существует")
-
     if not payload.email:
         raise HTTPException(status_code=400, detail="Для регистрации необходимо указать email")
 
     email = _validate_email(payload.email)
     hashed_password = auth_service.get_password_hash(payload.password)
 
-    try:
-        created_user = repository.create_user(
-            username=payload.username,
-            hashed_password=hashed_password,
-            email=email,
-            email_verified=False,
-            role="user",
+    existing_by_email = repository.get_user_by_email(email)
+    if existing_by_email:
+        if existing_by_email.get("email_verified"):
+            raise HTTPException(status_code=400, detail="Пользователь с таким email уже существует")
+        other_username = repository.get_user_by_username(payload.username)
+        if other_username and other_username["id"] != existing_by_email["id"]:
+            raise HTTPException(status_code=400, detail="Пользователь с таким именем уже существует")
+        updated = repository.update_unverified_user_credentials(
+            existing_by_email["id"],
+            payload.username,
+            hashed_password,
         )
-    except IntegrityError:
-        raise HTTPException(status_code=400, detail="Пользователь с таким email уже существует")
+        if not updated:
+            raise HTTPException(status_code=400, detail="Не удалось обновить данные регистрации")
+        created_user = updated
+    else:
+        existing_by_username = repository.get_user_by_username(payload.username)
+        if existing_by_username:
+            raise HTTPException(status_code=400, detail="Пользователь с таким именем уже существует")
+        try:
+            created_user = repository.create_user(
+                username=payload.username,
+                hashed_password=hashed_password,
+                email=email,
+                email_verified=False,
+                role="user",
+            )
+        except IntegrityError:
+            raise HTTPException(status_code=400, detail="Пользователь с таким email уже существует")
 
     registration_code = _create_registration_code(email, repository)
     registration_code_sent = True
