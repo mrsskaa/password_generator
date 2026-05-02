@@ -1,8 +1,9 @@
 @import '../../index.css';
 
-.generator-main {
+/* .generator-main {
   min-height: calc(100vh - var(--header-height));
-}
+} */
+
 
 .generator-page.container {
   padding-left: 0 !important;
@@ -57,7 +58,7 @@
 }
 
 .generator-password-stack {
-  width: 686px;
+  width: 85%;
   max-width: 100%;
   margin: 0 auto;
   display: flex;
@@ -341,12 +342,12 @@
 
 .generator-actions {
   margin-top: 0;
-  width: 686px;
+  width: 45%;
   max-width: 100%;
   margin-left: auto;
   margin-right: auto;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 0;
 }
 
@@ -518,7 +519,7 @@
   text-decoration-style: dotted;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 992px) {
   .generator-heading {
     margin-left: -12px;
   }
@@ -559,5 +560,11 @@
 
   .generator-login-modal-text {
     font-size: var(--font-size-34);
+  }
+}
+
+@media (max-width: 576px) {
+  .generator-heading {
+    text-align: center;
   }
 }
