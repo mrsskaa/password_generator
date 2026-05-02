@@ -8,8 +8,8 @@ import { useForm } from 'react-hook-form';
 import regSchema, { type registerFormData } from '../../schemas/regSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDispatch } from 'react-redux';
-import { loginSuccess, registerFailure, registerRequestFinished, registerStart } from '../../store/authSlice';
-import { getAxiosErrorMessage, loginRequest, registerRequest } from '../../api/authApi';
+import { registerFailure, registerRequestFinished, registerStart } from '../../store/authSlice';
+import { getAxiosErrorMessage, registerRequest } from '../../api/authApi';
 import { MAX_INPUT_LENGTH } from '../../constants/inputLimits';
 
 
@@ -23,7 +23,6 @@ const Register = () => {
     watch,
     setValue,
     formState: { errors },
-    setError,
   } = useForm<registerFormData>({
     resolver: zodResolver(regSchema),
   });
@@ -32,24 +31,38 @@ const Register = () => {
 
   const onSubmit = async (data: registerFormData) => {
     dispatch(registerStart());
-    try {
-      await registerRequest(data);
-      dispatch(registerRequestFinished());
-      const loginResponse = await loginRequest({
+    navigate('/register/confirm', {
+      state: {
         email: data.email,
         password: data.password,
+        flashMessage: 'Отправляем код на почту…',
+      },
+    });
+
+    void registerRequest(data)
+      .then((response) => {
+        dispatch(registerRequestFinished());
+        navigate('/register/confirm', {
+          replace: true,
+          state: {
+            email: data.email,
+            password: data.password,
+            flashMessage: response.message || 'Введите код из письма.',
+          },
+        });
+      })
+      .catch((e) => {
+        const msg = getAxiosErrorMessage(e, 'Регистрация не удалась.');
+        dispatch(registerFailure(msg));
+        navigate('/register/confirm', {
+          replace: true,
+          state: {
+            email: data.email,
+            password: data.password,
+            initialError: msg,
+          },
+        });
       });
-      dispatch(loginSuccess(loginResponse.user));
-      navigate('/', {
-        state: {
-          flashMessage: 'Успешная регистрация. Вы вошли в аккаунт.',
-        },
-      });
-    } catch (e) {
-      const msg = getAxiosErrorMessage(e, 'Регистрация не удалась.');
-      dispatch(registerFailure(msg));
-      setError('root', { type: 'server', message: msg });
-    }
   };
 
   const form = (

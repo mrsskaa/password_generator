@@ -83,6 +83,11 @@ const LogIn = () => {
             </button>
           )}
         </div>
+        {errors.email?.message && (
+          <span className="auth-field-error" role="alert">
+            {errors.email.message}
+          </span>
+        )}
       </Form.Group>
       <Form.Group className="mb-3">
         <Form.Label className="auth-form-body-label">Пароль:</Form.Label>
@@ -104,6 +109,11 @@ const LogIn = () => {
             <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'} password-toggle-icon`} aria-hidden={true} />
           </button>
         </div>
+        {errors.password?.message && (
+          <span className="auth-field-error" role="alert">
+            {errors.password.message}
+          </span>
+        )}
       </Form.Group>
       <div className="auth-form-forget-password-container">
         <Nav.Link as={Link} to="/forgot-password" className="auth-form-forget-password-link">

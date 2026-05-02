@@ -2,19 +2,22 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { loginSuccess } from '../../store/authSlice';
-import { loginRequest, resendRegistrationCodeRequest } from '../../api/authApi';
+import { confirmRegistrationRequest, loginRequest, resendRegistrationCodeRequest } from '../../api/authApi';
 import ConfirmCodeForm from '../../components/ConfirmCodeForm/ConfirmCodeForm';
 
 /**
- * На бэкенде пока нет проверки кода регистрации: письмо — приветственное.
- * После ввода 6 цифр выполняется вход по email/паролю (cookie `access_token`),
- * чтобы пользователь оказался на генераторе уже с сессией.
+ * Сначала подтверждаем код на бэке, затем логин (cookie) — иначе 403 «Подтвердите email».
  */
 function RegisterConfirm() {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
-  const state = location.state as { email?: string; password?: string; flashMessage?: string } | null;
+  const state = location.state as {
+    email?: string;
+    password?: string;
+    flashMessage?: string;
+    initialError?: string;
+  } | null;
 
   useEffect(() => {
     if (!state?.email || !state?.password) {
@@ -26,22 +29,23 @@ function RegisterConfirm() {
     return null;
   }
 
-  const { email, password } = state;
+  const { password } = state;
 
   return (
     <ConfirmCodeForm
       title="ВВЕДИТЕ КОД ИЗ ПИСЬМА"
       backPath="/register"
       initialMessage={state.flashMessage}
-      successMessage="Вход выполнен. Сейчас откроется генератор…"
-      errorMessage="Не удалось войти. Проверьте данные и попробуйте снова."
-      onConfirm={async ({ code }) => {
-        void code;
-        const response = await loginRequest({ email, password });
+      initialError={state.initialError}
+      successMessage="Аккаунт подтверждён. Сейчас откроется генератор…"
+      errorMessage="Неверный код или срок действия истёк."
+      onConfirm={async ({ email: em, code }) => {
+        await confirmRegistrationRequest({ email: em, code });
+        const response = await loginRequest({ email: em, password });
         dispatch(loginSuccess(response.user));
       }}
       onResend={resendRegistrationCodeRequest}
-      onSuccessRedirect="/?flash=confirm_success"
+      onSuccessRedirect="/"
     />
   );
 }

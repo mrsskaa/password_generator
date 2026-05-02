@@ -18,6 +18,7 @@ interface ConfirmCodeFormProps {
   successMessage: string;
   errorMessage: string;
   initialMessage?: string;
+  initialError?: string;
   onConfirm: (payload: { email: string; code: string }) => Promise<unknown>;
   onResend: (payload: { email: string }) => Promise<unknown>;
   onSuccessRedirect: string | ((ctx: { email: string; result: unknown }) => string);
@@ -35,6 +36,7 @@ function ConfirmCodeForm({
   successMessage,
   errorMessage,
   initialMessage,
+  initialError,
   onConfirm,
   onResend,
   onSuccessRedirect,
@@ -50,7 +52,8 @@ function ConfirmCodeForm({
   const [secondsLeft, setSecondsLeft] = useState(RESEND_INTERVAL_SEC);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [showInitialMessage, setShowInitialMessage] = useState(Boolean(initialMessage));
-  const canResend = secondsLeft === 0;
+  const [resendBusy, setResendBusy] = useState(false);
+  const canResend = secondsLeft === 0 && !resendBusy;
 
   useEffect(() => {
     if (!initialMessage) {
@@ -84,20 +87,21 @@ function ConfirmCodeForm({
     return () => window.clearInterval(id);
   }, []);
 
-  const handleResend = async () => {
-    if (!canResend) {
+  const handleResend = () => {
+    if (!canResend || resendBusy) {
       return;
     }
     clearErrors('root');
-    try {
-      await onResend({ email });
-      setSecondsLeft(RESEND_INTERVAL_SEC);
-    } catch {
-      setError('root', {
-        type: 'server',
-        message: 'Не удалось отправить код повторно.',
-      });
-    }
+    setResendBusy(true);
+    void Promise.resolve(onResend({ email }))
+      .then(() => setSecondsLeft(RESEND_INTERVAL_SEC))
+      .catch((err) =>
+        setError('root', {
+          type: 'server',
+          message: getAxiosErrorMessage(err, 'Не удалось отправить код повторно.'),
+        }),
+      )
+      .finally(() => setResendBusy(false));
   };
 
   const onSubmit = async (data: RegisterConfirmFormData) => {
@@ -132,6 +136,11 @@ function ConfirmCodeForm({
         <Alert variant="success" className="mb-3 auth-success-alert">
           {initialMessage}
         </Alert>
+      )}
+      {initialError && (
+        <div className="auth-field-error mb-3" role="alert">
+          {initialError}
+        </div>
       )}
       {submitSuccess && (
         <Alert variant="success" className="mb-3 auth-success-alert">
@@ -191,11 +200,13 @@ function ConfirmCodeForm({
       </div>
       <p className="confirm-code-timer">
         {canResend ? (
-          <button type="button" className="confirm-code-resend-btn" onClick={handleResend}>
-            Получить новый код
+          <button type="button" className="confirm-code-resend-btn" onClick={handleResend} disabled={resendBusy}>
+            {resendBusy ? 'Отправка…' : 'Получить новый код'}
           </button>
         ) : (
-          <>Получить новый код можно через {formatMmSs(secondsLeft)}</>
+          <>
+            {resendBusy ? 'Отправка…' : `Получить новый код можно через ${formatMmSs(secondsLeft)}`}
+          </>
         )}
       </p>
     </Form>

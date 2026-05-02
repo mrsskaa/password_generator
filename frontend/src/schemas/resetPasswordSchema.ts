@@ -1,12 +1,10 @@
 import { z } from 'zod';
 import { MAX_INPUT_LENGTH } from '../constants/inputLimits';
+import { strongPasswordSchema } from './passwordPolicy';
 
 const resetPasswordSchema = z
   .object({
-    password: z
-      .string()
-      .min(8, 'Минимум 8 символов')
-      .max(MAX_INPUT_LENGTH, 'Не более 150 символов'),
+    password: strongPasswordSchema,
     confirmPassword: z.string().max(MAX_INPUT_LENGTH, 'Не более 150 символов'),
   })
   .refine((data) => data.password === data.confirmPassword, {
