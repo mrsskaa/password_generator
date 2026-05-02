@@ -140,6 +140,23 @@ class SQLAlchemyRepository:
             session.commit()
             return result.rowcount > 0
 
+    def update_unverified_user_credentials(
+        self,
+        user_id: int,
+        username: str,
+        hashed_password: str,
+    ) -> dict[str, Any] | None:
+        """Обновить логин и пароль для пользователя с неподтверждённой почтой (повторная регистрация)."""
+        with self.SessionLocal() as session:
+            user = session.get(User, user_id)
+            if not user or user.email_verified:
+                return None
+            user.username = username
+            user.hashed_password = hashed_password
+            session.commit()
+            session.refresh(user)
+            return self._to_dict(user)
+
     def set_user_email_verified(self, email: str, email_verified: bool = True) -> bool:
         with self.SessionLocal() as session:
             result = session.execute(

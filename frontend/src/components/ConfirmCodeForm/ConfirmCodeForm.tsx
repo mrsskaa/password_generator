@@ -98,8 +98,8 @@ function ConfirmCodeForm({
     return () => window.clearInterval(id);
   }, []);
 
-  const handleResend = async () => {
-    if (!canResend) {
+  const handleResend = () => {
+    if (!canResend || resendBusy) {
       return;
     }
     clearErrors('root');
@@ -228,11 +228,13 @@ function ConfirmCodeForm({
       </div>
       <p className="confirm-code-timer">
         {canResend ? (
-          <button type="button" className="confirm-code-resend-btn" onClick={handleResend}>
-            Получить новый код
+          <button type="button" className="confirm-code-resend-btn" onClick={handleResend} disabled={resendBusy}>
+            {resendBusy ? 'Отправка…' : 'Получить новый код'}
           </button>
         ) : (
-          <>Получить новый код можно через {formatMmSs(secondsLeft)}</>
+          <>
+            {resendBusy ? 'Отправка…' : `Получить новый код можно через ${formatMmSs(secondsLeft)}`}
+          </>
         )}
       </p>
     </Form>

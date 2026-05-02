@@ -4,6 +4,158 @@
   min-height: calc(100vh - var(--header-height));
 }
 
+.generator-shell {
+  --generator-align-shift: -56px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
+/* Центральная колонка с карточкой: по центру области, не смещается из‑за истории (симметричные 1fr) */
+.generator-body-stage {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.generator-body-stage--no-history {
+  display: flex;
+  justify-content: center;
+}
+
+.generator-body-stage--no-history .generator-center-column {
+  width: min(760px, 100%);
+}
+
+.generator-center-column {
+  grid-column: 2;
+  justify-self: center;
+  width: min(760px, 100%);
+  min-width: 0;
+}
+
+.generator-body-balance {
+  grid-column: 3;
+  min-width: 0;
+  pointer-events: none;
+}
+
+.generator-history-panel {
+  grid-column: 1;
+  justify-self: start;
+  align-self: flex-start;
+  min-width: 0;
+  margin-left: var(--generator-align-shift);
+}
+
+.generator-history-inner {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 25px rgba(237, 76, 120, 0.35);
+  padding: 1px 12px;
+  color: #7f5836;
+}
+
+.generator-history-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #7f5836;
+  font-weight: 600;
+  padding: 6px 4px;
+  cursor: pointer;
+}
+
+.generator-history-toggle-label {
+  font-size: 19px;
+    color: #B56C58 !important;
+    margin-left: 3px;
+}
+
+.generator-history-toggle-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 30px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+    color: #B56C58 !important;
+}
+
+.generator-history-chevron {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 10px;
+    color: #B56C58;
+}
+
+.generator-history-toggle:hover {
+  background: transparent;
+}
+
+.generator-history-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.generator-history-date-btn {
+  width: 100%;
+  text-align: center;
+  border: none;
+  background: #fff;
+  border-radius: 10px;
+  padding: 7px 10px;
+  font-size: 17px;
+  color: #7f5836;
+  cursor: pointer;
+}
+
+.generator-history-date-btn:hover {
+  background: rgba(249, 231, 211, 0.64);
+}
+
+@media (max-width: 900px) {
+  .generator-body-stage:not(.generator-body-stage--no-history) {
+    grid-template-columns: 1fr;
+  }
+
+  .generator-history-panel {
+    grid-column: 1;
+    margin-left: var(--generator-align-shift);
+    width: calc(100% - max(0px, var(--generator-align-shift) * -1));
+    max-width: 100%;
+  }
+
+  .generator-center-column {
+    grid-column: 1;
+    justify-self: center;
+    width: min(760px, 100%);
+  }
+
+  .generator-body-balance {
+    display: none;
+  }
+}
+
 .generator-page.container {
   padding-left: 0 !important;
 }
@@ -17,9 +169,9 @@
   padding-top: 0 !important;
 }
 
-/* Выровнять с логотипом: тот же сдвиг, что у .header-brand */
+/* С логотипом в шапке; левее = общий сдвиг с блоком «История» */
 .generator-heading {
-  margin-left: -48px;
+  margin-left: var(--generator-align-shift, -56px);
   text-align: left;
   margin-bottom: 28px;
 }
@@ -39,6 +191,7 @@
   line-height: 1.05;
   margin-top: 20px;
   margin-bottom: 0.35em;
+    margin-right: 300px;
 }
 
 .generator-subtitle {
@@ -47,6 +200,7 @@
 }
 
 .generator-content-box {
+  position: relative;
   width: 100%;
   max-width: 760px;
   margin: 0 auto;
@@ -54,6 +208,20 @@
   border-radius: 16px;
   box-shadow: 0 0 25px var(--content-box-shadow);
   padding: 36px 40px 28px;
+}
+
+.generator-content-box.has-timestamp {
+  padding-top: 48px;
+}
+
+.generator-card-timestamp {
+  position: absolute;
+  top: 16px;
+  left: 40px;
+  margin: 0;
+  font-size: var(--font-size-14);
+  font-weight: 500;
+  color: #9a9a9a;
 }
 
 .generator-password-stack {
@@ -519,8 +687,8 @@
 }
 
 @media (max-width: 900px) {
-  .generator-heading {
-    margin-left: -12px;
+  .generator-shell {
+    --generator-align-shift: -12px;
   }
 
   .generator-title {
@@ -533,6 +701,10 @@
 
   .generator-content-box {
     padding: 22px;
+  }
+
+  .generator-card-timestamp {
+    left: 22px;
   }
 
   .generator-password-value.is-generated {

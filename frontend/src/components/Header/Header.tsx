@@ -6,9 +6,11 @@ import logo from '../../assets/images/password-generator-logo.svg';
 import type { AppDispatch, RootState } from '../../store/store';
 import { logout } from '../../store/authSlice';
 import { logoutRequest } from '../../api/authApi';
+import { clearGeneratorHistory } from '../../utils/generatorHistory';
 
 const Header = () => {
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
+  const userId = useSelector((s: RootState) => s.auth.user?.id);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,6 +22,9 @@ const Header = () => {
     } catch {
       // сеть/сервер: всё равно чистим локальное состояние
     } finally {
+      if (userId != null) {
+        clearGeneratorHistory(userId);
+      }
       dispatch(logout());
       navigate('/');
     }
