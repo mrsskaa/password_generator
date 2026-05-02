@@ -41,6 +41,40 @@ class SQLAlchemyRepository:
             if "registration_codes" not in table_names:
                 RegistrationCode.__table__.create(bind=connection)
 
+            if "saved_passwords" in table_names:
+                password_columns = {column["name"] for column in inspector.get_columns("saved_passwords")}
+                if "hashed_password" in password_columns and self.database_url.startswith("postgresql"):
+                    connection.execute(text("ALTER TABLE saved_passwords ALTER COLUMN hashed_password DROP NOT NULL"))
+                if "encrypted_password" not in password_columns:
+                    connection.execute(
+                        text(
+                            "ALTER TABLE saved_passwords "
+                            "ADD COLUMN encrypted_password VARCHAR(512) NOT NULL DEFAULT ''"
+                        )
+                    )
+                if "salt" not in password_columns:
+                    connection.execute(
+                        text("ALTER TABLE saved_passwords ADD COLUMN salt VARCHAR(128) NOT NULL DEFAULT ''")
+                    )
+                if "nonce" not in password_columns:
+                    connection.execute(
+                        text("ALTER TABLE saved_passwords ADD COLUMN nonce VARCHAR(128) NOT NULL DEFAULT ''")
+                    )
+                if "generation_settings" not in password_columns:
+                    connection.execute(
+                        text(
+                            "ALTER TABLE saved_passwords "
+                            "ADD COLUMN generation_settings JSON NOT NULL DEFAULT '{}'"
+                        )
+                    )
+                if "settings_preview" not in password_columns:
+                    connection.execute(
+                        text(
+                            "ALTER TABLE saved_passwords "
+                            "ADD COLUMN settings_preview VARCHAR(500) NOT NULL DEFAULT 'настройки не указаны'"
+                        )
+                    )
+
     @staticmethod
     def _to_dict(user: User) -> dict[str, Any]:
         return {
@@ -130,6 +164,25 @@ class SQLAlchemyRepository:
             )
             session.commit()
             return result.rowcount > 0
+
+    def update_unverified_user_credentials(
+        self,
+        user_id: int,
+        username: str,
+        email: str,
+        hashed_password: str,
+    ) -> dict[str, Any] | None:
+        with self.SessionLocal() as session:
+            user = session.scalar(select(User).where(User.id == user_id))
+            if not user:
+                return None
+            user.username = username
+            user.email = email
+            user.hashed_password = hashed_password
+            user.email_verified = False
+            session.commit()
+            session.refresh(user)
+            return self._to_dict(user)
 
     def get_latest_reset_code_for_email(self, email: str) -> dict[str, Any] | None:
         with self.SessionLocal() as session:

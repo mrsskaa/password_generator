@@ -50,6 +50,10 @@ def _create_registration_code(email: str, repository: SQLAlchemyRepository) -> d
     )
 
 
+def _with_debug_code_message(message: str, code: str) -> str:
+    return f"{message} [DEV code: {code}]"
+
+
 @router.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
 async def register(
     payload: RegisterRequest,
@@ -61,30 +65,43 @@ async def register(
         raise HTTPException(status_code=400, detail="Для регистрации необходимо указать email")
 
     email = _validate_email(payload.email)
+    # Во фронте отдельного логина нет: используем email как username.
+    username = email
     hashed_password = auth_service.get_password_hash(payload.password)
-
+    existing_by_username = repository.get_user_by_username(username)
     existing_by_email = repository.get_user_by_email(email)
-    if existing_by_email:
-        if existing_by_email.get("email_verified"):
-            raise HTTPException(status_code=400, detail="Пользователь с таким email уже существует")
-        other_username = repository.get_user_by_username(payload.username)
-        if other_username and other_username["id"] != existing_by_email["id"]:
-            raise HTTPException(status_code=400, detail="Пользователь с таким именем уже существует")
-        updated = repository.update_unverified_user_credentials(
-            existing_by_email["id"],
-            payload.username,
-            hashed_password,
+
+    if existing_by_username and existing_by_username.get("email_verified"):
+        raise HTTPException(status_code=400, detail="Пользователь с таким email уже существует")
+    if existing_by_email and existing_by_email.get("email_verified"):
+        raise HTTPException(status_code=400, detail="Пользователь с таким email уже существует")
+
+    if (
+        existing_by_username
+        and existing_by_email
+        and existing_by_username["id"] != existing_by_email["id"]
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="Этот email конфликтует с существующими данными аккаунтов. Обратитесь к администратору.",
         )
-        if not updated:
-            raise HTTPException(status_code=400, detail="Не удалось обновить данные регистрации")
-        created_user = updated
+
+    is_reregistration = existing_by_username is not None or existing_by_email is not None
+    if is_reregistration:
+        stale_user = existing_by_username or existing_by_email
+        created_user = repository.update_unverified_user_credentials(
+            user_id=stale_user["id"],
+            username=username,
+            email=email,
+            hashed_password=hashed_password,
+        )
+        if not created_user:
+            raise HTTPException(status_code=500, detail="Не удалось обновить неподтвержденный аккаунт")
+        repository.delete_registration_codes_for_email(email)
     else:
-        existing_by_username = repository.get_user_by_username(payload.username)
-        if existing_by_username:
-            raise HTTPException(status_code=400, detail="Пользователь с таким именем уже существует")
         try:
             created_user = repository.create_user(
-                username=payload.username,
+                username=username,
                 hashed_password=hashed_password,
                 email=email,
                 email_verified=False,
@@ -94,13 +111,7 @@ async def register(
             raise HTTPException(status_code=400, detail="Пользователь с таким email уже существует")
 
     registration_code = _create_registration_code(email, repository)
-    registration_code_sent = True
-    try:
-        send_registration_code_email(to_email=email, code=registration_code["code"])
-    except Exception:
-        registration_code_sent = False
-        repository.delete_registration_code_by_id(registration_code["id"])
-        logger.exception("Не удалось отправить код подтверждения регистрации username=%s", payload.username)
+    background_tasks.add_task(send_registration_code_email, to_email=email, code=registration_code["code"])
 
     background_tasks.add_task(
         send_welcome_email,
@@ -109,18 +120,19 @@ async def register(
     )
     logger.info("Пользователь зарегистрирован: username=%s", created_user["username"])
 
-    message = "Пользователь зарегистрирован. Код подтверждения отправлен на email."
-    if not registration_code_sent:
-        message = (
-            "Пользователь зарегистрирован. Не удалось отправить код подтверждения, "
-            "запросите повторную отправку."
-        )
+    message = (
+        "Регистрация обновлена. Код подтверждения скоро придет на email."
+        if is_reregistration
+        else "Пользователь зарегистрирован. Код подтверждения скоро придет на email."
+    )
+    message = _with_debug_code_message(message, registration_code["code"])
     return AuthResponse(message=message, user=UserPublic(**created_user))
 
 
 @router.post("/register/resend-code")
 async def resend_registration_code(
     payload: ForgotPasswordRequest,
+    background_tasks: BackgroundTasks,
     repository: Annotated[SQLAlchemyRepository, Depends(get_repository)],
 ) -> dict[str, str]:
     email = _validate_email(payload.email)
@@ -132,17 +144,8 @@ async def resend_registration_code(
         return {"message": "Email уже подтвержден"}
 
     code_row = _create_registration_code(email, repository)
-    try:
-        send_registration_code_email(to_email=email, code=code_row["code"])
-    except Exception as exc:
-        repository.delete_registration_code_by_id(code_row["id"])
-        logger.exception("Не удалось повторно отправить код регистрации для email=%s", email)
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Не удалось отправить письмо с кодом подтверждения",
-        ) from exc
-
-    return {"message": "Код подтверждения отправлен"}
+    background_tasks.add_task(send_registration_code_email, to_email=email, code=code_row["code"])
+    return {"message": _with_debug_code_message("Код подтверждения скоро придет", code_row["code"])}
 
 
 @router.post("/register/verify-code")

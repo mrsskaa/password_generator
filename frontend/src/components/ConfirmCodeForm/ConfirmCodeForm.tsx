@@ -11,6 +11,7 @@ import './ConfirmCodeForm.css';
 
 
 const RESEND_INTERVAL_SEC = 60;
+const DEV_CODE_RE = /\[DEV code:\s*(\d{6})\]/i;
 
 interface ConfirmCodeFormProps {
   title: string;
@@ -52,14 +53,24 @@ function ConfirmCodeForm({
   const [secondsLeft, setSecondsLeft] = useState(RESEND_INTERVAL_SEC);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [showInitialMessage, setShowInitialMessage] = useState(Boolean(initialMessage));
-  const [resendBusy, setResendBusy] = useState(false);
-  const canResend = secondsLeft === 0 && !resendBusy;
+  const [resendSuccessMessage, setResendSuccessMessage] = useState('');
+  const [devCode, setDevCode] = useState<string | null>(() => {
+    if (!initialMessage) {
+      return null;
+    }
+    const match = initialMessage.match(DEV_CODE_RE);
+    return match?.[1] ?? null;
+  });
+  const canResend = secondsLeft === 0;
 
   useEffect(() => {
     if (!initialMessage) {
       setShowInitialMessage(false);
+      setDevCode(null);
       return;
     }
+    const match = initialMessage.match(DEV_CODE_RE);
+    setDevCode(match?.[1] ?? null);
     setShowInitialMessage(true);
     const id = window.setTimeout(() => setShowInitialMessage(false), 2500);
     return () => window.clearTimeout(id);
@@ -92,16 +103,23 @@ function ConfirmCodeForm({
       return;
     }
     clearErrors('root');
-    setResendBusy(true);
-    void Promise.resolve(onResend({ email }))
-      .then(() => setSecondsLeft(RESEND_INTERVAL_SEC))
-      .catch((err) =>
-        setError('root', {
-          type: 'server',
-          message: getAxiosErrorMessage(err, 'Не удалось отправить код повторно.'),
-        }),
-      )
-      .finally(() => setResendBusy(false));
+    setResendSuccessMessage('');
+    try {
+      const result = (await onResend({ email })) as { message?: string } | undefined;
+      if (result?.message) {
+        setResendSuccessMessage(result.message);
+        const match = result.message.match(DEV_CODE_RE);
+        if (match?.[1]) {
+          setDevCode(match[1]);
+        }
+      }
+      setSecondsLeft(RESEND_INTERVAL_SEC);
+    } catch {
+      setError('root', {
+        type: 'server',
+        message: 'Не удалось отправить код повторно.',
+      });
+    }
   };
 
   const onSubmit = async (data: RegisterConfirmFormData) => {
@@ -146,6 +164,16 @@ function ConfirmCodeForm({
         <Alert variant="success" className="mb-3 auth-success-alert">
           {successMessage}
         </Alert>
+      )}
+      {resendSuccessMessage && (
+        <Alert variant="success" className="mb-3">
+          {resendSuccessMessage}
+        </Alert>
+      )}
+      {devCode && (
+        <div className="confirm-code-dev-box mb-3" role="status" aria-live="polite">
+          Тестовый код подтверждения: <strong>{devCode}</strong>
+        </div>
       )}
       <Form.Group className="mb-3">
         <Form.Label className="visually-hidden">Код подтверждения</Form.Label>
