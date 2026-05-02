@@ -29,21 +29,26 @@ export function mapBackendUser(raw: unknown): User {
 }
 
 export function getAxiosErrorMessage(error: unknown, fallback: string): string {
-  if (axios.isAxiosError(error) && error.response?.data) {
-    const data = error.response.data as { detail?: unknown };
-    const { detail } = data;
-    if (typeof detail === 'string') {
-      return detail;
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data as { detail?: unknown } | undefined;
+    if (data?.detail !== undefined) {
+      const { detail } = data;
+      if (typeof detail === 'string') {
+        return detail;
+      }
+      if (Array.isArray(detail)) {
+        return detail
+          .map((item) => {
+            if (item && typeof item === 'object' && 'msg' in item) {
+              return String((item as { msg: string }).msg);
+            }
+            return String(item);
+          })
+          .join(', ');
+      }
     }
-    if (Array.isArray(detail)) {
-      return detail
-        .map((item) => {
-          if (item && typeof item === 'object' && 'msg' in item) {
-            return String((item as { msg: string }).msg);
-          }
-          return String(item);
-        })
-        .join(', ');
+    if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+      return 'Нет соединения с сервером. Проверьте, что бэкенд запущен.';
     }
   }
   if (error instanceof Error) {
