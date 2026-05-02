@@ -1,11 +1,16 @@
 import ConfirmCodeForm from '../../components/ConfirmCodeForm/ConfirmCodeForm';
 import { confirmForgotPasswordRequest, resendForgotPasswordCodeRequest } from '../../api/authApi';
+import { useLocation } from 'react-router-dom';
 
 function ForgotPasswordConfirm() {
+  const location = useLocation();
+  const state = location.state as { initialError?: string; flashMessage?: string } | null;
   return (
     <ConfirmCodeForm
       title="ВВЕДИТЕ КОД ИЗ ПИСЬМА"
       backPath="/forgot-password"
+      initialMessage={state?.flashMessage}
+      initialError={state?.initialError}
       successMessage="Код подтверждён. Сейчас откроется страница смены пароля…"
       errorMessage="Неверный код или срок действия истёк."
       onConfirm={confirmForgotPasswordRequest}

@@ -275,7 +275,7 @@
 /* Резервируем место под строку оценки, чтобы при первой генерации не сдвигался слайдер и опции */
 .generator-password-meta-slot {
   margin-top: 0;
-  min-height: 38px;
+  min-height: 34px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -370,12 +370,11 @@
 
 .generator-password-value.is-generated {
   font-size: var(--font-size-25);
-  font-weight: 600;
 }
 
 .generator-password-value.is-placeholder {
   font-size: var(--font-size-25);
-  font-weight: 400;
+  font-weight: 500;
   white-space: nowrap;
 }
 

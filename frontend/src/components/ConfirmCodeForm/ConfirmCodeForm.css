@@ -72,6 +72,15 @@
   color: var(--auth-form-text-link-color);
 }
 
+.confirm-code-dev-box {
+  border: 1px dashed #c58f9f;
+  border-radius: 10px;
+  background: #f9eef2;
+  color: #5a3f47;
+  padding: 10px 12px;
+  font-size: var(--font-size-14);
+}
+
 a.auth-form-bottom-back-link {
   justify-self: start;
   color: var(--auth-form-text-link-color);

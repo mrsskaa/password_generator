@@ -164,7 +164,12 @@ function Generator() {
       setShowLoginPrompt(true);
       return;
     }
-    await handleCopy();
+    navigate('/passwords/save', {
+      state: {
+        password: generatedPassword === PASSWORD_PLACEHOLDER ? '' : generatedPassword,
+        generationSettings: generatorPayload,
+      },
+    });
   };
 
   const applyHistoryEntry = (entry: GeneratorHistoryEntry) => {

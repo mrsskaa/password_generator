@@ -13,8 +13,7 @@ const FORGOT_PASSWORD_CONFIRM_PATH =
 const RESEND_FORGOT_PASSWORD_CODE_PATH =
   import.meta.env.VITE_RESEND_FORGOT_PASSWORD_CODE_ENDPOINT ?? '/api/auth/forgot-password/resend-code';
 const RESET_FORGOT_PASSWORD_PATH = import.meta.env.VITE_RESET_FORGOT_PASSWORD_ENDPOINT ?? '/api/auth/reset-password';
-const REGISTER_CONFIRM_PATH =
-  import.meta.env.VITE_REGISTER_CONFIRM_ENDPOINT ?? '/api/auth/register/verify-code';
+const REGISTER_CONFIRM_PATH = import.meta.env.VITE_REGISTER_CONFIRM_ENDPOINT ?? '/api/auth/register/verify-code';
 const RESEND_REGISTER_CODE_PATH =
   import.meta.env.VITE_RESEND_REGISTER_CODE_ENDPOINT ?? '/api/auth/register/resend-code';
 
@@ -104,17 +103,20 @@ export async function logoutRequest(): Promise<void> {
   await axios.post(`${API_URL}/api/auth/logout`);
 }
 
+export interface RegisterConfirmResponse {
+  message?: string;
+  user?: User;
+}
+
 export const confirmRegistrationRequest = async (payload: {
   email: string;
   code: string;
-}): Promise<{ message?: string }> => {
-  const response = await axios.post<{ message?: string }>(`${API_URL}${REGISTER_CONFIRM_PATH}`, payload);
+}): Promise<RegisterConfirmResponse> => {
+  const response = await axios.post<RegisterConfirmResponse>(`${API_URL}${REGISTER_CONFIRM_PATH}`, payload);
   return response.data;
 };
 
-export const resendRegistrationCodeRequest = async (payload: {
-  email: string;
-}): Promise<{ message?: string }> => {
+export const resendRegistrationCodeRequest = async (payload: { email: string }): Promise<{ message?: string }> => {
   const response = await axios.post<{ message?: string }>(`${API_URL}${RESEND_REGISTER_CODE_PATH}`, payload);
   return response.data;
 };
@@ -161,5 +163,33 @@ export const resetForgotPasswordRequest = async (payload: {
       },
     },
   );
+  return response.data;
+};
+
+export interface SavePasswordPayload {
+  password: string;
+  description: string;
+  generationSettings?: Record<string, unknown>;
+}
+
+export interface SavePasswordResponse {
+  id: string;
+  password: string;
+  description: string;
+  created_at: string;
+  settings_preview: string;
+}
+
+export const savePasswordRequest = async (payload: SavePasswordPayload): Promise<SavePasswordResponse> => {
+  const response = await axios.post<SavePasswordResponse>(`${API_URL}/passwords`, {
+    password: payload.password,
+    description: payload.description,
+    generation_settings: payload.generationSettings ?? {},
+  });
+  return response.data;
+};
+
+export const getSavedPasswordsRequest = async (): Promise<SavePasswordResponse[]> => {
+  const response = await axios.get<SavePasswordResponse[]>(`${API_URL}/passwords`);
   return response.data;
 };

@@ -2,34 +2,31 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { loginSuccess } from '../../store/authSlice';
-import { confirmRegistrationRequest, loginRequest, resendRegistrationCodeRequest } from '../../api/authApi';
+import {
+  confirmRegistrationRequest,
+  resendRegistrationCodeRequest,
+} from '../../api/authApi';
 import ConfirmCodeForm from '../../components/ConfirmCodeForm/ConfirmCodeForm';
 
 /**
- * Сначала подтверждаем код на бэке, затем логин (cookie) — иначе 403 «Подтвердите email».
+ * После ввода кода подтверждения регистрация завершается на бэке,
+ * и пользователь попадает в генератор уже с активной сессией.
  */
 function RegisterConfirm() {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
-  const state = location.state as {
-    email?: string;
-    password?: string;
-    flashMessage?: string;
-    initialError?: string;
-  } | null;
+  const state = location.state as { email?: string; flashMessage?: string; initialError?: string } | null;
 
   useEffect(() => {
-    if (!state?.email || !state?.password) {
+    if (!state?.email) {
       navigate('/register', { replace: true });
     }
   }, [state, navigate]);
 
-  if (!state?.email || !state?.password) {
+  if (!state?.email) {
     return null;
   }
-
-  const { password } = state;
 
   return (
     <ConfirmCodeForm
@@ -39,10 +36,11 @@ function RegisterConfirm() {
       initialError={state.initialError}
       successMessage="Аккаунт подтверждён. Сейчас откроется генератор…"
       errorMessage="Неверный код или срок действия истёк."
-      onConfirm={async ({ email: em, code }) => {
-        await confirmRegistrationRequest({ email: em, code });
-        const response = await loginRequest({ email: em, password });
-        dispatch(loginSuccess(response.user));
+      onConfirm={async ({ email, code }) => {
+        const response = await confirmRegistrationRequest({ email, code });
+        if (response.user) {
+          dispatch(loginSuccess(response.user));
+        }
       }}
       onResend={resendRegistrationCodeRequest}
       onSuccessRedirect="/"
