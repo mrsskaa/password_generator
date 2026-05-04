@@ -29,21 +29,26 @@ export function mapBackendUser(raw: unknown): User {
 }
 
 export function getAxiosErrorMessage(error: unknown, fallback: string): string {
-  if (axios.isAxiosError(error) && error.response?.data) {
-    const data = error.response.data as { detail?: unknown };
-    const { detail } = data;
-    if (typeof detail === 'string') {
-      return detail;
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data as { detail?: unknown } | undefined;
+    if (data?.detail !== undefined) {
+      const { detail } = data;
+      if (typeof detail === 'string') {
+        return detail;
+      }
+      if (Array.isArray(detail)) {
+        return detail
+          .map((item) => {
+            if (item && typeof item === 'object' && 'msg' in item) {
+              return String((item as { msg: string }).msg);
+            }
+            return String(item);
+          })
+          .join(', ');
+      }
     }
-    if (Array.isArray(detail)) {
-      return detail
-        .map((item) => {
-          if (item && typeof item === 'object' && 'msg' in item) {
-            return String((item as { msg: string }).msg);
-          }
-          return String(item);
-        })
-        .join(', ');
+    if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+      return 'Нет соединения с сервером. Проверьте, что бэкенд запущен.';
     }
   }
   if (error instanceof Error) {
@@ -70,10 +75,10 @@ export const loginRequest = async (payload: loginFormData): Promise<{ message: s
 
 interface RegisterResponseBody {
   message: string;
-  user: unknown;
+  user: unknown | null;
 }
 
-export const registerRequest = async (payload: registerFormData): Promise<{ message: string; user: User }> => {
+export const registerRequest = async (payload: registerFormData): Promise<{ message: string; user: User | null }> => {
   const response = await axios.post<RegisterResponseBody>(`${API_URL}/api/auth/register`, {
     username: payload.email,
     password: payload.password,
@@ -81,7 +86,7 @@ export const registerRequest = async (payload: registerFormData): Promise<{ mess
   });
   return {
     message: response.data.message,
-    user: mapBackendUser(response.data.user),
+    user: response.data.user != null ? mapBackendUser(response.data.user) : null,
   };
 };
 

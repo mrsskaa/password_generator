@@ -82,8 +82,10 @@ a.header-text-link:hover {
 .header-icon-btn {
   border: none;
   background: transparent;
-  color: #4e342c;
-  font-size: 36px;
+  color: var(--header-icon-color);
+  font-size: var(--header-icon-size);
+  width: var(--header-icon-size);
+  height: var(--header-icon-size);
   line-height: 1;
   display: inline-flex;
   align-items: center;
@@ -97,19 +99,27 @@ a.header-text-link:hover {
 
 .header-auth-menu.dropdown-menu {
   border: none;
-  border-radius: 22px;
-  padding: 16px;
-  min-width: 290px;
-  box-shadow: 0 10px 26px rgba(181, 108, 88, 0.25);
+  border-radius: 14px;
+  padding: 8px 0;
+  width: var(--menu-dropdown-width);
+  min-width: var(--menu-dropdown-width);
+  height: var(--menu-dropdown-height);
+  box-shadow: 0 0 28px var(--menu-shadow);
+  left: 50% !important;
+  transform: translateX(-50%);
 }
 
 .header-auth-menu-item.dropdown-item {
-  border-radius: 999px;
+  border-radius: 0;
   background: transparent;
-  color: #4e342c;
-  font-size: 20px;
+  color: var(--history-text-color);
+  font-size: var(--menu-dropdown-font-size);
   font-weight: 500;
-  padding: 14px 22px;
+  min-height: calc((var(--menu-dropdown-height) - 16px) / 2);
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .header-auth-menu-item.dropdown-item.is-active,
