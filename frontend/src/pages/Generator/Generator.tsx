@@ -95,7 +95,7 @@ function Generator() {
     try {
       const response = await generatePasswordRequest(generatorPayload);
       setGeneratedPassword(response.password);
-      setCardTimestamp(formatHistoryDateTime(new Date().toISOString()));
+      setCardTimestamp(null);
       setStrengthMeta({
         crackTimeText: response.crack_time_human,
         strengthColor: response.color,
@@ -306,7 +306,7 @@ function Generator() {
                 {showHintButton && (
                   <OverlayTrigger
                     trigger="click"
-                    placement="bottom"
+                    placement="bottom-end"
                     rootClose
                     overlay={
                       <Popover id="generator-password-hint" className="generator-hint-popover">

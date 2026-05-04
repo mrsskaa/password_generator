@@ -54,6 +54,7 @@ function ConfirmCodeForm({
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [showInitialMessage, setShowInitialMessage] = useState(Boolean(initialMessage));
   const [resendSuccessMessage, setResendSuccessMessage] = useState('');
+  const [resendBusy, setResendBusy] = useState(false);
   const [devCode, setDevCode] = useState<string | null>(() => {
     if (!initialMessage) {
       return null;
@@ -61,7 +62,7 @@ function ConfirmCodeForm({
     const match = initialMessage.match(DEV_CODE_RE);
     return match?.[1] ?? null;
   });
-  const canResend = secondsLeft === 0;
+  const canResend = secondsLeft === 0 && !resendBusy;
 
   useEffect(() => {
     if (!initialMessage) {
@@ -98,12 +99,13 @@ function ConfirmCodeForm({
     return () => window.clearInterval(id);
   }, []);
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (!canResend || resendBusy) {
       return;
     }
     clearErrors('root');
     setResendSuccessMessage('');
+    setResendBusy(true);
     try {
       const result = (await onResend({ email })) as { message?: string } | undefined;
       if (result?.message) {
@@ -114,11 +116,13 @@ function ConfirmCodeForm({
         }
       }
       setSecondsLeft(RESEND_INTERVAL_SEC);
-    } catch {
+    } catch (err) {
       setError('root', {
         type: 'server',
-        message: 'Не удалось отправить код повторно.',
+        message: getAxiosErrorMessage(err, 'Не удалось отправить код повторно.'),
       });
+    } finally {
+      setResendBusy(false);
     }
   };
 

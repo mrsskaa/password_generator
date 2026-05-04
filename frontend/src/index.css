@@ -80,6 +80,23 @@ html, body {
     --password-lightgreen-glow: rgba(124, 179, 66, 0.5);
     --password-green: #00a106;
     --password-green-glow: rgba(0, 227, 16, 0.5);
+
+    --brand-shift-left: -48px;
+    --header-icon-size: 32px;
+    --header-icon-color: #7F5836;
+    --menu-dropdown-width: 187px;
+    --menu-dropdown-height: 96px;
+    --menu-dropdown-font-size: 18px;
+    --menu-hover-bg: rgba(249, 231, 211, 0.64);
+    --menu-shadow: rgba(237, 76, 120, 0.45);
+    --history-text-color: #7F5836;
+    --history-title-color: #B56C58;
+    --history-title-size: 22px;
+    --history-date-size: 19px;
+    --hint-icon-color: #ED4C78;
+    --hint-icon-bg: rgba(243, 198, 187, 0.6);
+    --hint-text-color: #443025;
+    --hint-shadow: rgba(237, 76, 120, 0.35);
 }
 
 body {

@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from typing import Any
 from sqlalchemy import create_engine, delete, inspect, select, text, update
 from sqlalchemy.orm import sessionmaker
-from app.models.user import Base, PasswordResetCode, RegistrationCode, User
+from app.models.user import Base, PasswordResetCode, PendingRegistration, RegistrationCode, User
 from app.models.saved_password import SavedPassword  # noqa: F401
 
 
@@ -40,6 +40,9 @@ class SQLAlchemyRepository:
 
             if "registration_codes" not in table_names:
                 RegistrationCode.__table__.create(bind=connection)
+
+            if "pending_registrations" not in table_names:
+                PendingRegistration.__table__.create(bind=connection)
 
             if "saved_passwords" in table_names:
                 password_columns = {column["name"] for column in inspector.get_columns("saved_passwords")}
@@ -140,22 +143,72 @@ class SQLAlchemyRepository:
             session.commit()
             return result.rowcount > 0
 
-    def update_unverified_user_credentials(
-        self,
-        user_id: int,
-        username: str,
-        hashed_password: str,
-    ) -> dict[str, Any] | None:
-        """Обновить логин и пароль для пользователя с неподтверждённой почтой (повторная регистрация)."""
+    def delete_user_by_id(self, user_id: int) -> bool:
         with self.SessionLocal() as session:
             user = session.get(User, user_id)
+            if not user:
+                return False
+            session.delete(user)
+            session.commit()
+            return True
+
+    def upsert_pending_registration(self, email: str, username: str, hashed_password: str) -> dict[str, Any]:
+        now = datetime.now(timezone.utc)
+        with self.SessionLocal() as session:
+            row = session.get(PendingRegistration, email)
+            if row:
+                row.username = username
+                row.hashed_password = hashed_password
+                row.updated_at = now
+            else:
+                session.add(
+                    PendingRegistration(
+                        email=email,
+                        username=username,
+                        hashed_password=hashed_password,
+                        updated_at=now,
+                    )
+                )
+            session.commit()
+            refreshed = session.get(PendingRegistration, email)
+            assert refreshed is not None
+            return {
+                "email": refreshed.email,
+                "username": refreshed.username,
+                "hashed_password": refreshed.hashed_password,
+                "updated_at": refreshed.updated_at,
+            }
+
+    def get_pending_registration(self, email: str) -> dict[str, Any] | None:
+        with self.SessionLocal() as session:
+            row = session.get(PendingRegistration, email)
+            if not row:
+                return None
+            return {
+                "email": row.email,
+                "username": row.username,
+                "hashed_password": row.hashed_password,
+                "updated_at": row.updated_at,
+            }
+
+    def delete_pending_registration(self, email: str) -> None:
+        with self.SessionLocal() as session:
+            row = session.get(PendingRegistration, email)
+            if row:
+                session.delete(row)
+                session.commit()
+
+    def migrate_legacy_unverified_user_to_pending(self, email: str) -> dict[str, Any] | None:
+        """Старый аккаунт с email_verified=False переносим в pending и удаляем строку users."""
+        with self.SessionLocal() as session:
+            user = session.scalar(select(User).where(User.email == email))
             if not user or user.email_verified:
                 return None
-            user.username = username
-            user.hashed_password = hashed_password
+            hashed = user.hashed_password
+            username = user.username
+            session.delete(user)
             session.commit()
-            session.refresh(user)
-            return self._to_dict(user)
+        return self.upsert_pending_registration(email, username, hashed)
 
     def set_user_email_verified(self, email: str, email_verified: bool = True) -> bool:
         with self.SessionLocal() as session:
@@ -164,25 +217,6 @@ class SQLAlchemyRepository:
             )
             session.commit()
             return result.rowcount > 0
-
-    def update_unverified_user_credentials(
-        self,
-        user_id: int,
-        username: str,
-        email: str,
-        hashed_password: str,
-    ) -> dict[str, Any] | None:
-        with self.SessionLocal() as session:
-            user = session.scalar(select(User).where(User.id == user_id))
-            if not user:
-                return None
-            user.username = username
-            user.email = email
-            user.hashed_password = hashed_password
-            user.email_verified = False
-            session.commit()
-            session.refresh(user)
-            return self._to_dict(user)
 
     def get_latest_reset_code_for_email(self, email: str) -> dict[str, Any] | None:
         with self.SessionLocal() as session:

@@ -28,4 +28,4 @@ class UserPublic(BaseModel):
 
 class AuthResponse(BaseModel):
     message: str
-    user: UserPublic
+    user: UserPublic | None = None

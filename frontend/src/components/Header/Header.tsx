@@ -64,7 +64,7 @@ const Header = () => {
     <>
     <div className="d-flex flex-column w-100 text-center d-md-none gap-2">
       <div className="header-auth-icons">
-        <Dropdown align="end">
+        <Dropdown>
           <Dropdown.Toggle as="button" className="header-icon-btn" id="header-menu-mobile">
             <i className="bi bi-list" aria-hidden />
           </Dropdown.Toggle>
@@ -84,7 +84,7 @@ const Header = () => {
     </div>
     <div className="d-none d-md-flex ms-auto header-actions-desktop">
       <div className="header-auth-icons">
-        <Dropdown align="end">
+        <Dropdown>
           <Dropdown.Toggle as="button" className="header-icon-btn" id="header-menu-desktop">
             <i className="bi bi-list" aria-hidden />
           </Dropdown.Toggle>

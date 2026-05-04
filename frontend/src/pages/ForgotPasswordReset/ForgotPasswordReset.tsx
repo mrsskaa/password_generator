@@ -7,7 +7,7 @@ import Header from '../../components/Header/Header';
 import AuthForm from '../../components/AuthForm/AuthForm';
 import resetPasswordSchema, { type ResetPasswordFormData } from '../../schemas/resetPasswordSchema';
 import { MAX_INPUT_LENGTH } from '../../constants/inputLimits';
-import { resetForgotPasswordRequest } from '../../api/authApi';
+import { getAxiosErrorMessage, resetForgotPasswordRequest } from '../../api/authApi';
 import './ForgotPasswordReset.css';
 
 function ForgotPasswordReset() {
@@ -42,10 +42,10 @@ function ForgotPasswordReset() {
       await resetForgotPasswordRequest({ newPassword: data.password, resetToken });
       setSubmitSuccess(true);
       window.setTimeout(() => navigate('/login'), 2000);
-    } catch {
+    } catch (err) {
       setError('root', {
         type: 'server',
-        message: 'Не удалось сменить пароль. Попробуйте позже.',
+        message: getAxiosErrorMessage(err, 'Не удалось сменить пароль. Попробуйте позже.'),
       });
     }
   };
