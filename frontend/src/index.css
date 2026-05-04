@@ -1,9 +1,14 @@
 /* Твои глобальные стили */
-html, body {
+html {
     margin: 0;
     padding: 0;
-    height: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     font-family: "Geologica", "Segoe UI", Roboto, Arial, sans-serif;
+    scroll-behavior: smooth;
+    overflow-y: auto !important;
+    box-shadow: inset 0 0.5vh 15vh var(--inset-shadow);
 }
 
 :root {
@@ -34,6 +39,12 @@ html, body {
     --font-size-34: 34px;
     --font-size-46: 46px;
 
+    --not-found-context-color: #7F5836;
+    --not-found-button-color: #EC9C9D;
+    --not-found-button-height: 95px;
+    --not-found-button-width: 380px;
+    --not-found-margin: 40px;
+
     --gray-80: #808080;
     --gray-text: #3f3736;
     --gray-subtext: #7a716f;
@@ -59,6 +70,7 @@ html, body {
     --modal-shadow: rgba(181, 108, 88, 0.4);
     --content-box-shadow: rgba(181, 108, 88, 0.45);
     --inset-shadow: rgba(167, 0, 0, 0.25);
+    --my-passwords-filter-hover: #F1BAB3;
 
     --generator-slider-thumb-size: 22px;
     --generator-title-size: 45px;
@@ -100,12 +112,31 @@ html, body {
 }
 
 body {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    min-height: 100%;
     background-size: cover;
     background-position: center;
     color: var(--text-color);
     background-color: var(--bg-color);
-    box-shadow: inset 0 4px 100px var(--inset-shadow);
+    
 }
+/* Специальный стиль для мобильных устройств */
+/* @media (max-width: 600px) {
+  body {
+    box-shadow: inset 0px 0px 15px 2px rgba(0, 0, 0, 0.15);
+  }
+} */
+/* @media (min-width: 768px) {
+  body {
+    box-shadow: inset 0px 0px 30px 10px rgba(0, 0, 0, 0.4);
+  }
+} */
+
+
+
+
 
 .auth-success-alert {
     border: 1px solid #9dd8ab !important;
