@@ -70,6 +70,7 @@ html {
     --modal-shadow: rgba(181, 108, 88, 0.4);
     --content-box-shadow: rgba(181, 108, 88, 0.45);
     --inset-shadow: rgba(167, 0, 0, 0.25);
+    --my-passwords-filter-hover: #F1BAB3;
 
     --generator-slider-thumb-size: 22px;
     --generator-title-size: 45px;
@@ -91,6 +92,8 @@ html {
     --password-lightgreen-glow: rgba(124, 179, 66, 0.5);
     --password-green: #00a106;
     --password-green-glow: rgba(0, 227, 16, 0.5);
+
+    --password-details-delete-button: #F3B8B8;
 }
 
 body {
