@@ -24,6 +24,8 @@ const Register = () => {
     handleSubmit,
     watch,
     setValue,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<registerFormData>({
     resolver: zodResolver(regSchema),
@@ -33,35 +35,30 @@ const Register = () => {
 
   const onSubmit = async (data: registerFormData) => {
     dispatch(registerStart());
-    navigate('/register/confirm', {
-      state: {
-        email: data.email,
-        flashMessage: 'Проверяем регистрацию и отправляем код...',
-      },
-    });
-
-    void registerRequest(data)
-      .then((response) => {
-        dispatch(registerRequestFinished());
-        navigate('/register/confirm', {
-          replace: true,
-          state: {
-            email: data.email,
-            flashMessage: response.message || 'Успешная регистрация. Введите код из письма.',
-          },
-        });
-      })
-      .catch((e) => {
-        const msg = getAxiosErrorMessage(e, 'Регистрация не удалась.');
-        dispatch(registerFailure(msg));
-        navigate('/register/confirm', {
-          replace: true,
-          state: {
-            email: data.email,
-            initialError: msg,
-          },
-        });
+    clearErrors('email');
+    clearErrors('root');
+    try {
+      const response = await registerRequest(data);
+      dispatch(registerRequestFinished());
+      navigate('/register/confirm', {
+        state: {
+          email: data.email,
+          password: data.password,
+          flashMessage: response.message || 'Введите код из письма.',
+        },
       });
+    } catch (e) {
+      const msg = getAxiosErrorMessage(e, 'Регистрация не удалась.');
+      dispatch(registerFailure(msg));
+      if (msg.includes('таким именем уже существует')) {
+        setError('email', {
+          type: 'server',
+          message: 'Пользователь с таким именем уже существует',
+        });
+      } else {
+        setError('root', { type: 'server', message: msg });
+      }
+    }
   };
 
   const form = (

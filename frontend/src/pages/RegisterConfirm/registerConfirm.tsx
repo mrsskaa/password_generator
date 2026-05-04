@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { loginSuccess } from '../../store/authSlice';
 import {
   confirmRegistrationRequest,
+  loginRequest,
   resendRegistrationCodeRequest,
 } from '../../api/authApi';
 import ConfirmCodeForm from '../../components/ConfirmCodeForm/ConfirmCodeForm';
@@ -16,15 +17,20 @@ function RegisterConfirm() {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
-  const state = location.state as { email?: string; flashMessage?: string; initialError?: string } | null;
+  const state = location.state as {
+    email?: string;
+    password?: string;
+    flashMessage?: string;
+    initialError?: string;
+  } | null;
 
   useEffect(() => {
-    if (!state?.email) {
+    if (!state?.email || !state?.password) {
       navigate('/register', { replace: true });
     }
   }, [state, navigate]);
 
-  if (!state?.email) {
+  if (!state?.email || !state?.password) {
     return null;
   }
 
@@ -37,10 +43,9 @@ function RegisterConfirm() {
       successMessage="Аккаунт подтверждён. Сейчас откроется генератор…"
       errorMessage="Неверный код или срок действия истёк."
       onConfirm={async ({ email, code }) => {
-        const response = await confirmRegistrationRequest({ email, code });
-        if (response.user) {
-          dispatch(loginSuccess(response.user));
-        }
+        await confirmRegistrationRequest({ email, code });
+        const loginResponse = await loginRequest({ email, password: state.password ?? '' });
+        dispatch(loginSuccess(loginResponse.user));
       }}
       onResend={resendRegistrationCodeRequest}
       onSuccessRedirect="/"

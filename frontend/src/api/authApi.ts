@@ -75,10 +75,10 @@ export const loginRequest = async (payload: loginFormData): Promise<{ message: s
 
 interface RegisterResponseBody {
   message: string;
-  user: unknown;
+  user: unknown | null;
 }
 
-export const registerRequest = async (payload: registerFormData): Promise<{ message: string; user: User }> => {
+export const registerRequest = async (payload: registerFormData): Promise<{ message: string; user: User | null }> => {
   const response = await axios.post<RegisterResponseBody>(`${API_URL}/api/auth/register`, {
     username: payload.email,
     password: payload.password,
@@ -86,7 +86,7 @@ export const registerRequest = async (payload: registerFormData): Promise<{ mess
   });
   return {
     message: response.data.message,
-    user: mapBackendUser(response.data.user),
+    user: response.data.user != null ? mapBackendUser(response.data.user) : null,
   };
 };
 

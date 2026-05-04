@@ -5,7 +5,7 @@
 }
 
 .generator-shell {
-  --generator-align-shift: -56px;
+  --generator-align-shift: var(--brand-shift-left);
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 12px;
@@ -53,9 +53,9 @@
 .generator-history-inner {
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 0 25px rgba(237, 76, 120, 0.35);
+  box-shadow: 0 0 25px var(--hint-shadow);
   padding: 1px 12px;
-  color: #7f5836;
+  color: var(--history-text-color);
 }
 
 .generator-history-toggle {
@@ -67,28 +67,29 @@
   border: none;
   border-radius: 10px;
   background: transparent;
-  color: #7f5836;
+  color: var(--history-title-color);
   font-weight: 600;
   padding: 6px 4px;
   cursor: pointer;
 }
 
 .generator-history-toggle-label {
-  font-size: 19px;
-    color: #B56C58 !important;
-    margin-left: 3px;
+  font-size: var(--history-title-size);
+  color: var(--history-title-color) !important;
+  margin-left: 3px;
+  font-weight: 400;
 }
 
 .generator-history-toggle-icon {
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   font-size: 30px;
   line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-    color: #B56C58 !important;
+  color: var(--history-title-color) !important;
 }
 
 .generator-history-chevron {
@@ -100,8 +101,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-left: 10px;
-    color: #B56C58;
+  margin-left: auto;
+  color: var(--history-title-color);
 }
 
 .generator-history-toggle:hover {
@@ -119,18 +120,18 @@
 
 .generator-history-date-btn {
   width: 100%;
-  text-align: center;
+  text-align: left;
   border: none;
   background: #fff;
   border-radius: 10px;
   padding: 7px 10px;
-  font-size: 17px;
-  color: #7f5836;
+  font-size: var(--history-date-size);
+  color: var(--history-text-color);
   cursor: pointer;
 }
 
 .generator-history-date-btn:hover {
-  background: rgba(249, 231, 211, 0.64);
+  background: var(--menu-hover-bg);
 }
 
 @media (max-width: 900px) {
@@ -191,7 +192,7 @@
   line-height: 1.05;
   margin-top: 20px;
   margin-bottom: 0.35em;
-    margin-right: 300px;
+  margin-right: 0;
 }
 
 .generator-subtitle {
@@ -326,15 +327,18 @@
 .generator-hint-btn {
   box-sizing: border-box;
   border: none;
-  background: transparent;
+  background: var(--hint-icon-bg);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
   padding: 0;
-  font-size: var(--font-size-22);
+  font-size: 14px;
   line-height: 1;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: inherit;
+  color: var(--hint-icon-color);
   opacity: 0.92;
 }
 
@@ -346,14 +350,16 @@
 .generator-hint-popover.popover {
   max-width: min(320px, calc(100vw - 32px));
   border-radius: 12px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 0 28px var(--hint-shadow);
+  border: 1px solid rgba(237, 76, 120, 0.2);
 }
 
 .generator-hint-popover-body {
   font-size: var(--font-size-16);
   font-weight: 400;
-  color: var(--gray-text);
+  color: var(--hint-text-color);
   line-height: 1.4;
+  text-align: left;
 }
 
 .generator-password-value {
