@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.dependencies import get_auth_service, get_repository
 from app.repositories.user_repo import SQLAlchemyRepository
-from app.schemas.auth import AuthResponse, RegisterRequest, UserPublic
+from app.schemas.auth import AuthResponse, RegisterRequest
 from app.schemas.password_recovery import ForgotPasswordRequest, VerifyCodeRequest
 from app.services.auth.auth import AuthService
 from app.services.mailer import send_registration_code_email, send_welcome_email
@@ -65,68 +65,27 @@ async def register(
         raise HTTPException(status_code=400, detail="Для регистрации необходимо указать email")
 
     email = _validate_email(payload.email)
-    # Во фронте отдельного логина нет: используем email как username.
+    # Во фронте логин = email
     username = email
     hashed_password = auth_service.get_password_hash(payload.password)
-    existing_by_username = repository.get_user_by_username(username)
-    existing_by_email = repository.get_user_by_email(email)
 
-    if existing_by_username and existing_by_username.get("email_verified"):
-        raise HTTPException(status_code=400, detail="Пользователь с таким email уже существует")
-    if existing_by_email and existing_by_email.get("email_verified"):
-        raise HTTPException(status_code=400, detail="Пользователь с таким email уже существует")
+    existing = repository.get_user_by_email(email)
+    if existing and existing.get("email_verified"):
+        raise HTTPException(status_code=400, detail="Пользователь с таким именем уже существует")
 
-    if (
-        existing_by_username
-        and existing_by_email
-        and existing_by_username["id"] != existing_by_email["id"]
-    ):
-        raise HTTPException(
-            status_code=400,
-            detail="Этот email конфликтует с существующими данными аккаунтов. Обратитесь к администратору.",
-        )
+    if existing and not existing.get("email_verified"):
+        repository.delete_user_by_id(existing["id"])
 
-    is_reregistration = existing_by_username is not None or existing_by_email is not None
-    if is_reregistration:
-        stale_user = existing_by_username or existing_by_email
-        created_user = repository.update_unverified_user_credentials(
-            user_id=stale_user["id"],
-            username=username,
-            email=email,
-            hashed_password=hashed_password,
-        )
-        if not created_user:
-            raise HTTPException(status_code=500, detail="Не удалось обновить неподтвержденный аккаунт")
-        repository.delete_registration_codes_for_email(email)
-    else:
-        try:
-            created_user = repository.create_user(
-                username=username,
-                hashed_password=hashed_password,
-                email=email,
-                email_verified=False,
-                role="user",
-            )
-        except IntegrityError:
-            raise HTTPException(status_code=400, detail="Пользователь с таким email уже существует")
+    repository.upsert_pending_registration(email, username, hashed_password)
+    repository.delete_registration_codes_for_email(email)
 
     registration_code = _create_registration_code(email, repository)
     background_tasks.add_task(send_registration_code_email, to_email=email, code=registration_code["code"])
+    logger.info("Заявка на регистрацию: email=%s (аккаунт в БД создастся после подтверждения кода)", email)
 
-    background_tasks.add_task(
-        send_welcome_email,
-        to_email=created_user.get("email"),
-        username=created_user["username"],
-    )
-    logger.info("Пользователь зарегистрирован: username=%s", created_user["username"])
-
-    message = (
-        "Регистрация обновлена. Код подтверждения скоро придет на email."
-        if is_reregistration
-        else "Пользователь зарегистрирован. Код подтверждения скоро придет на email."
-    )
+    message = "Код подтверждения скоро придет на email. Аккаунт будет создан после ввода кода."
     message = _with_debug_code_message(message, registration_code["code"])
-    return AuthResponse(message=message, user=UserPublic(**created_user))
+    return AuthResponse(message=message, user=None)
 
 
 @router.post("/register/resend-code")
@@ -138,10 +97,19 @@ async def resend_registration_code(
     email = _validate_email(payload.email)
 
     user = repository.get_user_by_email(email)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь с таким email не найден")
-    if user.get("email_verified"):
+    if user and user.get("email_verified"):
         return {"message": "Email уже подтвержден"}
+
+    pending = repository.get_pending_registration(email)
+    if not pending and user and not user.get("email_verified"):
+        repository.migrate_legacy_unverified_user_to_pending(email)
+        pending = repository.get_pending_registration(email)
+
+    if not pending:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Пользователь с таким email не найден",
+        )
 
     code_row = _create_registration_code(email, repository)
     background_tasks.add_task(send_registration_code_email, to_email=email, code=code_row["code"])
@@ -151,6 +119,7 @@ async def resend_registration_code(
 @router.post("/register/verify-code")
 async def verify_registration_code(
     payload: VerifyCodeRequest,
+    background_tasks: BackgroundTasks,
     repository: Annotated[SQLAlchemyRepository, Depends(get_repository)],
 ) -> dict[str, str]:
     email = _validate_email(payload.email)
@@ -175,8 +144,36 @@ async def verify_registration_code(
             detail="Код подтверждения истек или уже использован",
         )
 
+    pending = repository.get_pending_registration(email)
+    if not pending:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Заявка на регистрацию не найдена или устарела. Пройдите регистрацию заново.",
+        )
+
+    try:
+        created_user = repository.create_user(
+            username=pending["username"],
+            hashed_password=pending["hashed_password"],
+            email=email,
+            email_verified=True,
+            role="user",
+        )
+    except IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Пользователь с таким именем уже существует",
+        ) from None
+
     repository.mark_registration_code_used(code_row["id"])
-    repository.set_user_email_verified(email, True)
+    repository.delete_pending_registration(email)
     repository.delete_registration_codes_for_email(email)
+
+    background_tasks.add_task(
+        send_welcome_email,
+        to_email=created_user.get("email"),
+        username=created_user["username"],
+    )
+    logger.info("Аккаунт создан после подтверждения email: username=%s", created_user["username"])
 
     return {"message": "Email успешно подтвержден"}

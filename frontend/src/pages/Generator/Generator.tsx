@@ -8,6 +8,8 @@ import type { GeneratePasswordPayload } from '../../types/generator';
 import Header from '../../components/Header/Header';
 import type { RootState } from '../../store/store';
 import { isStrengthBelowGood, normalizeStrengthToken } from '../../utils/passwordStrength';
+import type { GeneratorHistoryEntry } from '../../utils/generatorHistory';
+import { formatHistoryDateTime, loadGeneratorHistory, pushGeneratorHistory } from '../../utils/generatorHistory';
 
 const MIN_LENGTH = 8;
 const MAX_LENGTH = 32;
@@ -36,6 +38,10 @@ function Generator() {
   const [error, setError] = useState('');
   const [copyMessage, setCopyMessage] = useState('');
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const userId = useSelector((state: RootState) => state.auth.user?.id);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyEntries, setHistoryEntries] = useState<GeneratorHistoryEntry[]>([]);
+  const [cardTimestamp, setCardTimestamp] = useState<string | null>(null);
   const [options, setOptions] = useState({
     includeLowercase: true,
     includeUppercase: true,
@@ -62,6 +68,15 @@ function Generator() {
     return () => window.clearTimeout(timerId);
   }, [effectiveFlashMessage, navigate]);
 
+  useEffect(() => {
+    if (userId != null) {
+      setHistoryEntries(loadGeneratorHistory(userId));
+    } else {
+      setHistoryEntries([]);
+      setHistoryOpen(false);
+    }
+  }, [userId]);
+
   const generatorPayload: GeneratePasswordPayload = useMemo(
     () => ({
       length,
@@ -80,12 +95,16 @@ function Generator() {
     try {
       const response = await generatePasswordRequest(generatorPayload);
       setGeneratedPassword(response.password);
+      setCardTimestamp(null);
       setStrengthMeta({
         crackTimeText: response.crack_time_human,
         strengthColor: response.color,
         strengthLevel: response.strength_level,
         hints: response.hints ?? [],
       });
+      if (userId != null) {
+        setHistoryEntries(pushGeneratorHistory(userId, response, generatorPayload));
+      }
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Не удалось сгенерировать пароль. Проверьте подключение к серверу.';
@@ -153,6 +172,32 @@ function Generator() {
     });
   };
 
+  const applyHistoryEntry = (entry: GeneratorHistoryEntry) => {
+    setLength(entry.options.length);
+    setOptions({
+      includeLowercase: entry.options.includeLowercase,
+      includeUppercase: entry.options.includeUppercase,
+      includeNumbers: entry.options.includeNumbers,
+      includeSymbols: entry.options.includeSymbols,
+      excludeSimilar: entry.options.excludeSimilar,
+    });
+    setGeneratedPassword(entry.password);
+    setCardTimestamp(entry.dateTimeLabel || formatHistoryDateTime(entry.at));
+    if (entry.crackTimeHuman && entry.strengthColor) {
+      setStrengthMeta({
+        crackTimeText: entry.crackTimeHuman,
+        strengthColor: entry.strengthColor,
+        strengthLevel: entry.strengthLevel,
+        hints: entry.hints ?? [],
+      });
+    } else {
+      setStrengthMeta(null);
+    }
+    setShowPassword(false);
+    setError('');
+    setCopyMessage('');
+  };
+
   const showStrengthMeta = strengthMeta !== null && generatedPassword !== PASSWORD_PLACEHOLDER;
   const strengthClassSuffix =
     showStrengthMeta && strengthMeta ? normalizeStrengthToken(strengthMeta.strengthColor) : null;
@@ -172,12 +217,51 @@ function Generator() {
       <Header />
       <main className="generator-main">
         <Container className="generator-page py-4">
-        <div className="generator-heading">
-          <h1 className="generator-title">ГЕНЕРАТОР БЕЗОПАСНЫХ ПАРОЛЕЙ</h1>
-          <p className="generator-subtitle mb-0">Создавайте надежные пароли, которые невозможно взломать</p>
-        </div>
+          <div className="generator-shell">
+            <div className="generator-heading">
+              <h1 className="generator-title">ГЕНЕРАТОР БЕЗОПАСНЫХ ПАРОЛЕЙ</h1>
+              <p className="generator-subtitle mb-0">Создавайте надежные пароли, которые невозможно взломать</p>
+            </div>
 
-        <div className="generator-content-box">
+            <div
+              className={`generator-body-stage ${
+                !isAuthenticated || userId == null ? 'generator-body-stage--no-history' : ''
+              }`}
+            >
+              {isAuthenticated && userId != null && (
+                <aside className="generator-history-panel" aria-label="История генераций">
+                  <div className="generator-history-inner">
+                    <button
+                      type="button"
+                      className="generator-history-toggle"
+                      onClick={() => setHistoryOpen((o) => !o)}
+                      aria-expanded={historyOpen}
+                    >
+                      <i className="bi bi-clock-history generator-history-toggle-icon" aria-hidden />
+                      <span className="generator-history-toggle-label">История</span>
+                      <i
+                        className={`bi bi-chevron-${historyOpen ? 'up' : 'down'} generator-history-chevron`}
+                        aria-hidden
+                      />
+                    </button>
+                    {historyOpen && historyEntries.length > 0 && (
+                      <ul className="generator-history-list">
+                        {historyEntries.map((entry) => (
+                          <li key={entry.id} className="generator-history-list-item">
+                            <button type="button" className="generator-history-date-btn" onClick={() => applyHistoryEntry(entry)}>
+                              {entry.dateLabel}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </aside>
+              )}
+
+              <div className="generator-center-column">
+                <div className={`generator-content-box ${cardTimestamp ? 'has-timestamp' : ''}`}>
+                  {cardTimestamp && <p className="generator-card-timestamp">{cardTimestamp}</p>}
         {effectiveFlashMessage && (
           <Alert variant="success" className="mb-3 auth-success-alert">
             {effectiveFlashMessage}
@@ -222,7 +306,7 @@ function Generator() {
                 {showHintButton && (
                   <OverlayTrigger
                     trigger="click"
-                    placement="bottom"
+                    placement="bottom-end"
                     rootClose
                     overlay={
                       <Popover id="generator-password-hint" className="generator-hint-popover">
@@ -302,8 +386,12 @@ function Generator() {
             СОХРАНИТЬ
           </Button>
         </div>
-        </div>
-      </Container>
+                </div>
+              </div>
+              {isAuthenticated && userId != null && <div className="generator-body-balance" aria-hidden />}
+            </div>
+          </div>
+        </Container>
       </main>
       <Modal
         show={showLoginPrompt}
