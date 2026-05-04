@@ -14,6 +14,9 @@ import MyPasswords from "./pages/MyPasswords/MyPasswords";
 import { loginSuccess } from "./store/authSlice";
 import { fetchCurrentUser } from "./api/authApi";
 import type { AppDispatch } from "./store/store";
+import NotFound404 from "./pages/404/NotFound404";
+import CodeWordConfirm from "./pages/CodeWordConfirm/CodeWordConfirm";
+import PasswordDetails from "./pages/PasswordDetail/PasswordDetail";
 
 function SessionBootstrap() {
   const dispatch = useDispatch<AppDispatch>();
@@ -45,6 +48,9 @@ function App() {
                 <Route path="/forgot-password/reset" element={<ForgotPasswordReset />} />
                 <Route path="/passwords/save" element={<SavePassword />} />
                 <Route path="/passwords" element={<MyPasswords />} />
+                <Route path="/passwords/:id/confirm" element={<CodeWordConfirm />} />
+                <Route path="/passwords/:id/details" element={<PasswordDetails />} />
+                <Route path="*" element={<NotFound404 />} />
             </Routes>
         </BrowserRouter>
     )

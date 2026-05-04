@@ -4,6 +4,17 @@
   color: #808080;
 }
 
+
+.register-auth-layout {
+  min-height: 100vh;
+  height: auto;
+  padding: 20px 16px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  position: relative;
+}
+
+
 /* чуть выше: меньше зазор под заголовком до полей */
 .register-auth-layout .auth-form-head {
   margin-bottom: 2%;
@@ -13,9 +24,35 @@
   margin-top: -4px;
 }
 
+
+/* .auth-form-container {
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 16px 16px; 
+  box-sizing: border-box;
+} */
+
+/* @media (max-width: 575.98px) {
+  .auth-form-container {
+    padding: 12px 12px; 
+  }
+} */
+
+.register-form {
+  margin-top: 1rem; /* Относительные отступы */
+}
+
 .register-form .form-control::placeholder {
   color: #9a9a9a;
   font-size: 16px;
+}
+
+.input-field-wrapper .form-control,
+.password-field-wrapper .form-control {
+  padding-right: 2.75rem;
+  width: 100%; /* Гарантируем 100% ширины */
+  box-sizing: border-box;
 }
 
 a.auth-form-bottom-back-link {
@@ -107,8 +144,8 @@ a.auth-form-bottom-back-link:hover {
 }
 
 .auth-form-bottom {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 0.75rem;
   margin-top: calc(1.75rem + 10px);
@@ -116,28 +153,29 @@ a.auth-form-bottom-back-link:hover {
 
 .auth-form-bottom-back-link-container {
   justify-self: start;
+  width: 100%;
 }
 
 .auth-form-submit-button-container {
   grid-column: 2;
   justify-self: center;
   width: max-content;
+  width: 100%;
 }
 
-@media (max-width: 575.98px) {
+@media (min-width: 576px) {
   .auth-form-bottom {
-    grid-template-columns: 1fr;
-    justify-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
   }
-
+  
   .auth-form-bottom-back-link-container {
-    justify-self: center;
-    grid-row: 2;
+    text-align: left;
   }
-
+  
   .auth-form-submit-button-container {
-    grid-column: 1;
-    grid-row: 1;
+    width: auto;
   }
 }
 
@@ -148,6 +186,7 @@ a.auth-form-bottom-back-link:hover {
   color: var(--text-color);
     font-weight: 600;
     border: 1px solid var(--light-grey);
-    min-width: 240px;
+    min-width: 100%;
     min-height: 44px;
 }
+

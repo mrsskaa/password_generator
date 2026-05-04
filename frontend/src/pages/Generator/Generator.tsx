@@ -213,7 +213,7 @@ function Generator() {
   );
 
   return (
-    <>
+    <Container className='generator-wrapper'>
       <Header />
       <main className="generator-main">
         <Container className="generator-page py-4">
@@ -417,7 +417,7 @@ function Generator() {
           </p>
         </Modal.Body>
       </Modal>
-    </>
+    </Container>
   );
 }
 
