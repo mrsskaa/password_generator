@@ -1,25 +1,13 @@
 @import '../../index.css';
 
-.header-layout {
-  margin: 0px;
-  padding: 0px 15px;
-  max-width: 100%;
-  /* min-width: 100vh; */
-}
 
 .header-navbar {
   box-shadow: none !important;
-  
 }
 
 .header-container {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;  /* Ключ: слева бренд, справа actions */
   padding-left: 0 !important;
-  padding-right: 0 !important;  /* Убрали лишний padding */
   width: 100% !important;
-  margin: 0 !important;
 }
 
 .header-brand {
@@ -70,7 +58,8 @@ a.header-text-link:hover {
   margin-right: 0 !important;
   display: flex !important;
   align-items: center !important;
-  gap: 0 !important;  /* Уберите gap если мешает */
+  gap: 10px;
+  /* gap: 0 !important;  */
 }
 
 .header-auth-icons {
@@ -128,11 +117,4 @@ a.header-text-link:hover {
   color: #4e342c;
 }
 
-/* @media (min-width: 992px) {
-  .header-brand {
-    margin-left: -48px;
-  }
-  .header-actions-desktop {
-    margin-right: -48px;
-  }
-} */
+
