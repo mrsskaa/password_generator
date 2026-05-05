@@ -81,9 +81,15 @@ html, body {
     --password-green: #00a106;
     --password-green-glow: rgba(0, 227, 16, 0.5);
 
+    --not-found-context-color: #7F5836;
+    --not-found-button-color: #EC9C9D;
+    --not-found-button-height: 95px;
+    --not-found-button-width: 380px;
+    --not-found-margin: 40px;
+
     --brand-shift-left: -48px;
     --header-icon-size: 32px;
-    --header-icon-color: #7F5836;
+    --header-icon-color: #443025;
     --menu-dropdown-width: 187px;
     --menu-dropdown-height: 96px;
     --menu-dropdown-font-size: 18px;

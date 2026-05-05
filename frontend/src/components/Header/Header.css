@@ -91,12 +91,13 @@ a.header-text-link:hover {
   box-shadow: 0 0 28px var(--menu-shadow);
   left: 50% !important;
   transform: translateX(-50%);
+  color: var(--header-icon-color);
 }
 
 .header-auth-menu-item.dropdown-item {
   border-radius: 0;
   background: transparent;
-  color: var(--history-text-color);
+  color: var(--header-icon-color);
   font-size: var(--menu-dropdown-font-size);
   font-weight: 500;
   min-height: calc((var(--menu-dropdown-height) - 16px) / 2);
@@ -109,5 +110,6 @@ a.header-text-link:hover {
 .header-auth-menu-item.dropdown-item.is-active,
 .header-auth-menu-item.dropdown-item:hover {
   background: var(--menu-hover-bg);
-  color: var(--history-text-color);
+    border-radius: 15px;
+  color: var(--header-icon-color);
 }
