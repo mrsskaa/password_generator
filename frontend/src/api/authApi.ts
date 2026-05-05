@@ -168,28 +168,85 @@ export const resetForgotPasswordRequest = async (payload: {
 
 export interface SavePasswordPayload {
   password: string;
+  codeWord: string;
   description: string;
   generationSettings?: Record<string, unknown>;
 }
 
-export interface SavePasswordResponse {
+export interface SavedPasswordItem {
   id: string;
-  password: string;
   description: string;
   created_at: string;
   settings_preview: string;
+  generation_settings: Record<string, unknown>;
 }
 
-export const savePasswordRequest = async (payload: SavePasswordPayload): Promise<SavePasswordResponse> => {
-  const response = await axios.post<SavePasswordResponse>(`${API_URL}/passwords`, {
+interface SavedPasswordsListResponse {
+  items: SavedPasswordItem[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+interface RevealPasswordResponse {
+  password: string;
+}
+
+export const savePasswordRequest = async (payload: SavePasswordPayload): Promise<SavedPasswordItem> => {
+  const response = await axios.post<SavedPasswordItem>(`${API_URL}/api/passwords`, {
     password: payload.password,
+    code_word: payload.codeWord,
     description: payload.description,
     generation_settings: payload.generationSettings ?? {},
   });
   return response.data;
 };
 
-export const getSavedPasswordsRequest = async (): Promise<SavePasswordResponse[]> => {
-  const response = await axios.get<SavePasswordResponse[]>(`${API_URL}/passwords`);
+export const getSavedPasswordsRequest = async (params?: {
+  limit?: number;
+  offset?: number;
+}): Promise<SavedPasswordsListResponse> => {
+  const response = await axios.get<SavedPasswordsListResponse | SavedPasswordItem[]>(`${API_URL}/api/passwords`, {
+    params,
+  });
+  if (Array.isArray(response.data)) {
+    return {
+      items: response.data,
+      total: response.data.length,
+      limit: params?.limit ?? response.data.length,
+      offset: params?.offset ?? 0,
+    };
+  }
+  return response.data;
+};
+
+export const getSavedPasswordByIdRequest = async (passwordId: string): Promise<SavedPasswordItem> => {
+  const response = await axios.get<SavedPasswordItem>(`${API_URL}/api/passwords/${passwordId}`);
+  return response.data;
+};
+
+export const revealSavedPasswordRequest = async (payload: {
+  passwordId: string;
+  codeWord: string;
+}): Promise<RevealPasswordResponse> => {
+  const response = await axios.post<RevealPasswordResponse>(`${API_URL}/api/passwords/${payload.passwordId}/reveal`, {
+    code_word: payload.codeWord,
+  });
+  return response.data;
+};
+
+export const updateSavedPasswordDescriptionRequest = async (payload: {
+  passwordId: string;
+  description: string;
+}): Promise<{ id: string; description: string; updated_at: string }> => {
+  const response = await axios.patch<{ id: string; description: string; updated_at: string }>(
+    `${API_URL}/api/passwords/${payload.passwordId}`,
+    { description: payload.description },
+  );
+  return response.data;
+};
+
+export const deleteSavedPasswordRequest = async (passwordId: string): Promise<{ message: string }> => {
+  const response = await axios.delete<{ message: string }>(`${API_URL}/api/passwords/${passwordId}`);
   return response.data;
 };

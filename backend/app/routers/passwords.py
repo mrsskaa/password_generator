@@ -33,6 +33,18 @@ async def get_passwords(
     return service.get_user_passwords(current_user["id"], limit=limit, offset=offset)
 
 
+@router.get("/passwords/{password_id}", response_model=PasswordGetResponse, status_code=status.HTTP_200_OK)
+async def get_password(
+    password_id: uuid.UUID,
+    current_user: Annotated[dict[str, Any], Depends(get_current_user_from_cookie)],
+    service: Annotated[PasswordService, Depends(get_password_service)],
+) -> PasswordGetResponse:
+    try:
+        return service.get_password(current_user["id"], password_id)
+    except NotFoundError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пароль не найден")
+
+
 @router.post("/passwords", response_model=PasswordGetResponse, status_code=status.HTTP_201_CREATED)
 async def create_password(
     data: PasswordPostRequest,
