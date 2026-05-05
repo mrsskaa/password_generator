@@ -38,29 +38,6 @@ const Header = () => {
     </Navbar.Brand>
 
     {!isAuthenticated && <Navbar.Toggle aria-controls="auth-navbar" />}
-
-    {isAuthenticated && (
-      <div className="d-block d-sm-none ms-auto header-actions-desktop">
-      <div className="header-auth-icons">
-        <Dropdown align="end">
-          <Dropdown.Toggle as="button" className="header-icon-btn" id="header-menu-desktop">
-            <i className="bi bi-list" aria-hidden />
-          </Dropdown.Toggle>
-          <Dropdown.Menu className="header-auth-menu">
-            <Dropdown.Item as={Link} to="/" className={`header-auth-menu-item ${!isPasswordsPage ? 'is-active' : ''}`}>
-              генератор
-            </Dropdown.Item>
-            <Dropdown.Item as={Link} to="/passwords" className={`header-auth-menu-item ${isPasswordsPage ? 'is-active' : ''}`}>
-              мои пароли
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-        <button type="button" className="header-icon-btn" onClick={handleLogout} aria-label="Выйти">
-          <i className="bi bi-arrow-right" aria-hidden />
-        </button>
-      </div>
-    </div>
-    )}
     
 <Navbar.Collapse id="auth-navbar" className="justify-content-end d-md-flex">
   {!isAuthenticated ? (
@@ -85,11 +62,11 @@ const Header = () => {
     </>
   ) : (
     <>
-    <div className="ms-auto header-actions-desktop">
+    <div className="d-flex flex-column w-100 text-center d-md-none gap-2">
       <div className="header-auth-icons">
         <Dropdown>
-          <Dropdown.Toggle as="button" className="header-icon-btn" id="header-menu-desktop">
-            <i className="bi bi-list" aria-hidden />
+          <Dropdown.Toggle as="button" className="header-icon-btn" id="header-menu-mobile">
+            <i className="bi bi-text-center" aria-hidden />
           </Dropdown.Toggle>
           <Dropdown.Menu className="header-auth-menu">
             <Dropdown.Item as={Link} to="/" className={`header-auth-menu-item ${!isPasswordsPage ? 'is-active' : ''}`}>
@@ -101,7 +78,28 @@ const Header = () => {
           </Dropdown.Menu>
         </Dropdown>
         <button type="button" className="header-icon-btn" onClick={handleLogout} aria-label="Выйти">
-          <i className="bi bi-arrow-right" aria-hidden />
+          <i className="bi bi-indent" aria-hidden></i>
+        </button>
+      </div>
+    </div>
+    <div className="d-none d-md-flex ms-auto header-actions-desktop">
+      <div className="header-auth-icons">
+        <Dropdown>
+          <Dropdown.Toggle as="button" className="header-icon-btn" id="header-menu-desktop">
+            <i className="bi bi-text-center" aria-hidden></i>
+          </Dropdown.Toggle>
+          <Dropdown.Menu className="header-auth-menu">
+            <Dropdown.Item as={Link} to="/" className={`header-auth-menu-item ${!isPasswordsPage ? 'is-active' : ''}`}>
+              генератор
+
+            </Dropdown.Item>
+            <Dropdown.Item as={Link} to="/passwords" className={`header-auth-menu-item ${isPasswordsPage ? 'is-active' : ''}`}>
+              мои пароли
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+        <button type="button" className="header-icon-btn" onClick={handleLogout} aria-label="Выйти">
+          <i className="bi bi-indent" aria-hidden></i>
         </button>
       </div>
     </div>

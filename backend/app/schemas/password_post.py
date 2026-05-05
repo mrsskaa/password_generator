@@ -22,6 +22,7 @@ class PasswordGetResponse(BaseModel):
     description: str = Field(..., min_length=1, max_length=500)
     created_at: ISO8601
     settings_preview: str
+    generation_settings: dict[str, Any] = Field(default_factory=dict)
 
 
 class PasswordListResponse(BaseModel):

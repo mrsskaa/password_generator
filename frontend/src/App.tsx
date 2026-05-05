@@ -11,12 +11,12 @@ import ForgotPasswordConfirm from "./pages/ForgotPasswordConfirm/ForgotPasswordC
 import ForgotPasswordReset from "./pages/ForgotPasswordReset/ForgotPasswordReset";
 import SavePassword from "./pages/SavePassword/SavePassword";
 import MyPasswords from "./pages/MyPasswords/MyPasswords";
+import PasswordUnlock from "./pages/PasswordUnlock/PasswordUnlock";
+import PasswordDetails from "./pages/PasswordDetails/PasswordDetails";
+import NotFound404 from "./pages/404/NotFound404";
 import { loginSuccess } from "./store/authSlice";
 import { fetchCurrentUser } from "./api/authApi";
 import type { AppDispatch } from "./store/store";
-import NotFound404 from "./pages/404/NotFound404";
-import CodeWordConfirm from "./pages/CodeWordConfirm/CodeWordConfirm";
-import PasswordDetails from "./pages/PasswordDetail/PasswordDetail";
 
 function SessionBootstrap() {
   const dispatch = useDispatch<AppDispatch>();
@@ -48,8 +48,8 @@ function App() {
                 <Route path="/forgot-password/reset" element={<ForgotPasswordReset />} />
                 <Route path="/passwords/save" element={<SavePassword />} />
                 <Route path="/passwords" element={<MyPasswords />} />
-                <Route path="/passwords/:id/confirm" element={<CodeWordConfirm />} />
-                <Route path="/passwords/:id/details" element={<PasswordDetails />} />
+                <Route path="/passwords/:passwordId/unlock" element={<PasswordUnlock />} />
+                <Route path="/passwords/:passwordId" element={<PasswordDetails />} />
                 <Route path="*" element={<NotFound404 />} />
             </Routes>
         </BrowserRouter>

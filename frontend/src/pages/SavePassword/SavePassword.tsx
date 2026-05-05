@@ -19,7 +19,8 @@ function SavePassword() {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const state = (location.state as SavePasswordLocationState | null) ?? null;
 
-  const [password, setPassword] = useState(state?.password ?? '');
+  const savedPassword = (state?.password ?? '').trim();
+  const [codeWord, setCodeWord] = useState('');
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,14 +33,17 @@ function SavePassword() {
       return;
     }
 
-    const normalizedPassword = password.trim();
     const normalizedDescription = description.trim();
-    if (!normalizedPassword) {
-      setError('Введите кодовое слово.');
+    if (!savedPassword) {
+      setError('Сгенерируйте пароль перед сохранением.');
       return;
     }
     if (!normalizedDescription) {
       setError('Введите описание.');
+      return;
+    }
+    if (!codeWord.trim()) {
+      setError('Введите кодовое слово.');
       return;
     }
 
@@ -47,7 +51,8 @@ function SavePassword() {
     setError('');
     try {
       await savePasswordRequest({
-        password: normalizedPassword,
+        password: savedPassword,
+        codeWord: codeWord.trim(),
         description: normalizedDescription,
         generationSettings: state?.generationSettings,
       });
@@ -67,8 +72,8 @@ function SavePassword() {
       <Form.Group className="mb-4">
         <Form.Label className="auth-form-body-label">Кодовое слово:</Form.Label>
         <Form.Control
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
+          value={codeWord}
+          onChange={(event) => setCodeWord(event.target.value)}
           placeholder="-"
           className="auth-form-body-input"
         />
