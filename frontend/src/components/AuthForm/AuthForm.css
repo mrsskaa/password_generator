@@ -6,6 +6,11 @@
     box-sizing: border-box;
 }
 
+.content-box.auth-form-container  {
+  min-width: auto !important;
+  max-width: 100%;
+}
+
 .auth-form-head {
     margin-bottom: 5%;
 }
@@ -68,3 +73,4 @@ a.auth-form-head-link-text:hover {
     font-size: var(--font-size-28);
     font-weight: 600;
 }
+

@@ -1,0 +1,56 @@
+@import '../../index.css';
+
+.not-found-layout {
+    max-width: 963px;
+    margin-top: -100px;
+}
+.not-found {
+    min-height: calc(100vh - var(--header-height));
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.not-found-text {
+    gap: 30px;
+    margin: var(--not-found-margin);
+}
+
+.not-found-image {
+    height: 240px;
+
+}
+
+.not-found-digit {
+    font-size: 300px;
+    font-weight: bold;
+    color: var(--auth-form-text-link-color);
+    line-height: 0;
+}
+
+.not-found-context {
+    font-size: var(--font-size-30);
+    font-weight: bold;
+    color: var(--not-found-context-color);
+    margin: var(--not-found-margin);
+}
+
+.not-found-btn-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn.not-found-btn,
+.btn.not-found-btn:hover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--not-found-button-color);
+    border: 2px solid var(--pink-accent);
+    border-radius: 15px;
+    color: var(--pink-slider-track);
+    height: var(--not-found-button-height);
+    width: var(--not-found-button-width);
+    font-size: var(--font-size-30);
+    font-weight: bold;
+}
