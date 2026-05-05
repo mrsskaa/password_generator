@@ -1,21 +1,15 @@
-from pydantic import BaseModel, Field, field_validator
-
-from app.core.password_policy import validate_password_policy
+from pydantic import BaseModel, Field
 
 
 class ForgotPasswordRequest(BaseModel):
-    email: str
+    email: str = Field(min_length=3, max_length=255)
 
 
 class VerifyCodeRequest(BaseModel):
-    email: str
-    code: str
+    email: str = Field(min_length=3, max_length=255)
+    code: str = Field(min_length=6, max_length=6)
 
 
 class ResetPasswordRequest(BaseModel):
-    new_password: str = Field(...)
-
-    @field_validator("new_password")
-    @classmethod
-    def validate_new_password(cls, value: str) -> str:
-        return validate_password_policy(value)
+    reset_token: str = Field(min_length=1)
+    new_password: str = Field(min_length=8, max_length=128)

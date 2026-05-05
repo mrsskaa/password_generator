@@ -174,12 +174,11 @@ const Register = () => {
   return (
     <>
       <Header />
-    <div className="register-auth-layout">
-      <div className="auth-form-container">
+      <div className="register-auth-layout">
         <AuthForm
-          title={<h2 className="text-center auth-form-title">РЕГИСТРАЦИЯ</h2>}
+          title={<h2 className="text-center">РЕГИСТРАЦИЯ</h2>}
           description={
-            <div className="form-clue-text d-flex align-items-center gap-2">
+            <div className="formClueText d-flex align-items-center gap-2">
               <span className="auth-form-head-muted">Уже есть аккаунт?</span>
               <Nav.Link as={Link} to="/login" className="p-0 m-0 auth-form-head-link-text">
                 Войти
@@ -189,7 +188,6 @@ const Register = () => {
           form={form}
         />
       </div>
-    </div>
     </>
   );
 };

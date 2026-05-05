@@ -250,5 +250,3 @@ export const deleteSavedPasswordRequest = async (passwordId: string): Promise<{ 
   const response = await axios.delete<{ message: string }>(`${API_URL}/api/passwords/${passwordId}`);
   return response.data;
 };
-
-

@@ -22,7 +22,7 @@ function AuthForm({ title, description, form }: AuthFormProps) {
             </div>
           )}
         </div>
-        <div className="auth-form-body">{form}</div>
+        {form}
       </ContentBox>
     </Container>
   );
