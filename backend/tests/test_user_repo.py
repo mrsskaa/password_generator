@@ -79,15 +79,60 @@ def test_password_reset_code_flow(repo):
     assert mark_result is True
     assert updated_code["used_at"] is not None
 
-def test_get_latest_reset_code_for_email(repo):
-    email = "latest@test.com"
-    repo.create_password_reset_code(email, "code1", datetime.now(timezone.utc))
-    repo.create_password_reset_code(email, "code2", datetime.now(timezone.utc) + timedelta(hours=1))
-    latest = repo.get_latest_reset_code_for_email(email)
-    assert latest["code"] == "code2"
+def test_set_user_email_verified(repo):
+    repo.create_user("verify_user", "pass", "verify@test.com")
+    assert repo.set_user_email_verified("verify@test.com") is True
+    assert repo.get_user_by_email("verify@test.com")["email_verified"] is True
 
-def test_delete_reset_codes_for_email(repo):
-    email = "cleanup@test.com"
-    repo.create_password_reset_code(email, "000", datetime.now(timezone.utc))
-    repo.delete_reset_codes_for_email(email)
-    assert repo.get_latest_reset_code_for_email(email) is None
+def test_update_unverified_user_credentials(repo):
+    user = repo.create_user("old_name", "old_pass", "old@test.com")
+    updated = repo.update_unverified_user_credentials(user["id"], "new_name", "new@test.com", "new_pass")
+    assert updated["username"] == "new_name"
+    assert updated["email"] == "new@test.com"
+    assert repo.update_unverified_user_credentials(999, "x", "x@x.com", "x") is None
+
+
+
+
+@pytest.fixture()
+def created_reset_code(repo,reset_email):
+    expires=datetime.now(timezone.utc)+timedelta(minutes=10)
+    return repo.create_password_reset_code(reset_email,"123456",expires)
+
+
+
+@pytest.fixture()
+def reg_email():
+    return "reg@test.com"
+
+@pytest.fixture()
+def created_reg_code(repo, reg_email):
+    expires = datetime.now(timezone.utc) + timedelta(minutes=10)
+    return repo.create_registration_code(reg_email, "654321", expires)
+
+def test_create_registration_code(created_reg_code):
+    assert created_reg_code["code"] == "654321"
+    assert created_reg_code["used_at"] is None
+
+def test_get_registration_code(repo, reg_email, created_reg_code):
+    found = repo.get_registration_code(reg_email, "654321")
+    assert found["id"] == created_reg_code["id"]
+    assert repo.get_registration_code(reg_email, "000000") is None
+
+def test_mark_registration_code_used(repo, reg_email, created_reg_code):
+    assert repo.mark_registration_code_used(created_reg_code["id"]) is True
+    updated = repo.get_registration_code(reg_email, "654321")
+    assert updated["used_at"] is not None
+
+def test_get_latest_registration_code_for_email(repo, reg_email):
+    repo.create_registration_code(reg_email, "aaa", datetime.now(timezone.utc))
+    repo.create_registration_code(reg_email, "bbb", datetime.now(timezone.utc) + timedelta(hours=1))
+    assert repo.get_latest_registration_code_for_email(reg_email)["code"] == "bbb"
+
+def test_delete_registration_codes_for_email(repo, reg_email, created_reg_code):
+    repo.delete_registration_codes_for_email(reg_email)
+    assert repo.get_latest_registration_code_for_email(reg_email) is None
+
+def test_delete_registration_code_by_id(repo, reg_email, created_reg_code):
+    assert repo.delete_registration_code_by_id(created_reg_code["id"]) is True
+    assert repo.get_registration_code(reg_email, "654321") is None
