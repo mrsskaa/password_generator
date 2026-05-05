@@ -38,11 +38,7 @@ function PasswordDetails() {
 
     return (
         <>
-            <Header />
-            <div className="generator-heading">
-                <h1 className="generator-title">ГЕНЕРАТОР БЕЗОПАСНЫХ ПАРОЛЕЙ</h1>
-                <p className="generator-subtitle mb-0">Создавайте надежные пароли, которые невозможно взломать</p>
-            </div>
+
             <Container fluid className=" d-flex py-2 justify-content-center align-items-center">
                 <ContentBox className="password-details-container">
                     <div className="passwords-details-head">
