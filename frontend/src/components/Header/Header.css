@@ -1,11 +1,13 @@
 @import '../../index.css';
 
+
 .header-navbar {
   box-shadow: none !important;
 }
 
 .header-container {
   padding-left: 0 !important;
+  width: 100% !important;
 }
 
 .header-brand {

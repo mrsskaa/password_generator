@@ -7,8 +7,8 @@
 }
 
 .content-box.auth-form-container  {
-  min-width: auto !important;
-  max-width: 100%;
+  min-width: auto !important; 
+  /* max-width: 100%; */
 }
 
 .auth-form-head {

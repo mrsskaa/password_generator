@@ -516,12 +516,11 @@
 
 .generator-actions {
   margin-top: 0;
-  width: 45%;
   max-width: 100%;
   margin-left: auto;
   margin-right: auto;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   gap: 0;
 }
 
