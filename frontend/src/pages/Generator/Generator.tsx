@@ -164,10 +164,21 @@ function Generator() {
       setShowLoginPrompt(true);
       return;
     }
+    if (generatedPassword === PASSWORD_PLACEHOLDER) {
+      setError('Сначала сгенерируйте пароль.');
+      return;
+    }
+    setError('');
     navigate('/passwords/save', {
       state: {
-        password: generatedPassword === PASSWORD_PLACEHOLDER ? '' : generatedPassword,
-        generationSettings: generatorPayload,
+        password: generatedPassword,
+        generationSettings: {
+          ...generatorPayload,
+          crackTimeHuman: strengthMeta?.crackTimeText ?? '',
+          strengthColor: strengthMeta?.strengthColor ?? '',
+          strengthLevel: strengthMeta?.strengthLevel ?? '',
+          hints: strengthMeta?.hints ?? [],
+        },
       },
     });
   };
@@ -213,7 +224,7 @@ function Generator() {
   );
 
   return (
-    <>
+    <Container className='generator-wrapper'>
       <Header />
       <main className="generator-main">
         <Container className="generator-page py-4">
@@ -417,7 +428,7 @@ function Generator() {
           </p>
         </Modal.Body>
       </Modal>
-    </>
+    </Container>
   );
 }
 

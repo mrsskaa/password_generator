@@ -57,6 +57,7 @@ class PasswordService:
             description=password.description,
             created_at=password.created_at.isoformat(),
             settings_preview=password.settings_preview,
+            generation_settings=password.generation_settings or {},
         )
 
     def create_password(self, user_id: int, request: PasswordPostRequest) -> PasswordGetResponse:
@@ -83,6 +84,12 @@ class PasswordService:
             limit=limit,
             offset=offset,
         )
+
+    def get_password(self, user_id: int, password_id: uuid.UUID) -> PasswordGetResponse:
+        existing = self.repo.get_by_id_and_user(password_id, user_id)
+        if existing is None:
+            raise NotFoundError("Пароль не найден")
+        return self.orm_to_password_response(existing)
 
     def reveal_password(self, user_id: int, password_id: uuid.UUID, code_word: str) -> PasswordRevealResponse:
         existing = self.repo.get_by_id_and_user(password_id, user_id)

@@ -66,7 +66,7 @@ const Header = () => {
       <div className="header-auth-icons">
         <Dropdown>
           <Dropdown.Toggle as="button" className="header-icon-btn" id="header-menu-mobile">
-            <i className="bi bi-list" aria-hidden />
+            <i className="bi bi-text-center" aria-hidden />
           </Dropdown.Toggle>
           <Dropdown.Menu className="header-auth-menu">
             <Dropdown.Item as={Link} to="/" className={`header-auth-menu-item ${!isPasswordsPage ? 'is-active' : ''}`}>
@@ -78,7 +78,7 @@ const Header = () => {
           </Dropdown.Menu>
         </Dropdown>
         <button type="button" className="header-icon-btn" onClick={handleLogout} aria-label="Выйти">
-          <i className="bi bi-arrow-right" aria-hidden />
+          <i className="bi bi-indent" aria-hidden></i>
         </button>
       </div>
     </div>
@@ -86,7 +86,7 @@ const Header = () => {
       <div className="header-auth-icons">
         <Dropdown>
           <Dropdown.Toggle as="button" className="header-icon-btn" id="header-menu-desktop">
-            <i className="bi bi-list" aria-hidden />
+            <i className="bi bi-text-center" aria-hidden></i>
           </Dropdown.Toggle>
           <Dropdown.Menu className="header-auth-menu">
             <Dropdown.Item as={Link} to="/" className={`header-auth-menu-item ${!isPasswordsPage ? 'is-active' : ''}`}>
@@ -98,7 +98,7 @@ const Header = () => {
           </Dropdown.Menu>
         </Dropdown>
         <button type="button" className="header-icon-btn" onClick={handleLogout} aria-label="Выйти">
-          <i className="bi bi-arrow-right" aria-hidden />
+          <i className="bi bi-indent" aria-hidden></i>
         </button>
       </div>
     </div>
