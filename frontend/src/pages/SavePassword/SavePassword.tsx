@@ -6,6 +6,7 @@ import Header from '../../components/Header/Header';
 import AuthForm from '../../components/AuthForm/AuthForm';
 import type { RootState } from '../../store/store';
 import { getAxiosErrorMessage, savePasswordRequest } from '../../api/authApi';
+import { SAVED_PASSWORD_DESCRIPTION_MAX } from '../../constants/inputLimits';
 import './SavePassword.css';
 
 interface SavePasswordLocationState {
@@ -35,11 +36,18 @@ function SavePassword() {
 
     const normalizedDescription = description.trim();
     if (!savedPassword) {
-      setError('Сгенерируйте пароль перед сохранением.');
+      navigate('/', {
+        replace: true,
+        state: { flashMessage: 'Сначала сгенерируйте пароль.' },
+      });
       return;
     }
     if (!normalizedDescription) {
       setError('Введите описание.');
+      return;
+    }
+    if (normalizedDescription.length > SAVED_PASSWORD_DESCRIPTION_MAX) {
+      setError(`Описание не длиннее ${SAVED_PASSWORD_DESCRIPTION_MAX} символов.`);
       return;
     }
     if (!codeWord.trim()) {
@@ -83,9 +91,12 @@ function SavePassword() {
         <Form.Label className="auth-form-body-label">Описание:</Form.Label>
         <Form.Control
           value={description}
-          onChange={(event) => setDescription(event.target.value)}
+          onChange={(event) =>
+            setDescription(event.target.value.slice(0, SAVED_PASSWORD_DESCRIPTION_MAX))
+          }
           placeholder="описание"
           className="auth-form-body-input"
+          maxLength={SAVED_PASSWORD_DESCRIPTION_MAX}
         />
       </Form.Group>
 

@@ -50,10 +50,6 @@ def _create_registration_code(email: str, repository: SQLAlchemyRepository) -> d
     )
 
 
-def _with_debug_code_message(message: str, code: str) -> str:
-    return f"{message} [DEV code: {code}]"
-
-
 @router.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
 async def register(
     payload: RegisterRequest,
@@ -83,9 +79,10 @@ async def register(
     background_tasks.add_task(send_registration_code_email, to_email=email, code=registration_code["code"])
     logger.info("Заявка на регистрацию: email=%s (аккаунт в БД создастся после подтверждения кода)", email)
 
-    message = "Код подтверждения скоро придет на email. Аккаунт будет создан после ввода кода."
-    message = _with_debug_code_message(message, registration_code["code"])
-    return AuthResponse(message=message, user=None)
+    return AuthResponse(
+        message="Код подтверждения скоро придет на email. Аккаунт будет создан после ввода кода.",
+        user=None,
+    )
 
 
 @router.post("/register/resend-code")
@@ -113,7 +110,7 @@ async def resend_registration_code(
 
     code_row = _create_registration_code(email, repository)
     background_tasks.add_task(send_registration_code_email, to_email=email, code=code_row["code"])
-    return {"message": _with_debug_code_message("Код подтверждения скоро придет", code_row["code"])}
+    return {"message": "Код подтверждения скоро придет"}
 
 
 @router.post("/register/verify-code")
