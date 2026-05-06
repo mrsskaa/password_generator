@@ -6,6 +6,8 @@
 
 .generator-shell {
     --generator-align-shift: var(--brand-shift-left);
+    /* Общий левый край заголовка и блока «История» */
+    --generator-heading-left: calc(var(--generator-align-shift, -56px) - 60px);
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 12px;
@@ -47,7 +49,7 @@
     justify-self: start;
     align-self: flex-start;
     min-width: 0;
-    margin-left: var(--generator-align-shift);
+    margin-left: var(--generator-heading-left);
 }
 
 .generator-history-inner {
@@ -141,8 +143,8 @@
 
     .generator-history-panel {
         grid-column: 1;
-        margin-left: var(--generator-align-shift);
-        width: calc(100% - max(0px, var(--generator-align-shift) * -1));
+        margin-left: var(--generator-heading-left);
+        width: calc(100% - var(--generator-heading-left));
         max-width: 100%;
     }
 
@@ -172,7 +174,7 @@
 
 /* С логотипом в шапке; левее = общий сдвиг с блоком «История» */
 .generator-heading {
-    margin-left: var(--generator-align-shift, -56px);
+    margin-left: var(--generator-heading-left);
     text-align: left;
     margin-bottom: 28px;
 }

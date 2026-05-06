@@ -49,10 +49,6 @@ def _validate_recovery_email(payload: ForgotPasswordRequest, repository: SQLAlch
     return email
 
 
-def _with_debug_code_message(message: str, code: str) -> str:
-    return f"{message} [DEV code: {code}]"
-
-
 @router.post("/forgot-password")
 async def forgot_password(
     payload: ForgotPasswordRequest,
@@ -64,7 +60,7 @@ async def forgot_password(
     background_tasks.add_task(send_password_reset_code, email, code_row["code"])
 
     logger.info("Password recovery code sent for email=%s", email)
-    return {"message": _with_debug_code_message("Код скоро придет", code_row["code"])}
+    return {"message": "Код скоро придет"}
 
 
 @router.post("/forgot-password/resend-code")
@@ -78,4 +74,4 @@ async def resend_forgot_password_code(
     background_tasks.add_task(send_password_reset_code, email, code_row["code"])
 
     logger.info("Password recovery resend sent for email=%s", email)
-    return {"message": _with_debug_code_message("Код скоро придет", code_row["code"])}
+    return {"message": "Код скоро придет"}

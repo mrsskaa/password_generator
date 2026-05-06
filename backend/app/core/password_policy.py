@@ -5,7 +5,7 @@ from pydantic_core import PydanticCustomError
 
 MIN_PASSWORD_LENGTH = 8
 MAX_PASSWORD_LENGTH = 128
-ALLOWED_SPECIAL_CHARS = "!@#$%^&*?()"
+ALLOWED_SPECIAL_CHARS = "!@#$%^&*?()-–"
 ALLOWED_PASSWORD_CHARS = set(string.ascii_letters + string.digits + ALLOWED_SPECIAL_CHARS)
 
 
