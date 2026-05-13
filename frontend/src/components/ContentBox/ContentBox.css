@@ -1,0 +1,14 @@
+@import '../../index.css';
+
+.content-box {
+  display: inline-block;
+  width: fit-content;
+  height: auto;
+    min-width: 490px !important;
+  max-width: min(92vw, 640px);
+  padding: 1.5rem;
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: 0 0 25px var(--form-shadow);
+
+}

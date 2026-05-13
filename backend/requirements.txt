@@ -1,0 +1,9 @@
+fastapi==0.111.0
+uvicorn[standard]==0.30.0
+pydantic==2.7.0
+psycopg[binary]
+sqlalchemy>=2.0.0
+python-dotenv>=1.0.0
+PyJWT>=2.8.0
+pwdlib[argon2]>=0.3.0
+cryptography>=45.0.0

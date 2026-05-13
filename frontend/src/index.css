@@ -1,0 +1,146 @@
+/* Твои глобальные стили */
+html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    font-family: "Geologica", "Segoe UI", Roboto, Arial, sans-serif;
+    overflow-y: auto !important;
+}
+
+:root {
+    --bg-color: #F5E1DD;
+    --form-shadow: #B56C58;
+    --confirm-auth-form-btn-color: #F9E7D3;
+    --text-color: #443025;
+    --header-btn-color: #B09082;
+    --header-btn-text-color: #F9E7D3;
+    --header-link-text-color: #ED4C78;
+    --auth-form-text-link-color: #CD7479;
+    --form-input-color: #FEFCFC;
+    --form-input-invalid: #FF0000;
+    --form-input-invalid-background: #FFE7E7;
+    --light-grey: #DEE2E6;
+    --font-size-30: 30px;
+    --font-size-28: 28px;
+    --font-size-26: 26px;
+    --font-size-25: 25px;
+    --font-size-22: 22px;
+    --font-size-20: 20px;
+    --font-size-18: 18px;
+    --font-size-16: 16px;
+    --font-size-14: 14px;
+    --font-size-36: 36px;
+    --font-size-38: 38px;
+    --font-size-48: 48px;
+    --font-size-34: 34px;
+    --font-size-46: 46px;
+
+    --not-found-context-color: #7F5836;
+    --not-found-button-color: #EC9C9D;
+    --not-found-button-height: 95px;
+    --not-found-button-width: 380px;
+    --not-found-margin: 40px;
+
+    --gray-80: #808080;
+    --gray-text: #3f3736;
+    --gray-subtext: #7a716f;
+    --gray-subtitle: #7f706b;
+    --gray-modal-close: #3a3433;
+    --gray-light-btn: #DEE2E6;
+    --gray-light-btn-hover: #E8E8EA;
+    --pink-main-btn: #F4C9D6;
+    --pink-main-btn-hover: #F8D6E1;
+    --pink-icon: #B56C58;
+    --pink-accent: #CD7479;
+    --pink-border-main-btn: #B97D7B;
+    --pink-border-password-box: #E0D2CC;
+    --pink-password-box-bg: #F6EEEB;
+    --generator-content-bg: #F3F3F3;
+    --pink-length-badge-bg: #EDD9D3;
+    --pink-length-badge-text: #996557;
+    --pink-slider-track: #F9E7D3;
+    --pink-slider-thumb: #FFD5D5;
+    --slider-thumb-opacity: 0.62;
+    --slider-thumb-shadow: rgba(167, 0, 0, 0.62);
+    --modal-overlay: rgba(31, 22, 20, 0.55);
+    --modal-shadow: rgba(181, 108, 88, 0.4);
+    --content-box-shadow: rgba(181, 108, 88, 0.45);
+    --inset-shadow: rgba(167, 0, 0, 0.25);
+    --my-passwords-filter-hover: #F1BAB3;
+
+    --generator-slider-thumb-size: 22px;
+    --generator-title-size: 45px;
+    --generator-subtitle-size: 25px;
+    --generator-btn-height: 68px;
+    --generator-btn-main-width: 440px;
+    --generator-btn-secondary-width: 210px;
+    /* высота шапки: форма под ней = оставшаяся часть экрана без лишнего скролла */
+    --header-height: 56px;
+
+    /* Сила пароля (текст времени взлома, подсказка, свечение поля) — подберите оттенки сами */
+    --password-red: #f32420;
+    --password-red-glow: rgba(229, 57, 53, 0.5);
+    --password-orange: #fb8c00;
+    --password-orange-glow: rgba(251, 140, 0, 0.5);
+    --password-yellow: #df9c00;
+    --password-yellow-glow: rgba(251, 192, 45, 0.5);
+    --password-lightgreen: #7cb342;
+    --password-lightgreen-glow: rgba(124, 179, 66, 0.5);
+    --password-green: #00a106;
+    --password-green-glow: rgba(0, 227, 16, 0.5);
+
+    --brand-shift-left: -48px;
+    --header-icon-size: 32px;
+    --header-icon-color: #7F5836;
+    --menu-dropdown-width: 187px;
+    --menu-dropdown-height: 96px;
+    --menu-dropdown-font-size: 18px;
+    --menu-hover-bg: rgba(249, 231, 211, 0.64);
+    --menu-shadow: rgba(237, 76, 120, 0.45);
+    --history-text-color: #7F5836;
+    --history-title-color: #B56C58;
+    --history-title-size: 22px;
+    --history-date-size: 19px;
+    --hint-icon-color: #ED4C78;
+    --hint-icon-bg: rgba(243, 198, 187, 0.6);
+    --hint-text-color: #443025;
+    --hint-shadow: rgba(237, 76, 120, 0.35);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    box-shadow: inset 0 4px 100px var(--inset-shadow);
+}
+
+.auth-success-alert {
+    border: 1px solid #9dd8ab !important;
+    background: #e6f6ea !important;
+    color: #2f6840 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 22px rgba(47, 104, 64, 0.16) !important;
+    position: fixed !important;
+    right: 20px;
+    bottom: 20px;
+    z-index: 2000;
+    min-width: 280px;
+    max-width: min(420px, calc(100vw - 32px));
+    margin: 0 !important;
+    animation: authSuccessSlideIn 180ms ease-out;
+}
+
+@keyframes authSuccessSlideIn {
+    from {
+        transform: translateY(6px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

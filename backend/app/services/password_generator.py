@@ -1,0 +1,140 @@
+﻿import secrets
+from app.core.exceptions import PasswordGeneratorError
+
+from app.core.constants import (
+    LETTERS_LOW,
+    LETTERS_HIGH,
+    DIGITS,
+    SPECIAL_CHARACTERS,
+    SIMILAR_CHARACTERS
+)
+
+from app.core.exceptions import (
+    InvalidLengthError,
+    EmptyCharacterPoolError
+)
+
+
+def main():
+    print(generate_password(12))
+
+
+def validate_repetitive(password: str) -> bool:
+    "Проверка на подряд идущие цифры в прямом и обратном порядке, на подряд идущие одинаковые символы"
+    for i in range(0, len(password) - 2):
+        if (password[i] == password[i + 1] == password[i + 2]) or (
+            ord(password[i]) == ord(password[i + 1]) - 1 == ord(password[i + 2]) - 2
+        ) or (
+            ord(password[i]) - 2 == ord(password[i + 1]) - 1 == ord(password[i + 2])
+        ):
+            return False
+    return True
+
+
+
+def validate_length(length: int) -> None:
+    """Проверка длины пароля"""
+
+    if length < 8 or length > 32:
+        raise InvalidLengthError(
+            "Длина пароля должна быть от 8 до 32 символов"
+        )
+
+
+def build_groups(
+        use_lower: bool,
+        use_upper: bool,
+        use_digits: bool,
+        use_symbols: bool
+) -> list:
+    """Формирование списка активных групп"""
+
+    groups = []
+
+    if use_lower:
+        groups.append(LETTERS_LOW)
+
+    if use_upper:
+        groups.append(LETTERS_HIGH)
+
+    if use_digits:
+        groups.append(DIGITS)
+
+    if use_symbols:
+        groups.append(SPECIAL_CHARACTERS)
+
+    if not groups:
+        raise EmptyCharacterPoolError(
+            "Необходимо выбрать хотя бы одну группу символов"
+        )
+
+    return groups
+
+
+def contains_similar_characters(password: str) -> bool:
+    """Проверка похожих символов"""
+
+    chars = set(password)
+
+    for a, b in SIMILAR_CHARACTERS:
+        if a in chars and b in chars:
+            return True
+
+    return False
+
+
+def generate_password(
+        length: int,
+        use_lower: bool = True,
+        use_upper: bool = True,
+        use_digits: bool = True,
+        use_symbols: bool = True,
+        max_attempts: int = 100,
+        use_similar_symbols: bool = True
+) -> str:
+    """
+    Основная функция генерации пароля
+    """
+
+    validate_length(length)
+
+    groups = build_groups(
+        use_lower,
+        use_upper,
+        use_digits,
+        use_symbols
+    )
+
+    pool = "".join(groups)
+
+    for attempt in range(max_attempts):
+
+        password_chars = []
+
+        for group in groups:
+            password_chars.append(secrets.choice(group))
+
+        for _ in range(length - len(password_chars)):
+            password_chars.append(secrets.choice(pool))
+
+        secrets.SystemRandom().shuffle(password_chars)
+
+        password = "".join(password_chars)
+
+        if not use_similar_symbols:
+            if contains_similar_characters(password):
+                continue
+
+        if not validate_repetitive(password):
+            continue
+
+        return password
+
+    raise PasswordGeneratorError(
+        f"Не удалось сгенерировать пароль за {max_attempts} попыток"
+    )
+
+
+if __name__ == "__main__":
+    """python3 -m app.services.password_generator"""
+    main()

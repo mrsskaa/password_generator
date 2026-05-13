@@ -1,0 +1,74 @@
+@import '../../index.css';
+
+.not-found-layout {
+    max-width: 100%;
+    min-width: auto;
+    margin-top: -100px;
+}
+.not-found {
+    min-height: calc(100vh - var(--header-height));
+    box-sizing: border-box;
+    text-align: center;
+    min-width: auto;
+    max-width: 100%;
+}
+
+.not-found-text {
+    gap: 30px;
+    margin: var(--not-found-margin);
+}
+
+.not-found-image {
+    height: clamp(150px, 25vw, 240px);
+}
+
+.not-found-digit {
+    font-size: clamp(150px, 25vw, 300px);
+    font-weight: bold;
+    color: var(--auth-form-text-link-color);
+    line-height: 0;
+}
+
+.not-found-context {
+    font-size: var(--font-size-30);
+    font-weight: bold;
+    color: var(--not-found-context-color);
+    margin: var(--not-found-margin);
+}
+
+.not-found-btn-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn.not-found-btn,
+.btn.not-found-btn:hover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--not-found-button-color);
+    border: 2px solid var(--pink-accent);
+    border-radius: 15px;
+    color: var(--pink-slider-track);
+    padding: 2.5% 14%;
+    font-size: var(--font-size-30);
+    font-weight: bold;
+}
+
+@media (max-width: 576px) or (orientation: landscape){
+    .not-found-layout {
+        max-width: 100%;
+        min-width: auto;
+        margin-top: 0;
+    }
+
+    .not-found-context {
+        font-size: var(--font-size-22);
+    }
+
+    .btn.not-found-btn,
+    .btn.not-found-btn:hover {
+        font-size: var(--font-size-22);
+    }
+  }
