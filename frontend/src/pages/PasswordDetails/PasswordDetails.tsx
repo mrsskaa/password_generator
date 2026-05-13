@@ -141,6 +141,10 @@ function PasswordDetails() {
             <main className="password-details-main">
                 <section className="password-details-shell">
                     <div className="password-details-center-wrap">
+                        {/* <div className="password-details-heading">
+                          <h1 className="password-details-title">ГЕНЕРАТОР БЕЗОПАСНЫХ ПАРОЛЕЙ</h1>
+                          <p className="password-details-subtitle mb-0">Создавайте надежные пароли, которые невозможно взломать</p>
+                        </div> */}
                     <div className="password-details-card">
                         <p className="password-details-date">{formatDate(item.created_at)}</p>
                         <div className="password-details-top-row">
