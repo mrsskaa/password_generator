@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Dropdown, Form, Table } from 'react-bootstrap';
+import { Alert, Button, Form, Table, Dropdown } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Header from '../../components/Header/Header';
@@ -12,6 +12,7 @@ import {
   type SavedPasswordItem,
 } from '../../api/authApi';
 import './MyPasswords.css';
+import ContentBox from '../../components/ContentBox/ContentBox';
 
 const PAGE_SIZE = 5;
 
@@ -41,6 +42,7 @@ function MyPasswords() {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [error, setError] = useState('');
   const [sortOrder, setSortOrder] = useState<SortOrder>('new');
+  const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
   const [isCheckingSession, setIsCheckingSession] = useState(!isAuthenticated);
 
   useEffect(() => {
@@ -110,6 +112,10 @@ function MyPasswords() {
   const isEmpty = !isCheckingSession && filtered.length === 0;
   const showMoreButton = !isEmpty && items.length > PAGE_SIZE && canShowMore;
 
+  const toggleDetails = (id: string) => {
+    setExpandedIds((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
   const handleOpenDetails = (item: SavedPasswordItem) => {
     navigate(`/passwords/${item.id}/unlock`, { state: { item } });
   };
@@ -124,46 +130,50 @@ function MyPasswords() {
               {flashMessage}
             </Alert>
           )}
-
           <div className="my-passwords-top">
             <h1 className="my-passwords-title mb-0">МОИ ПАРОЛИ</h1>
-            <div className="my-passwords-search-wrap">
-              <i className="bi bi-search my-passwords-search-icon" aria-hidden />
+            <div className="my-passwords-search-wrap d-flex align-items-center">
+              <i className="bi bi-search my-passwords-search-icon" aria-hidden role="button" />
               <Form.Control
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                className="my-passwords-search"
-                aria-label="Поиск по названию"
+                className="my-passwords-search flex-grow-1"
+                aria-label="Поиск сохранённых паролей"
               />
-              <Dropdown align="end">
-                <Dropdown.Toggle as="button" className="my-passwords-filter-btn" id="my-passwords-sort-dropdown">
-                  <i className="bi bi-sliders2 my-passwords-filter-icon" aria-hidden />
-                </Dropdown.Toggle>
-                <Dropdown.Menu className="my-passwords-filter-menu">
+              <Dropdown className="my-passwords-filter-dropdown">
+                <Dropdown.Toggle
+                  as="div"
+                  className="bi bi-sliders2 my-passwords-filter-icon"
+                  aria-hidden
+                  role="button"
+                />
+                <Dropdown.Menu align="end">
                   <Dropdown.Item
-                    className={`my-passwords-filter-item ${sortOrder === 'new' ? 'is-active' : ''}`}
+                    className='dropdown-filter-item'
+                    active={sortOrder === 'new'}
                     onClick={() => setSortOrder('new')}
                   >
-                    сначала новые <i className="bi bi-arrow-up-short" aria-hidden />
+                    Сначала новые <i className='bi bi-arrow-up-short' aria-hidden />
                   </Dropdown.Item>
                   <Dropdown.Item
-                    className={`my-passwords-filter-item ${sortOrder === 'old' ? 'is-active' : ''}`}
+                    className='dropdown-filter-item'
+                    active={sortOrder === 'old'}
                     onClick={() => setSortOrder('old')}
                   >
-                    сначала старые <i className="bi bi-arrow-down-short" aria-hidden />
+                    Сначала старые <i className='bi bi-arrow-down-short' aria-hidden />
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </div>
           </div>
 
-          <div className="my-passwords-table-box">
-            {error && <p className="my-passwords-error mb-3">{error}</p>}
+          <ContentBox className='my-passwords-table-layout'>
+            <div className="my-passwords-table-box table-responsive">
+              {error && <p className="my-passwords-error mb-3">{error}</p>}
 
-            {!isEmpty && (
-              <Table borderless className="my-passwords-table mb-0">
+              <Table borderless className="my-passwords-table">
                 <thead>
-                  <tr>
+                  <tr className='my-passwords-table-head'>
                     <th>ДАТА</th>
                     <th>ОПИСАНИЕ</th>
                     <th>ПАРОЛЬ</th>
@@ -178,43 +188,56 @@ function MyPasswords() {
                       </td>
                     </tr>
                   )}
-                  {visibleItems.map((item) => (
-                    <tr key={item.id}>
-                      <td>{formatDate(item.created_at)}</td>
-                      <td className="my-passwords-description-cell">{item.description}</td>
-                      <td>{maskPassword()}</td>
-                      <td>
-                        <button
-                          type="button"
-                          className="my-passwords-details-btn"
-                          onClick={() => handleOpenDetails(item)}
-                        >
-                          подробнее
-                        </button>
+                  {visibleItems.map((item) => {
+                    const isExpanded = Boolean(expandedIds[item.id]);
+                    return (
+                      <tr key={item.id} className='my-passwords-table-content'>
+                        <td>{formatDate(item.created_at)}</td>
+                        <td className="my-passwords-description-cell">{item.description}</td>
+                        <td>{isExpanded ? item.password : maskPassword()}</td>
+                        <td>
+                          <button
+                            type="button"
+                            className="my-passwords-details-btn"
+                            onClick={() => handleOpenDetails(item)}
+                          >
+                            {isExpanded ? 'скрыть' : 'подробнее'}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {!isCheckingSession && visibleItems.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="my-passwords-empty">
+                        Пока нет сохранённых паролей.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </Table>
-            )}
-            {isEmpty && <p className="my-passwords-empty-message mb-0">Сохраненных паролей пока нет...</p>}
-
-            <div className="my-passwords-bottom">
-              <Link to="/" className="my-passwords-back-link">
-                {'<< НАЗАД'}
-              </Link>
-              {showMoreButton && (
-                <Button
-                  type="button"
-                  className="my-passwords-more-btn"
-                  onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
-                >
-                  СМОТРЕТЬ ЕЩЕ
-                </Button>
-              )}
+              <div className="my-passwords-bottom">
+                <div className='my-passwords-back-link-container'>
+                  <Link to="/" className="my-passwords-back-link">
+                    {'<< НАЗАД'}
+                  </Link>
+                </div>
+                
+                <div className='justify-content-center my-password-more-btn-layout'>
+                  <Button
+                    type="button"
+                    className="my-passwords-more-btn"
+                    onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+                    disabled={!canShowMore}
+                  >
+                    СМОТРЕТЬ ЕЩЕ
+                  </Button>
+                </div>
+              </div>
             </div>
-          </div>
-        </section>
+          </ContentBox>  
+          </section>
+        
       </main>
     </>
   );
