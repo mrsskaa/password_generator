@@ -11,7 +11,7 @@ function CodeWordConfirm(){
     return(
         <>
             <Header />
-            <Container fluid className="auth-form-viewport d-flex py-2 justify-content-center align-items-center">
+            <Container className="auth-form-viewport d-flex py-2 justify-content-center align-items-center">
                 <ContentBox className="justify-content-center ">
                     <div className="code-word-confirm-container">
                         <h2 className="code-word-confirm-title">ВВЕДИТЕ КОДОВОЕ СЛОВО</h2>
