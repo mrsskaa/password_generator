@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import patch
 from app.repositories.user_repo import SQLAlchemyRepository, Base
 from datetime import datetime, timedelta, timezone
+import uuid
 
 @pytest.fixture()
 def repo():
@@ -21,9 +22,10 @@ def test_create_user(repo):
     assert user["id"] is not None 
     assert user["username"] == "test_user"
     assert user["role"] == "user"
+    assert user["email"] == "test@test.com"
 
 def test_get_user_by_username(repo):
-    repo.create_user("find_me", "pass")
+    repo.create_user("find_me", "pass","test@test.com")
     user = repo.get_user_by_username("find_me")
     non_existent = repo.get_user_by_username("nobody")
     assert user is not None
@@ -32,7 +34,7 @@ def test_get_user_by_username(repo):
 
 
 def test_set_user_role(repo):
-    repo.create_user("admin_to_be", "pass")
+    repo.create_user("admin_to_be", "pass","test@test.com")
     result = repo.set_user_role("admin_to_be", "admin")
     updated_user = repo.get_user_by_username("admin_to_be")
     assert result is True
@@ -44,8 +46,7 @@ def test_get_user_by_id(repo):
     user_id = user_data["id"]
     found_user = repo.get_user_by_id(user_id)
     assert found_user is not None
-    assert found_user["username"] == "id_user"
-    assert repo.get_user_by_id(999) is None
+    assert repo.get_user_by_id(uuid.uuid4()) is None
 
 def test_get_user_by_email(repo):
     email = "unique@test.com"

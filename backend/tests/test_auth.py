@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
 from app.main import app
-
+import uuid
 client = TestClient(app)
 
 @pytest.fixture
@@ -16,7 +16,7 @@ def mock_auth_service():
 
 def test_login_success(mock_auth_service):
     fake_user = {
-        "id": 1,
+        "id": str(uuid.uuid4()),
         "username": "testuser",
         "email": "test@test.com",
         "role": "admin",
