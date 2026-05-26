@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-
+from uuid import UUID, uuid4
 from app.core.password_policy import validate_password_policy
 
 
@@ -19,7 +19,7 @@ class LoginRequest(BaseModel):
 
 
 class UserPublic(BaseModel):
-    id: int
+    id: UUID
     username: str
     email: str | None = None
     role: str

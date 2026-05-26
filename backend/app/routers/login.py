@@ -1,6 +1,6 @@
 import logging
 from typing import Annotated
-
+from uuid import UUID, uuid4
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.dependencies import get_auth_service

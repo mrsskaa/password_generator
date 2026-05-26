@@ -5,7 +5,7 @@ from sqlalchemy import create_engine, delete, inspect, select, text, update
 from sqlalchemy.orm import sessionmaker
 from app.models.user import Base, PasswordResetCode, PendingRegistration, RegistrationCode, User
 from app.models.saved_password import SavedPassword  # noqa: F401
-
+import uuid
 
 
 class SQLAlchemyRepository:
@@ -116,7 +116,7 @@ class SQLAlchemyRepository:
             user = session.scalar(select(User).where(User.username == username))
             return self._to_dict(user) if user else None
 
-    def get_user_by_id(self, user_id: int) -> dict[str, Any] | None:
+    def get_user_by_id(self, user_id: uuid.UUID) -> dict[str, Any] | None:
         with self.SessionLocal() as session:
             user = session.scalar(select(User).where(User.id == user_id))
             return self._to_dict(user) if user else None
