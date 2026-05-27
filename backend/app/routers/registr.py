@@ -154,7 +154,6 @@ async def verify_registration_code(
             hashed_password=pending["hashed_password"],
             email=email,
             email_verified=True,
-            role="user",
         )
     except IntegrityError:
         raise HTTPException(

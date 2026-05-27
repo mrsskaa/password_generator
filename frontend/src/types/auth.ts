@@ -1,9 +1,8 @@
 /** Совпадает с `UserPublic` на бэкенде */
 export interface User {
-  id: number;
+  id: string;
   username: string;
   email: string | null;
-  role: string;
   created_at: string;
 }
 

@@ -16,10 +16,9 @@ def mock_auth_service():
 
 def test_login_success(mock_auth_service):
     fake_user = {
-        "id": 1,
+        "id": "550e8400-e29b-41d4-a716-446655440000",
         "username": "testuser",
         "email": "test@test.com",
-        "role": "admin",
         "created_at": "2023-01-01T00:00:00",
         "password": "hashed_password"
     }

@@ -1,3 +1,4 @@
+import uuid
 from pydantic import BaseModel, Field, field_validator
 
 from app.core.password_policy import validate_password_policy
@@ -17,13 +18,12 @@ class LoginRequest(BaseModel):
     username: str = Field(..., min_length=3, max_length=64)
     password: str = Field(..., min_length=8, max_length=128)
 
-
 class UserPublic(BaseModel):
-    id: int
+    id: uuid.UUID
     username: str
     email: str | None = None
-    role: str
     created_at: str
+
 
 
 class AuthResponse(BaseModel):

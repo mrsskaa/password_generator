@@ -20,10 +20,9 @@ const RESEND_REGISTER_CODE_PATH =
 export function mapBackendUser(raw: unknown): User {
   const u = raw as Record<string, unknown>;
   return {
-    id: Number(u.id),
+    id: String(u.id),
     username: String(u.username ?? ''),
     email: u.email == null ? null : String(u.email),
-    role: String(u.role ?? 'user'),
     created_at: String(u.created_at ?? ''),
   };
 }

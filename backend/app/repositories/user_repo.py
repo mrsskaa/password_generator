@@ -4,8 +4,7 @@ from typing import Any
 from sqlalchemy import create_engine, delete, inspect, select, text, update
 from sqlalchemy.orm import sessionmaker
 from app.models.user import Base, PasswordResetCode, PendingRegistration, RegistrationCode, User
-from app.models.saved_password import SavedPassword  # noqa: F401
-
+from app.models.saved_password import SavedPassword
 
 
 class SQLAlchemyRepository:
@@ -86,7 +85,6 @@ class SQLAlchemyRepository:
             "hashed_password": user.hashed_password,
             "email": user.email,
             "email_verified": user.email_verified,
-            "role": user.role,
             "created_at": user.created_at.isoformat(),
         }
 
@@ -96,7 +94,6 @@ class SQLAlchemyRepository:
         hashed_password: str,
         email: str | None = None,
         email_verified: bool = False,
-        role: str = "user",
     ) -> dict[str, Any]:
         with self.SessionLocal() as session:
             user = User(
@@ -104,7 +101,6 @@ class SQLAlchemyRepository:
                 hashed_password=hashed_password,
                 email=email,
                 email_verified=email_verified,
-                role=role,
             )
             session.add(user)
             session.commit()
@@ -116,19 +112,10 @@ class SQLAlchemyRepository:
             user = session.scalar(select(User).where(User.username == username))
             return self._to_dict(user) if user else None
 
-    def get_user_by_id(self, user_id: int) -> dict[str, Any] | None:
+    def get_user_by_id(self, user_id: Any) -> dict[str, Any] | None:
         with self.SessionLocal() as session:
             user = session.scalar(select(User).where(User.id == user_id))
             return self._to_dict(user) if user else None
-
-    def set_user_role(self, username: str, role: str) -> bool:
-        with self.SessionLocal() as session:
-            user = session.scalar(select(User).where(User.username == username))
-            if not user:
-                return False
-            user.role = role
-            session.commit()
-            return True
 
     def get_user_by_email(self, email: str) -> dict[str, Any] | None:
         with self.SessionLocal() as session:
@@ -143,7 +130,7 @@ class SQLAlchemyRepository:
             session.commit()
             return result.rowcount > 0
 
-    def delete_user_by_id(self, user_id: int) -> bool:
+    def delete_user_by_id(self, user_id: Any) -> bool:
         with self.SessionLocal() as session:
             user = session.get(User, user_id)
             if not user:

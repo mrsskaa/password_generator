@@ -22,18 +22,3 @@ async def get_current_user_from_cookie(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Пользователь не найден")
 
     return user
-
-
-def require_role(required_role: str) -> Callable[[dict[str, Any]], dict[str, Any]]:
-    async def role_checker(
-        current_user: Annotated[dict[str, Any], Depends(get_current_user_from_cookie)]
-    ) -> dict[str, Any]:
-        user_role = current_user.get("role", "user")
-        if user_role != required_role:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Требуется роль '{required_role}'",
-            )
-        return current_user
-
-    return role_checker

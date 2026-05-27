@@ -33,7 +33,7 @@ async def login(
             detail="Подтвердите email перед входом в аккаунт",
         )
 
-    token_data = {"sub": user["username"], "role": user.get("role", "user")}
+    token_data = {"sub": user["username"]}
     access_token = auth_service.create_access_token(data=token_data)
 
     response.set_cookie(
@@ -48,7 +48,7 @@ async def login(
     logger.info("Успешный вход username=%s", payload.username)
     return {
         "message": "Вход выполнен",
-        "user": UserPublic(**{k: user[k] for k in ["id", "username", "email", "role", "created_at"]}).model_dump(),
+        "user": UserPublic(**{k: user[k] for k in ["id", "username", "email", "created_at"]}).model_dump(),
     }
 
 
