@@ -17,7 +17,8 @@ from app.routers.forgot_password import router as forgot_password_router
 from app.routers.verify_code import router as verify_code_router
 from app.routers.reset_password import router as reset_password_router
 
-load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+#load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+load_dotenv()
 
 logging.basicConfig(
     level=os.getenv("LOG_LEVEL", "INFO"),
