@@ -1,4 +1,5 @@
 import os
+import uuid
 from datetime import datetime, timezone
 from typing import Any
 from sqlalchemy import create_engine, delete, inspect, select, text, update
@@ -257,7 +258,7 @@ class SQLAlchemyRepository:
                 "used_at": code_row.used_at,
             }
 
-    def mark_password_reset_code_used(self, code_id: int) -> bool:
+    def mark_password_reset_code_used(self, code_id: uuid.UUID) -> bool:
         with self.SessionLocal() as session:
             result = session.execute(
                 update(PasswordResetCode)
@@ -272,7 +273,7 @@ class SQLAlchemyRepository:
             session.execute(delete(PasswordResetCode).where(PasswordResetCode.email == email))
             session.commit()
 
-    def delete_password_reset_code_by_id(self, code_id: int) -> bool:
+    def delete_password_reset_code_by_id(self, code_id: uuid.UUID) -> bool:
         with self.SessionLocal() as session:
             result = session.execute(
                 delete(PasswordResetCode).where(PasswordResetCode.id == code_id)
@@ -332,7 +333,7 @@ class SQLAlchemyRepository:
                 "used_at": code_row.used_at,
             }
 
-    def mark_registration_code_used(self, code_id: int) -> bool:
+    def mark_registration_code_used(self, code_id: uuid.UUID) -> bool:
         with self.SessionLocal() as session:
             result = session.execute(
                 update(RegistrationCode)
@@ -347,7 +348,7 @@ class SQLAlchemyRepository:
             session.execute(delete(RegistrationCode).where(RegistrationCode.email == email))
             session.commit()
 
-    def delete_registration_code_by_id(self, code_id: int) -> bool:
+    def delete_registration_code_by_id(self, code_id: uuid.UUID) -> bool:
         with self.SessionLocal() as session:
             result = session.execute(
                 delete(RegistrationCode).where(RegistrationCode.id == code_id)

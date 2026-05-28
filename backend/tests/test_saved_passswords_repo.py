@@ -14,8 +14,9 @@ def password_repo():
     return repository
 
 def test_create_password(password_repo):
+    user_id = uuid.uuid4()
     new_pass = password_repo.create(
-        user_id=1,
+        user_id=user_id,
         encrypted_password="encrypted",
         salt="salt",
         nonce="nonce",
@@ -26,37 +27,39 @@ def test_create_password(password_repo):
     assert new_pass.id is not None
     assert isinstance(new_pass.id, uuid.UUID)
     assert new_pass.description == "My Google Acc"
+    assert new_pass.user_id == user_id
 
 def test_list_by_user(password_repo):
-    user_id = 42
+    user_id = uuid.uuid4()
+    other_user_id = uuid.uuid4()
     password_repo.create(user_id, "encrypted1", "salt1", "nonce1", "desc1", {}, "p1")
     password_repo.create(user_id, "encrypted2", "salt2", "nonce2", "desc2", {}, "p2")
-    password_repo.create(99, "encrypted3", "salt3", "nonce3", "desc3", {}, "p3")
+    password_repo.create(other_user_id, "encrypted3", "salt3", "nonce3", "desc3", {}, "p3")
     user_passwords = password_repo.list_by_user(user_id)
     assert len(user_passwords) == 2
     assert all(p.user_id == user_id for p in user_passwords)
 
 def test_get_by_id_and_user(password_repo):
-    user_id = 1
+    user_id = uuid.uuid4()
     created = password_repo.create(user_id, "encrypted", "salt", "nonce", "desc", {}, "pre")
     found = password_repo.get_by_id_and_user(created.id, user_id)
     assert found is not None
     assert found.id == created.id
-    wrong_user = password_repo.get_by_id_and_user(created.id, user_id=999)
+    wrong_user = password_repo.get_by_id_and_user(created.id, user_id=uuid.uuid4())
     assert wrong_user is None
 
 def test_update_description(password_repo):
-    user_id = 1
+    user_id = uuid.uuid4()
     created = password_repo.create(user_id, "encrypted", "salt", "nonce", "old desc", {}, "pre")
     updated = password_repo.update_description(created.id, user_id, "new desc")
     assert updated.description == "new desc"
-    result = password_repo.update_description(created.id, user_id=2, new_description="hack")
+    result = password_repo.update_description(created.id, user_id=uuid.uuid4(), new_description="hack")
     assert result is None
 
 def test_delete_password(password_repo):
-    user_id = 1
+    user_id = uuid.uuid4()
     created = password_repo.create(user_id, "encrypted", "salt", "nonce", "desc", {}, "pre")
-    fail_delete = password_repo.delete(created.id, user_id=2)
+    fail_delete = password_repo.delete(created.id, user_id=uuid.uuid4())
     assert fail_delete is False
     success_delete = password_repo.delete(created.id, user_id)
     assert success_delete is True

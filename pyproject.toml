@@ -16,4 +16,6 @@ dev = [
     "types-pyjwt>=1.7.1",
     "typing-extensions==4.15.0",
     "typing-inspection==0.4.2",
+    "pytest>=9.0.3",
+    "httpx>=0.28.1",
 ]
