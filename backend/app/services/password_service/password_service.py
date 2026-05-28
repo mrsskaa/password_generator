@@ -60,7 +60,7 @@ class PasswordService:
             generation_settings=password.generation_settings or {},
         )
 
-    def create_password(self, user_id: int, request: PasswordPostRequest) -> PasswordGetResponse:
+    def create_password(self, user_id: uuid.UUID, request: PasswordPostRequest) -> PasswordGetResponse:
         preview = self.make_settings_preview(request.generation_settings)
         encryption_service = PasswordEncryptionService(request.code_word)
         encrypted_payload = encryption_service.encrypt(request.password)
@@ -75,7 +75,7 @@ class PasswordService:
         )
         return self.orm_to_password_response(new_password)
 
-    def get_user_passwords(self, user_id: int, limit: int = 50, offset: int = 0) -> PasswordListResponse:
+    def get_user_passwords(self, user_id: uuid.UUID, limit: int = 50, offset: int = 0) -> PasswordListResponse:
         passwords = self.repo.list_by_user(user_id, limit, offset)
         total = self.repo.count_by_user(user_id)
         return PasswordListResponse(
@@ -85,13 +85,13 @@ class PasswordService:
             offset=offset,
         )
 
-    def get_password(self, user_id: int, password_id: uuid.UUID) -> PasswordGetResponse:
+    def get_password(self, user_id: uuid.UUID, password_id: uuid.UUID) -> PasswordGetResponse:
         existing = self.repo.get_by_id_and_user(password_id, user_id)
         if existing is None:
             raise NotFoundError("Пароль не найден")
         return self.orm_to_password_response(existing)
 
-    def reveal_password(self, user_id: int, password_id: uuid.UUID, code_word: str) -> PasswordRevealResponse:
+    def reveal_password(self, user_id: uuid.UUID, password_id: uuid.UUID, code_word: str) -> PasswordRevealResponse:
         existing = self.repo.get_by_id_and_user(password_id, user_id)
         if existing is None:
             raise NotFoundError("Пароль не найден")
@@ -103,7 +103,7 @@ class PasswordService:
 
         return PasswordRevealResponse(password=decrypted_password)
 
-    def update_description(self, user_id: int, password_id: uuid.UUID, new_description: str) -> PatchResponse:
+    def update_description(self, user_id: uuid.UUID, password_id: uuid.UUID, new_description: str) -> PatchResponse:
         existing = self.repo.get_by_id(password_id)
         if existing is None:
             raise NotFoundError("Пароль не найден")
@@ -120,7 +120,7 @@ class PasswordService:
             updated_at=(updated.updated_at or datetime.now(timezone.utc)).isoformat(),
         )
 
-    def delete_password(self, user_id: int, password_id: uuid.UUID) -> DeleteResponse:
+    def delete_password(self, user_id: uuid.UUID, password_id: uuid.UUID) -> DeleteResponse:
         existing = self.repo.get_by_id(password_id)
         if existing is None:
             raise NotFoundError("Пароль не найден")

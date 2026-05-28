@@ -1,6 +1,6 @@
-fastapi==0.111.0
+fastapi==0.135.3
 uvicorn[standard]==0.30.0
-pydantic==2.7.0
+pydantic==2.12.5
 psycopg[binary]
 sqlalchemy>=2.0.0
 python-dotenv>=1.0.0
