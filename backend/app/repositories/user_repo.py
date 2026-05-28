@@ -40,6 +40,11 @@ class SQLAlchemyRepository:
 
             if "registration_codes" not in table_names:
                 RegistrationCode.__table__.create(bind=connection)
+            else:
+                try:
+                    connection.execute(text("ALTER TABLE registration_codes DROP CONSTRAINT IF EXISTS registration_codes_email_fkey"))
+                except Exception:
+                    pass
 
             if "pending_registrations" not in table_names:
                 PendingRegistration.__table__.create(bind=connection)
