@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Alert, Button, Form, Nav } from 'react-bootstrap';
+import { useEffect, useState } from 'react';
+import { Button, Form, Nav } from 'react-bootstrap';
+import { showAppToast } from '../../components/AppToast/AppToastProvider';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,6 +29,13 @@ function ForgotPasswordReset() {
     resolver: zodResolver(resetPasswordSchema),
   });
 
+  useEffect(() => {
+    if (!submitSuccess) {
+      return;
+    }
+    showAppToast('Пароль успешно обновлён. Сейчас откроется страница входа…');
+  }, [submitSuccess]);
+
   const onSubmit = async (data: ResetPasswordFormData) => {
     clearErrors('root');
     setSubmitSuccess(false);
@@ -52,11 +60,6 @@ function ForgotPasswordReset() {
 
   const form = (
     <Form className="forgot-password-reset-form" noValidate onSubmit={handleSubmit(onSubmit)}>
-      {submitSuccess && (
-        <Alert variant="success" className="mb-3">
-          Пароль успешно обновлён. Сейчас откроется страница входа…
-        </Alert>
-      )}
       <Form.Group className="mb-3">
         <Form.Label className="auth-form-body-label">Новый пароль:</Form.Label>
         <div className="password-field-wrapper">

@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
+import { showAppToast } from '../../components/AppToast/AppToastProvider';
+import { copyTextToClipboard } from '../../utils/copyToClipboard';
+import { useFlashToast } from '../../hooks/useFlashToast';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import { normalizeStrengthToken } from '../../utils/passwordStrength';
@@ -13,14 +16,7 @@ import {
 import '../Generator/Generator.css';
 import './PasswordDetails.css';
 import { SAVED_PASSWORD_DESCRIPTION_MAX } from '../../constants/inputLimits';
-
-function formatDate(value: string): string {
-    const parsed = new Date(value);
-    if (Number.isNaN(parsed.getTime())) {
-        return value;
-    }
-    return new Intl.DateTimeFormat('ru-RU').format(parsed);
-}
+import { formatDateTime } from '../../utils/formatDateTime';
 
 function PasswordDetails() {
     const navigate = useNavigate();
@@ -31,10 +27,11 @@ function PasswordDetails() {
     const [item, setItem] = useState<SavedPasswordItem | null>(locationState?.item ?? null);
     const [password] = useState(locationState?.password ?? '');
     const [error, setError] = useState('');
-    const [copyMessage, setCopyMessage] = useState('');
     const [isEditing, setIsEditing] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [descriptionDraft, setDescriptionDraft] = useState(locationState?.item?.description ?? '');
+
+    useFlashToast();
 
     useEffect(() => {
         if (!passwordId) {
@@ -113,15 +110,13 @@ function PasswordDetails() {
         if (!password) {
             return;
         }
-        try {
-            await navigator.clipboard.writeText(password);
+        const copied = await copyTextToClipboard(password);
+        if (copied) {
             setError('');
-            setCopyMessage('Пароль скопирован');
-            window.setTimeout(() => setCopyMessage(''), 1600);
-        } catch {
-            setCopyMessage('');
-            setError('Не удалось скопировать пароль.');
+            showAppToast('Пароль скопирован');
+            return;
         }
+        setError('Не удалось скопировать пароль.');
     };
 
     if (!item) {
@@ -142,7 +137,14 @@ function PasswordDetails() {
                 <section className="password-details-shell">
                     <div className="password-details-center-wrap">
                     <div className="password-details-card">
-                        <p className="password-details-date">{formatDate(item.created_at)}</p>
+                        <div className="password-details-meta-row">
+                            <p className="password-details-date mb-0">{formatDateTime(item.created_at)}</p>
+                            {!isEditing && (
+                                <Button type="button" variant="light" className="password-details-delete-btn" onClick={handleDelete}>
+                                    УДАЛИТЬ
+                                </Button>
+                            )}
+                        </div>
                         <div className="password-details-top-row">
                             {isEditing ? (
                                 <div className="password-details-edit-row">
@@ -153,26 +155,22 @@ function PasswordDetails() {
                                                 event.target.value.slice(0, SAVED_PASSWORD_DESCRIPTION_MAX),
                                             )
                                         }
-                                        placeholder="Введите описание"
+                                        placeholder="Введите описание..."
                                         className="password-details-description-input"
                                         maxLength={SAVED_PASSWORD_DESCRIPTION_MAX}
                                     />
-                                    <Button className="password-details-save-btn" onClick={handleSaveDescription}>
+                                    <Button type="button" variant="light" className="password-details-save-btn" onClick={handleSaveDescription}>
                                         СОХРАНИТЬ
                                     </Button>
-                                    <Button className="password-details-cancel-btn" onClick={() => setIsEditing(false)}>
+                                    <Button type="button" variant="light" className="password-details-cancel-btn" onClick={() => setIsEditing(false)}>
                                         ОТМЕНА
                                     </Button>
                                 </div>
                             ) : (
-                                <>
-                                    <h2 className="password-details-description">
-                                        {item.description} <i className="bi bi-pencil-square" aria-hidden onClick={() => setIsEditing(true)} />
-                                    </h2>
-                                    <Button className="password-details-delete-btn" onClick={handleDelete}>
-                                        УДАЛИТЬ
-                                    </Button>
-                                </>
+                                <h2 className="password-details-description">
+                                    {item.description}{' '}
+                                    <i className="bi bi-pencil-square" aria-hidden onClick={() => setIsEditing(true)} />
+                                </h2>
                             )}
                         </div>
 
@@ -185,7 +183,9 @@ function PasswordDetails() {
                                             : 'generator-password-box'
                                     }
                                 >
-                                    <span className="generator-password-value is-generated">
+                                    <span
+                                        className={`generator-password-value is-generated ${!showPassword ? 'is-masked' : ''}`}
+                                    >
                                         {showPassword ? password : password.replace(/./g, '•')}
                                     </span>
                                     <div className="generator-password-actions">
@@ -211,7 +211,7 @@ function PasswordDetails() {
                                 </div>
                             </div>
 
-                            <div className="password-details-length-strip">
+                            <div className="password-details-length-strip generator-length-block">
                                 <div className="generator-length-row">
                                     <span className="generator-label">ДЛИНА</span>
                                     <span className="generator-length-badge">{options.length}</span>
@@ -251,6 +251,10 @@ function PasswordDetails() {
                                 </div>
                             </div>
                         </div>
+
+                        <Link to="/passwords" className="password-details-back-link">
+                            {'<< назад'}
+                        </Link>
                     </div>
 
                     {error && (
@@ -258,14 +262,6 @@ function PasswordDetails() {
                             {error}
                         </Alert>
                     )}
-                    {copyMessage && (
-                        <Alert variant="success" className="mt-3 password-details-alert">
-                            {copyMessage}
-                        </Alert>
-                    )}
-                    <Link to="/passwords" className="password-details-back-link">
-                        {'<< НАЗАД'}
-                    </Link>
                     </div>
                 </section>
             </main>

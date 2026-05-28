@@ -58,9 +58,9 @@ html {
     --pink-accent: #CD7479;
     --pink-border-main-btn: #B97D7B;
     --pink-border-password-box: #E0D2CC;
-    --pink-password-box-bg: #F6EEEB;
-    --generator-content-bg: #F3F3F3;
-    --pink-length-badge-bg: #EDD9D3;
+    --pink-password-box-bg: rgba(243, 198, 187, 0.2);
+    --generator-content-bg: #ffffff;
+    --pink-length-badge-bg: rgba(243, 198, 187, 0.44);
     --pink-length-badge-text: #996557;
     --pink-slider-track: #F9E7D3;
     --pink-slider-thumb: #FFD5D5;
@@ -144,29 +144,6 @@ body {
 
 
 
-.auth-success-alert {
-    border: 1px solid #9dd8ab !important;
-    background: #e6f6ea !important;
-    color: #2f6840 !important;
-    border-radius: 12px !important;
-    box-shadow: 0 8px 22px rgba(47, 104, 64, 0.16) !important;
-    position: fixed !important;
-    right: 20px;
-    bottom: 20px;
-    z-index: 2000;
-    min-width: 280px;
-    max-width: min(420px, calc(100vw - 32px));
-    margin: 0 !important;
-    animation: authSuccessSlideIn 180ms ease-out;
-}
-
-@keyframes authSuccessSlideIn {
-    from {
-        transform: translateY(6px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+.auth-form-bottom-back-link {
+    text-transform: lowercase;
 }

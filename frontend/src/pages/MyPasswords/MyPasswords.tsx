@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Dropdown, Form, Table } from 'react-bootstrap';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Button, Dropdown, Form, Table } from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Header from '../../components/Header/Header';
 import type { AppDispatch, RootState } from '../../store/store';
@@ -12,18 +12,12 @@ import {
   type SavedPasswordItem,
 } from '../../api/authApi';
 import './MyPasswords.css';
+import { useFlashToast } from '../../hooks/useFlashToast';
+import { formatDateOnly } from '../../utils/formatDateTime';
 
 const PAGE_SIZE = 5;
 
 type SortOrder = 'new' | 'old';
-
-function formatDate(value: string): string {
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
-  }
-  return new Intl.DateTimeFormat('ru-RU').format(parsed);
-}
 
 function maskPassword(): string {
   return '••••••••••';
@@ -31,10 +25,9 @@ function maskPassword(): string {
 
 function MyPasswords() {
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-  const flashMessage = (location.state as { flashMessage?: string } | null)?.flashMessage;
+  useFlashToast();
 
   const [query, setQuery] = useState('');
   const [items, setItems] = useState<SavedPasswordItem[]>([]);
@@ -79,16 +72,6 @@ function MyPasswords() {
   }, [isAuthenticated, isCheckingSession]);
 
   useEffect(() => {
-    if (!flashMessage) {
-      return;
-    }
-    const timerId = window.setTimeout(() => {
-      navigate('/passwords', { replace: true, state: null });
-    }, 2500);
-    return () => window.clearTimeout(timerId);
-  }, [flashMessage, navigate]);
-
-  useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [query, sortOrder]);
 
@@ -107,8 +90,11 @@ function MyPasswords() {
 
   const visibleItems = filtered.slice(0, visibleCount);
   const canShowMore = visibleCount < filtered.length;
-  const isEmpty = !isCheckingSession && filtered.length === 0;
-  const showMoreButton = !isEmpty && items.length > PAGE_SIZE && canShowMore;
+  const hasNoPasswords = !isCheckingSession && items.length === 0;
+  const hasNoMatches = !isCheckingSession && items.length > 0 && filtered.length === 0;
+  const isEmptyState = hasNoPasswords || hasNoMatches;
+  const showTable = !isCheckingSession && filtered.length > 0;
+  const showMoreButton = showTable && items.length > PAGE_SIZE && canShowMore;
 
   const handleOpenDetails = (item: SavedPasswordItem) => {
     navigate(`/passwords/${item.id}/unlock`, { state: { item } });
@@ -117,14 +103,8 @@ function MyPasswords() {
   return (
     <>
       <Header />
-      <main className="my-passwords-main">
+      <main className={`my-passwords-main${isEmptyState ? ' my-passwords-main--empty' : ''}`}>
         <section className="my-passwords-container">
-          {flashMessage && (
-            <Alert variant="success" className="auth-success-alert">
-              {flashMessage}
-            </Alert>
-          )}
-
           <div className="my-passwords-top">
             <h1 className="my-passwords-title mb-0">МОИ ПАРОЛИ</h1>
             <div className="my-passwords-search-wrap">
@@ -157,10 +137,11 @@ function MyPasswords() {
             </div>
           </div>
 
-          <div className="my-passwords-table-box">
+          <div className="my-passwords-table-area">
+          <div className={`my-passwords-table-box${isEmptyState ? ' is-empty' : ''}`}>
             {error && <p className="my-passwords-error mb-3">{error}</p>}
 
-            {!isEmpty && (
+            {showTable && (
               <Table borderless className="my-passwords-table mb-0">
                 <thead>
                   <tr>
@@ -168,6 +149,11 @@ function MyPasswords() {
                     <th>ОПИСАНИЕ</th>
                     <th>ПАРОЛЬ</th>
                     <th />
+                  </tr>
+                  <tr className="my-passwords-thead-line-row" aria-hidden="true">
+                    <td colSpan={4}>
+                      <div className="my-passwords-thead-line" />
+                    </td>
                   </tr>
                 </thead>
                 <tbody>
@@ -180,7 +166,7 @@ function MyPasswords() {
                   )}
                   {visibleItems.map((item) => (
                     <tr key={item.id}>
-                      <td>{formatDate(item.created_at)}</td>
+                      <td>{formatDateOnly(item.created_at)}</td>
                       <td className="my-passwords-description-cell">{item.description}</td>
                       <td>{maskPassword()}</td>
                       <td>
@@ -197,11 +183,16 @@ function MyPasswords() {
                 </tbody>
               </Table>
             )}
-            {isEmpty && <p className="my-passwords-empty-message mb-0">Сохраненных паролей пока нет...</p>}
+            {hasNoPasswords && (
+              <p className="my-passwords-empty-message mb-0">Сохраненных паролей пока нет...</p>
+            )}
+            {hasNoMatches && (
+              <p className="my-passwords-empty-message mb-0">По вашему запросу пароли не найдены</p>
+            )}
 
             <div className="my-passwords-bottom">
               <Link to="/" className="my-passwords-back-link">
-                {'<< НАЗАД'}
+                {'<< назад'}
               </Link>
               {showMoreButton && (
                 <Button
@@ -213,6 +204,7 @@ function MyPasswords() {
                 </Button>
               )}
             </div>
+          </div>
           </div>
         </section>
       </main>

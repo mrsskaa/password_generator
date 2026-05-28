@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import './App.css'
+import './App.css';
+import { AppToastProvider } from './components/AppToast/AppToastProvider';
 import Generator from "./pages/Generator/Generator";
 import LogIn from "./pages/LogIn/LogIn";
 import Register from "./pages/Register/Register";
@@ -37,6 +38,7 @@ function SessionBootstrap() {
 function App() {
     return (
         <BrowserRouter>
+            <AppToastProvider>
             <SessionBootstrap />
             <Routes>
                 <Route path="/" element={<Generator />} />
@@ -52,6 +54,7 @@ function App() {
                 <Route path="/passwords/:passwordId" element={<PasswordDetails />} />
                 <Route path="*" element={<NotFound404 />} />
             </Routes>
+            </AppToastProvider>
         </BrowserRouter>
     )
 }

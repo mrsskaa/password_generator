@@ -2,8 +2,9 @@ import { useState } from 'react';
 import './LogIn.css';
 import Header from '../../components/Header/Header';
 import AuthForm from '../../components/AuthForm/AuthForm';
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Alert, Button, Form, Nav } from 'react-bootstrap';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Button, Form, Nav } from 'react-bootstrap';
+import { useFlashToast } from '../../hooks/useFlashToast';
 import loginSchema, { type loginFormData } from '../../schemas/loginSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -14,10 +15,9 @@ import { MAX_INPUT_LENGTH } from '../../constants/inputLimits';
 
 const LogIn = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchParams] = useSearchParams();
   const emailFromQuery = searchParams.get('email') ?? '';
-  const flashMessage = (location.state as { flashMessage?: string } | null)?.flashMessage;
+  useFlashToast();
   const [showPassword, setShowPassword] = useState(false);
   const {
     register,
@@ -56,11 +56,6 @@ const LogIn = () => {
 
   const form = (
     <Form className="login-form" noValidate onSubmit={handleSubmit(onSubmit)}>
-      {flashMessage && (
-        <Alert variant="success" className="mb-3 auth-success-alert">
-          {flashMessage}
-        </Alert>
-      )}
       <Form.Group className="mb-3">
         <Form.Label className="auth-form-body-label">Почта:</Form.Label>
         <div className="input-field-wrapper">

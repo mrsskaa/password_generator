@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Container, Form, Modal, OverlayTrigger, Popover } from 'react-bootstrap';
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Button, Container, Form, Modal, OverlayTrigger, Popover } from 'react-bootstrap';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import './Generator.css';
 import { generatePasswordRequest } from '../../api/authApi';
@@ -10,6 +10,9 @@ import type { RootState } from '../../store/store';
 import { isStrengthBelowGood, normalizeStrengthToken } from '../../utils/passwordStrength';
 import type { GeneratorHistoryEntry } from '../../utils/generatorHistory';
 import { formatHistoryDateTime, loadGeneratorHistory, pushGeneratorHistory } from '../../utils/generatorHistory';
+import { showAppToast } from '../../components/AppToast/AppToastProvider';
+import { useFlashToast } from '../../hooks/useFlashToast';
+import { copyTextToClipboard } from '../../utils/copyToClipboard';
 
 const MIN_LENGTH = 8;
 const MAX_LENGTH = 32;
@@ -17,13 +20,10 @@ const PASSWORD_PLACEHOLDER = 'Нажмите "СГЕНЕРИРОВАТЬ"';
 
 function Generator() {
     const navigate = useNavigate();
-    const location = useLocation();
     const [searchParams] = useSearchParams();
     const flashFromQuery = searchParams.get('flash');
     const flashFromQueryMessage =
         flashFromQuery === 'confirm_success' ? 'Успешное подтверждение кода. Вы вошли в аккаунт.' : undefined;
-    const flashMessage = (location.state as { flashMessage?: string } | null)?.flashMessage;
-    const effectiveFlashMessage = flashMessage ?? flashFromQueryMessage;
     const [length, setLength] = useState(16);
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +36,6 @@ function Generator() {
         hints: string[];
     } | null>(null);
     const [error, setError] = useState('');
-    const [copyMessage, setCopyMessage] = useState('');
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
     const userId = useSelector((state: RootState) => state.auth.user?.id);
     const [historyOpen, setHistoryOpen] = useState(false);
@@ -50,23 +49,15 @@ function Generator() {
         excludeSimilar: true,
     });
 
-    useEffect(() => {
-        const previousOverflow = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
-        return () => {
-            document.body.style.overflow = previousOverflow;
-        };
-    }, []);
+    useFlashToast();
 
     useEffect(() => {
-        if (!effectiveFlashMessage) {
+        if (!flashFromQueryMessage) {
             return;
         }
-        const timerId = window.setTimeout(() => {
-            navigate('/', { replace: true, state: null });
-        }, 2500);
-        return () => window.clearTimeout(timerId);
-    }, [effectiveFlashMessage, navigate]);
+        showAppToast(flashFromQueryMessage);
+        navigate('/', { replace: true });
+    }, [flashFromQueryMessage, navigate]);
 
     useEffect(() => {
         if (userId != null) {
@@ -119,44 +110,13 @@ function Generator() {
             return;
         }
 
-        const copyViaFallback = (): boolean => {
-            const textArea = document.createElement('textarea');
-            textArea.value = generatedPassword;
-            textArea.setAttribute('readonly', '');
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-9999px';
-            document.body.appendChild(textArea);
-            textArea.select();
-            let copied = false;
-            try {
-                copied = document.execCommand('copy');
-            } catch {
-                copied = false;
-            } finally {
-                document.body.removeChild(textArea);
-            }
-            return copied;
-        };
-
-        try {
-            if (navigator.clipboard?.writeText) {
-                await navigator.clipboard.writeText(generatedPassword);
-            } else if (!copyViaFallback()) {
-                throw new Error('Clipboard API unavailable');
-            }
+        const copied = await copyTextToClipboard(generatedPassword);
+        if (copied) {
             setError('');
-            setCopyMessage('Пароль скопирован');
-            window.setTimeout(() => setCopyMessage(''), 1800);
-        } catch {
-            if (copyViaFallback()) {
-                setError('');
-                setCopyMessage('Пароль скопирован');
-                window.setTimeout(() => setCopyMessage(''), 1800);
-                return;
-            }
-            setCopyMessage('');
-            setError('Не удалось скопировать пароль. Разрешите доступ к буферу обмена.');
+            showAppToast('Пароль скопирован');
+            return;
         }
+        setError('Не удалось скопировать пароль. Разрешите доступ к буферу обмена.');
     };
 
     const handleSave = async () => {
@@ -206,7 +166,7 @@ function Generator() {
         }
         setShowPassword(false);
         setError('');
-        setCopyMessage('');
+
     };
 
     const showStrengthMeta = strengthMeta !== null && generatedPassword !== PASSWORD_PLACEHOLDER;
@@ -273,11 +233,6 @@ function Generator() {
                             <div className="generator-center-column">
                                 <div className={`generator-content-box ${cardTimestamp ? 'has-timestamp' : ''}`}>
                                     {cardTimestamp && <p className="generator-card-timestamp">{cardTimestamp}</p>}
-                                    {effectiveFlashMessage && (
-                                        <Alert variant="success" className="mb-3 auth-success-alert">
-                                            {effectiveFlashMessage}
-                                        </Alert>
-                                    )}
                                     <div className="generator-password-stack">
                                         <div
                                             className={
@@ -287,7 +242,9 @@ function Generator() {
                                             }
                                         >
             <span
-                className={`generator-password-value ${generatedPassword === PASSWORD_PLACEHOLDER ? 'is-placeholder' : 'is-generated'}`}
+                className={`generator-password-value ${generatedPassword === PASSWORD_PLACEHOLDER ? 'is-placeholder' : 'is-generated'} ${
+                    !showPassword && generatedPassword !== PASSWORD_PLACEHOLDER ? 'is-masked' : ''
+                }`}
             >
               {showPassword ? generatedPassword : generatedPassword.replace(/./g, '•')}
             </span>
@@ -341,22 +298,24 @@ function Generator() {
                                         </div>
                                     </div>
 
-                                    <div className="generator-length-row">
-                                        <label className="generator-label" htmlFor="length-slider">
-                                            ДЛИНА
-                                        </label>
-                                        <span className="generator-length-badge">{length}</span>
-                                    </div>
-                                    <Form.Range
-                                        id="length-slider"
-                                        min={MIN_LENGTH}
-                                        max={MAX_LENGTH}
-                                        value={length}
-                                        onChange={(event) => setLength(Number(event.target.value))}
-                                    />
-                                    <div className="generator-range-marks">
-                                        <span>{MIN_LENGTH}</span>
-                                        <span>{MAX_LENGTH}</span>
+                                    <div className="generator-length-block">
+                                        <div className="generator-length-row">
+                                            <label className="generator-label" htmlFor="length-slider">
+                                                ДЛИНА
+                                            </label>
+                                            <span className="generator-length-badge">{length}</span>
+                                        </div>
+                                        <Form.Range
+                                            id="length-slider"
+                                            min={MIN_LENGTH}
+                                            max={MAX_LENGTH}
+                                            value={length}
+                                            onChange={(event) => setLength(Number(event.target.value))}
+                                        />
+                                        <div className="generator-range-marks">
+                                            <span>{MIN_LENGTH}</span>
+                                            <span>{MAX_LENGTH}</span>
+                                        </div>
                                     </div>
 
                                     <div className="generator-options">
@@ -383,16 +342,21 @@ function Generator() {
                                     </div>
 
                                     <div className="generator-error-slot" aria-live="polite">
-                                        {copyMessage && <p className="generator-copy-text mb-0">{copyMessage}</p>}
                                         {error && <p className="generator-error-text mb-0">{error}</p>}
                                     </div>
 
                                     <div className="generator-actions">
-                                        <Button className="generator-main-btn" onClick={handleGenerate} disabled={isLoading}>
+                                        <Button
+                                            type="button"
+                                            variant="light"
+                                            className="generator-main-btn"
+                                            onClick={handleGenerate}
+                                            disabled={isLoading}
+                                        >
                                             <i className="bi bi-arrow-clockwise me-2" />
                                             {isLoading ? 'ГЕНЕРАЦИЯ...' : 'СГЕНЕРИРОВАТЬ'}
                                         </Button>
-                                        <Button className="generator-secondary-btn" onClick={handleSave}>
+                                        <Button type="button" variant="light" className="generator-secondary-btn" onClick={handleSave}>
                                             <i className="bi bi-box-arrow-down generator-save-icon me-2" />
                                             СОХРАНИТЬ
                                         </Button>

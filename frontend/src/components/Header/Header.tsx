@@ -37,9 +37,9 @@ const Header = () => {
       <img src={logo} height="40" className="logo" alt="Логотип" />
     </Navbar.Brand>
 
-    {!isAuthenticated && <Navbar.Toggle aria-controls="auth-navbar" />}
-    
-<Navbar.Collapse id="auth-navbar" className="justify-content-end d-md-flex">
+    <Navbar.Toggle aria-controls="auth-navbar" className="header-navbar-toggle" />
+
+<Navbar.Collapse id="auth-navbar" className="justify-content-end">
   {!isAuthenticated ? (
     <>
     <div className="d-flex flex-column w-100 text-center d-md-none gap-2">

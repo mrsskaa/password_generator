@@ -48,11 +48,11 @@ export function formatHistoryDateTime(iso: string): string {
   return `${date}, ${time}`;
 }
 
-function storageKey(userId: number): string {
+function storageKey(userId: string): string {
   return `${KEY_PREFIX}${userId}`;
 }
 
-export function loadGeneratorHistory(userId: number): GeneratorHistoryEntry[] {
+export function loadGeneratorHistory(userId: string): GeneratorHistoryEntry[] {
   try {
     const raw = sessionStorage.getItem(storageKey(userId));
     if (!raw) {
@@ -65,7 +65,7 @@ export function loadGeneratorHistory(userId: number): GeneratorHistoryEntry[] {
   }
 }
 
-export function clearGeneratorHistory(userId: number): void {
+export function clearGeneratorHistory(userId: string): void {
   try {
     sessionStorage.removeItem(storageKey(userId));
   } catch {
@@ -74,7 +74,7 @@ export function clearGeneratorHistory(userId: number): void {
 }
 
 export function pushGeneratorHistory(
-  userId: number,
+  userId: string,
   response: GeneratePasswordResponse,
   options: GeneratePasswordPayload,
 ): GeneratorHistoryEntry[] {
