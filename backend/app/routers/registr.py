@@ -61,18 +61,16 @@ async def register(
         raise HTTPException(status_code=400, detail="Для регистрации необходимо указать email")
 
     email = _validate_email(payload.email)
-    # Во фронте логин = email
-    username = email
     hashed_password = auth_service.get_password_hash(payload.password)
 
     existing = repository.get_user_by_email(email)
     if existing and existing.get("email_verified"):
-        raise HTTPException(status_code=400, detail="Пользователь с таким именем уже существует")
+        raise HTTPException(status_code=400, detail="Пользователь с таким email уже существует")
 
     if existing and not existing.get("email_verified"):
         repository.delete_user_by_id(existing["id"])
 
-    repository.upsert_pending_registration(email, username, hashed_password)
+    repository.upsert_pending_registration(email, hashed_password)
     repository.delete_registration_codes_for_email(email)
 
     registration_code = _create_registration_code(email, repository)
@@ -150,7 +148,6 @@ async def verify_registration_code(
 
     try:
         created_user = repository.create_user(
-            username=pending["username"],
             hashed_password=pending["hashed_password"],
             email=email,
             email_verified=True,
@@ -158,7 +155,7 @@ async def verify_registration_code(
     except IntegrityError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Пользователь с таким именем уже существует",
+            detail="Пользователь с таким email уже существует",
         ) from None
 
     repository.mark_registration_code_used(code_row["id"])
@@ -168,8 +165,7 @@ async def verify_registration_code(
     background_tasks.add_task(
         send_welcome_email,
         to_email=created_user.get("email"),
-        username=created_user["username"],
     )
-    logger.info("Аккаунт создан после подтверждения email: username=%s", created_user["username"])
+    logger.info("Аккаунт создан после подтверждения email: %s", created_user.get("email"))
 
     return {"message": "Email успешно подтвержден"}

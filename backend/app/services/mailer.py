@@ -41,7 +41,7 @@ def _send_message(message: EmailMessage) -> None:
         smtp.send_message(message)
 
 
-def send_welcome_email(to_email: str | None, username: str) -> None:
+def send_welcome_email(to_email: str | None) -> None:
     if not to_email:
         return
 
@@ -51,7 +51,7 @@ def send_welcome_email(to_email: str | None, username: str) -> None:
     msg["From"] = sender
     msg["To"] = to_email
     msg.set_content(
-        f"Здравствуйте, {username}!\n\n"
+        f"Здравствуйте, {to_email}!\n\n"
         "Ваш аккаунт успешно создан.\n"
         "Спасибо, что пользуетесь сервисом."
     )

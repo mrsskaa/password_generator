@@ -52,6 +52,7 @@ function ConfirmCodeForm({
 
   const [secondsLeft, setSecondsLeft] = useState(RESEND_INTERVAL_SEC);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showInitialMessage, setShowInitialMessage] = useState(Boolean(initialMessage));
   const [resendSuccessMessage, setResendSuccessMessage] = useState('');
   const [resendBusy, setResendBusy] = useState(false);
@@ -127,8 +128,10 @@ function ConfirmCodeForm({
   };
 
   const onSubmit = async (data: RegisterConfirmFormData) => {
+    if (isSubmitting) return;
     clearErrors('root');
     setSubmitSuccess(false);
+    setIsSubmitting(true);
     try {
       const result = await onConfirm({ email, code: data.code });
       setSubmitSuccess(true);
@@ -143,6 +146,8 @@ function ConfirmCodeForm({
         type: 'server',
         message: getAxiosErrorMessage(err, errorMessage),
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -224,9 +229,9 @@ function ConfirmCodeForm({
             variant="default"
             type="submit"
             className="justify-content-center auth-form-submit-button"
-            disabled={submitSuccess}
+            disabled={submitSuccess || isSubmitting}
           >
-            ПОДТВЕРДИТЬ
+            {isSubmitting ? 'ПОДТВЕРЖДЕНИЕ...' : 'ПОДТВЕРДИТЬ'}
           </Button>
         </div>
       </div>

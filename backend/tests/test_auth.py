@@ -17,24 +17,23 @@ def mock_auth_service():
 def test_login_success(mock_auth_service):
     fake_user = {
         "id": "550e8400-e29b-41d4-a716-446655440000",
-        "username": "testuser",
         "email": "test@test.com",
         "created_at": "2023-01-01T00:00:00",
         "password": "hashed_password"
     }
     mock_auth_service.authenticate_user.return_value = fake_user
     mock_auth_service.create_access_token.return_value = "fake-jwt-token"
-    payload = {"username": "testuser", "password": "correct_password"}
+    payload = {"email": "test@test.com", "password": "correct_password"}
     response = client.post("/api/auth/login", json=payload)
     assert response.status_code == 200
     assert response.json()["message"] == "Вход выполнен"
-    assert response.json()["user"]["username"] == "testuser"
+    assert response.json()["user"]["email"] == "test@test.com"
     assert "access_token" in response.cookies
     assert response.cookies["access_token"] == "fake-jwt-token"
 
 def test_login_invalid_credentials(mock_auth_service):
     mock_auth_service.authenticate_user.return_value = None
-    payload = {"username": "testuser", "password": "wrong_password"}
+    payload = {"email": "test@test.com", "password": "wrong_password"}
     response = client.post("/api/auth/login", json=payload)
     assert response.status_code == 401
     assert response.json()["detail"] == "Неверное имя пользователя или пароль"

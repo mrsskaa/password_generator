@@ -63,7 +63,7 @@ interface LoginResponseBody {
 
 export const loginRequest = async (payload: loginFormData): Promise<{ message: string; user: User }> => {
   const response = await axios.post<LoginResponseBody>(`${API_URL}/api/auth/login`, {
-    username: payload.email,
+    email: payload.email,
     password: payload.password,
   });
   return {
@@ -79,7 +79,6 @@ interface RegisterResponseBody {
 
 export const registerRequest = async (payload: registerFormData): Promise<{ message: string; user: User | null }> => {
   const response = await axios.post<RegisterResponseBody>(`${API_URL}/api/auth/register`, {
-    username: payload.email,
     password: payload.password,
     email: payload.email,
   });
