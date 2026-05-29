@@ -15,12 +15,11 @@ class RegisterRequest(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    username: str = Field(..., min_length=3, max_length=64)
+    email: str = Field(..., max_length=255)
     password: str = Field(..., min_length=8, max_length=128)
 
 class UserPublic(BaseModel):
     id: uuid.UUID
-    username: str
     email: str | None = None
     created_at: str
 

@@ -63,8 +63,8 @@ class AuthService:
             return None
         return email
 
-    def authenticate_user(self, username: str, password: str) -> Optional[Dict[str, Any]]:
-        user = self.repository.get_user_by_username(username)
+    def authenticate_user(self, email: str, password: str) -> Optional[Dict[str, Any]]:
+        user = self.repository.get_user_by_email(email)
         if not user:
             return None
         if not self.verify_password(password, user.get("hashed_password", "")):

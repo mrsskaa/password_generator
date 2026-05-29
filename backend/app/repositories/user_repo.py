@@ -5,13 +5,10 @@ from typing import Any
 from sqlalchemy import create_engine, delete, inspect, select, text, update
 from sqlalchemy.orm import sessionmaker
 from app.models.user import Base, PasswordResetCode, PendingRegistration, RegistrationCode, User
-from app.models.saved_password import SavedPassword
+
 
 
 class SQLAlchemyRepository:
-    """
-    User repository backed by PostgreSQL via SQLAlchemy.
-    """
 
     def __init__(self, database_url: str | None = None):
         self.database_url = database_url or os.getenv(
@@ -87,7 +84,6 @@ class SQLAlchemyRepository:
     def _to_dict(user: User) -> dict[str, Any]:
         return {
             "id": user.id,
-            "username": user.username,
             "hashed_password": user.hashed_password,
             "email": user.email,
             "email_verified": user.email_verified,
@@ -96,14 +92,12 @@ class SQLAlchemyRepository:
 
     def create_user(
         self,
-        username: str,
         hashed_password: str,
         email: str | None = None,
         email_verified: bool = False,
     ) -> dict[str, Any]:
         with self.SessionLocal() as session:
             user = User(
-                username=username,
                 hashed_password=hashed_password,
                 email=email,
                 email_verified=email_verified,
@@ -112,11 +106,6 @@ class SQLAlchemyRepository:
             session.commit()
             session.refresh(user)
             return self._to_dict(user)
-
-    def get_user_by_username(self, username: str) -> dict[str, Any] | None:
-        with self.SessionLocal() as session:
-            user = session.scalar(select(User).where(User.username == username))
-            return self._to_dict(user) if user else None
 
     def get_user_by_id(self, user_id: Any) -> dict[str, Any] | None:
         with self.SessionLocal() as session:
@@ -145,19 +134,17 @@ class SQLAlchemyRepository:
             session.commit()
             return True
 
-    def upsert_pending_registration(self, email: str, username: str, hashed_password: str) -> dict[str, Any]:
+    def upsert_pending_registration(self, email: str, hashed_password: str) -> dict[str, Any]:
         now = datetime.now(timezone.utc)
         with self.SessionLocal() as session:
             row = session.get(PendingRegistration, email)
             if row:
-                row.username = username
                 row.hashed_password = hashed_password
                 row.updated_at = now
             else:
                 session.add(
                     PendingRegistration(
                         email=email,
-                        username=username,
                         hashed_password=hashed_password,
                         updated_at=now,
                     )
@@ -167,7 +154,6 @@ class SQLAlchemyRepository:
             assert refreshed is not None
             return {
                 "email": refreshed.email,
-                "username": refreshed.username,
                 "hashed_password": refreshed.hashed_password,
                 "updated_at": refreshed.updated_at,
             }
@@ -179,7 +165,6 @@ class SQLAlchemyRepository:
                 return None
             return {
                 "email": row.email,
-                "username": row.username,
                 "hashed_password": row.hashed_password,
                 "updated_at": row.updated_at,
             }
@@ -198,10 +183,9 @@ class SQLAlchemyRepository:
             if not user or user.email_verified:
                 return None
             hashed = user.hashed_password
-            username = user.username
             session.delete(user)
             session.commit()
-        return self.upsert_pending_registration(email, username, hashed)
+        return self.upsert_pending_registration(email, hashed)
 
     def set_user_email_verified(self, email: str, email_verified: bool = True) -> bool:
         with self.SessionLocal() as session:

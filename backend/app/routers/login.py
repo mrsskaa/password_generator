@@ -18,10 +18,10 @@ async def login(
     response: Response,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ) -> dict:
-    user = auth_service.authenticate_user(payload.username, payload.password)
+    user = auth_service.authenticate_user(payload.email, payload.password)
 
     if not user:
-        logger.warning("Неудачная попытка входа username=%s", payload.username)
+        logger.warning("Неудачная попытка входа email=%s", payload.email)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Неверное имя пользователя или пароль",
@@ -33,7 +33,7 @@ async def login(
             detail="Подтвердите email перед входом в аккаунт",
         )
 
-    token_data = {"sub": user["username"]}
+    token_data = {"sub": user["email"]}
     access_token = auth_service.create_access_token(data=token_data)
 
     response.set_cookie(
@@ -45,10 +45,10 @@ async def login(
         max_age=auth_service.access_token_expire_minutes * 60,
     )
 
-    logger.info("Успешный вход username=%s", payload.username)
+    logger.info("Успешный вход email=%s", payload.email)
     return {
         "message": "Вход выполнен",
-        "user": UserPublic(**{k: user[k] for k in ["id", "username", "email", "created_at"]}).model_dump(),
+        "user": UserPublic(**{k: user[k] for k in ["id", "email", "created_at"]}).model_dump(),
     }
 
 
