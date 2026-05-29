@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Alert, Button, Form, Nav } from 'react-bootstrap';
+import { useEffect, useRef, useState } from 'react';
+import { Button, Form, Nav } from 'react-bootstrap';
+import { showAppToast } from '../AppToast/AppToastProvider';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -52,8 +53,6 @@ function ConfirmCodeForm({
 
   const [secondsLeft, setSecondsLeft] = useState(RESEND_INTERVAL_SEC);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showInitialMessage, setShowInitialMessage] = useState(Boolean(initialMessage));
   const [resendSuccessMessage, setResendSuccessMessage] = useState('');
   const [resendBusy, setResendBusy] = useState(false);
   const [devCode, setDevCode] = useState<string | null>(() => {
@@ -64,19 +63,35 @@ function ConfirmCodeForm({
     return match?.[1] ?? null;
   });
   const canResend = secondsLeft === 0 && !resendBusy;
+  const initialToastShownRef = useRef(false);
 
   useEffect(() => {
     if (!initialMessage) {
-      setShowInitialMessage(false);
       setDevCode(null);
       return;
     }
     const match = initialMessage.match(DEV_CODE_RE);
     setDevCode(match?.[1] ?? null);
-    setShowInitialMessage(true);
-    const id = window.setTimeout(() => setShowInitialMessage(false), 2500);
-    return () => window.clearTimeout(id);
+    if (initialToastShownRef.current) {
+      return;
+    }
+    initialToastShownRef.current = true;
+    showAppToast(initialMessage.replace(DEV_CODE_RE, '').trim() || initialMessage);
   }, [initialMessage]);
+
+  useEffect(() => {
+    if (!resendSuccessMessage) {
+      return;
+    }
+    showAppToast(resendSuccessMessage.replace(DEV_CODE_RE, '').trim() || resendSuccessMessage);
+  }, [resendSuccessMessage]);
+
+  useEffect(() => {
+    if (!submitSuccess) {
+      return;
+    }
+    showAppToast(successMessage);
+  }, [submitSuccess, successMessage]);
 
   const {
     register,
@@ -159,25 +174,10 @@ function ConfirmCodeForm({
 
   const form = (
     <Form className="confirm-code-form" noValidate onSubmit={handleSubmit(onSubmit)}>
-      {showInitialMessage && initialMessage && (
-        <Alert variant="success" className="mb-3 auth-success-alert">
-          {initialMessage}
-        </Alert>
-      )}
       {initialError && (
         <div className="auth-field-error mb-3" role="alert">
           {initialError}
         </div>
-      )}
-      {submitSuccess && (
-        <Alert variant="success" className="mb-3 auth-success-alert">
-          {successMessage}
-        </Alert>
-      )}
-      {resendSuccessMessage && (
-        <Alert variant="success" className="mb-3">
-          {resendSuccessMessage}
-        </Alert>
       )}
       {devCode && (
         <div className="confirm-code-dev-box mb-3" role="status" aria-live="polite">

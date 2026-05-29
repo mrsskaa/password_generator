@@ -112,19 +112,27 @@ a.auth-form-bottom-back-link:hover {
 }
 
 @media (max-width: 575.98px) {
-  .auth-form-bottom {
-    grid-template-columns: 1fr;
-    justify-items: center;
+  .confirm-code-form .auth-form-bottom {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: calc(1.75rem + 4px);
   }
 
-  .auth-form-bottom-back-link-container {
-    justify-self: center;
-    grid-row: 2;
+  .confirm-code-form .auth-form-bottom-back-link-container {
+    justify-self: auto;
+    grid-row: auto;
+    grid-column: auto;
+    order: 0;
   }
 
-  .auth-form-submit-button-container {
-    grid-column: 1;
-    grid-row: 1;
+  .confirm-code-form .auth-form-submit-button-container {
+    grid-column: auto;
+    grid-row: auto;
+    order: 1;
+    width: auto;
   }
 }
 
@@ -137,4 +145,32 @@ a.auth-form-bottom-back-link:hover {
   min-height: 44px;
   border: 1px solid var(--light-grey);
   font-weight: 600;
+}
+
+@media (min-width: 576px) {
+  .confirm-code-form .auth-form-bottom {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: calc(1.75rem + 4px);
+  }
+
+  .confirm-code-form .auth-form-bottom-back-link-container {
+    justify-self: start;
+    order: unset;
+  }
+
+  .confirm-code-form .auth-form-submit-button-container {
+    grid-column: 2;
+    justify-self: center;
+    order: unset;
+    width: max-content;
+  }
+
+  .confirm-code-form .btn.auth-form-submit-button,
+  .confirm-code-form .btn.auth-form-submit-button:hover {
+    min-width: 240px;
+    max-width: none;
+  }
 }

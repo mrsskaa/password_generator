@@ -7,7 +7,8 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 function CodeWordConfirm(){
     const navigate=useNavigate();
     const params = useParams();
-    const password_id = params.id;
+    const _passwordId = params.id;
+    void _passwordId;
     return(
         <>
             <Header />

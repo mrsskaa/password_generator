@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Alert, Button, Form, Nav } from 'react-bootstrap';
+import { Button, Form, Nav } from 'react-bootstrap';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import AuthForm from '../../components/AuthForm/AuthForm';
 import { getAxiosErrorMessage, revealSavedPasswordRequest, type SavedPasswordItem } from '../../api/authApi';
-import './PasswordUnlock.css';
 import './PasswordUnlock.css';
 
 function PasswordUnlock() {
@@ -52,13 +51,13 @@ function PasswordUnlock() {
         />
       </Form.Group>
       {error && (
-        <Alert variant="danger" className="mb-3">
+        <div className="auth-field-error mb-3" role="alert">
           {error}
-        </Alert>
+        </div>
       )}
       <div className="password-unlock-bottom">
         <div className="auth-form-bottom-back-link-container">
-          <Nav.Link as={Link} to="/passwords" className="auth-form-bottom-back-link">
+          <Nav.Link as={Link} to="/passwords" className="password-unlock-back-link">
             {'<< назад'}
           </Nav.Link>
         </div>
@@ -74,7 +73,9 @@ function PasswordUnlock() {
   return (
     <>
       <Header />
-      <AuthForm title={<h2 className="text-center">ВВЕДИТЕ КОДОВОЕ СЛОВО</h2>} form={form} />
+      <div className="password-unlock-page">
+        <AuthForm title={<h2 className="text-center">ВВЕДИТЕ КОДОВОЕ СЛОВО</h2>} form={form} />
+      </div>
     </>
   );
 }

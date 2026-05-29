@@ -2,8 +2,9 @@ import { useState } from 'react';
 import Header from '../../components/Header/Header';
 import './Register.css';
 import AuthForm from '../../components/AuthForm/AuthForm'
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Alert, Button, Form, Nav } from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
+import { Button, Form, Nav } from 'react-bootstrap';
+import { useFlashToast } from '../../hooks/useFlashToast';
 import { useForm } from 'react-hook-form';
 import regSchema, { type registerFormData } from '../../schemas/regSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,8 +16,7 @@ import { MAX_INPUT_LENGTH } from '../../constants/inputLimits';
 
 const Register = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const flashMessage = (location.state as { flashMessage?: string } | null)?.flashMessage;
+  useFlashToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const {
@@ -63,11 +63,6 @@ const Register = () => {
 
   const form = (
     <Form className="register-form" noValidate onSubmit={handleSubmit(onSubmit)}>
-      {flashMessage && (
-        <Alert variant="warning" className="mb-3">
-          {flashMessage}
-        </Alert>
-      )}
       <Form.Group className="mb-3">
         <Form.Label className="auth-form-body-label">Почта:</Form.Label>
         <div className="input-field-wrapper">
