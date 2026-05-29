@@ -9,7 +9,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 import './index.css'
-import t1Favicon from './assets/images/T1_logo.svg'
+import t1Favicon from './assets/images/T1_favicon.svg'
 
 function applyFavicon(href: string): void {
     const relValues = ['icon', 'shortcut icon']

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Button, Form, Nav } from 'react-bootstrap';
+import { Button, Form, Nav } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Header from '../../components/Header/Header';
@@ -101,9 +101,9 @@ function SavePassword() {
       </Form.Group>
 
       {error && (
-        <Alert variant="danger" className="mb-3">
+        <div className="auth-field-error mb-3" role="alert">
           {error}
-        </Alert>
+        </div>
       )}
 
       <div className="save-password-form-bottom">

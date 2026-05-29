@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Form } from 'react-bootstrap';
+import { Button, Form, Modal } from 'react-bootstrap';
 import { showAppToast } from '../../components/AppToast/AppToastProvider';
 import { copyTextToClipboard } from '../../utils/copyToClipboard';
 import { useFlashToast } from '../../hooks/useFlashToast';
@@ -30,6 +30,7 @@ function PasswordDetails() {
     const [isEditing, setIsEditing] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [descriptionDraft, setDescriptionDraft] = useState(locationState?.item?.description ?? '');
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     useFlashToast();
 
@@ -70,14 +71,14 @@ function PasswordDetails() {
             excludeSimilar: Boolean(settings.excludeSimilar ?? true),
         };
     }, [item]);
-    const lengthPercent = Math.max(0, Math.min(100, ((options.length - 8) / (32 - 8)) * 100));
     const crackTimeHuman = String((item?.generation_settings?.crackTimeHuman as string | undefined) ?? '').trim();
     const strengthColor = String((item?.generation_settings?.strengthColor as string | undefined) ?? '').trim();
     const showStrengthMeta = crackTimeHuman.length > 0 && strengthColor.length > 0;
     const strengthClassSuffix = showStrengthMeta ? normalizeStrengthToken(strengthColor) : null;
 
-    const handleDelete = async () => {
+    const handleDeleteConfirmed = async () => {
         if (!passwordId) return;
+        setShowDeleteConfirm(false);
         try {
             await deleteSavedPasswordRequest(passwordId);
             navigate('/passwords', { replace: true, state: { flashMessage: 'Пароль удален.' } });
@@ -140,7 +141,7 @@ function PasswordDetails() {
                         <div className="password-details-meta-row">
                             <p className="password-details-date mb-0">{formatDateTime(item.created_at)}</p>
                             {!isEditing && (
-                                <Button type="button" variant="light" className="password-details-delete-btn" onClick={handleDelete}>
+                                <Button type="button" variant="light" className="password-details-delete-btn" onClick={() => setShowDeleteConfirm(true)}>
                                     УДАЛИТЬ
                                 </Button>
                             )}
@@ -148,17 +149,29 @@ function PasswordDetails() {
                         <div className="password-details-top-row">
                             {isEditing ? (
                                 <div className="password-details-edit-row">
-                                    <Form.Control
-                                        value={descriptionDraft}
-                                        onChange={(event) =>
-                                            setDescriptionDraft(
-                                                event.target.value.slice(0, SAVED_PASSWORD_DESCRIPTION_MAX),
-                                            )
-                                        }
-                                        placeholder="Введите описание..."
-                                        className="password-details-description-input"
-                                        maxLength={SAVED_PASSWORD_DESCRIPTION_MAX}
-                                    />
+                                    <div className="password-details-description-input-wrap">
+                                        <Form.Control
+                                            value={descriptionDraft}
+                                            onChange={(event) =>
+                                                setDescriptionDraft(
+                                                    event.target.value.slice(0, SAVED_PASSWORD_DESCRIPTION_MAX),
+                                                )
+                                            }
+                                            placeholder="Введите описание..."
+                                            className="password-details-description-input"
+                                            maxLength={SAVED_PASSWORD_DESCRIPTION_MAX}
+                                        />
+                                        {descriptionDraft.length > 0 && (
+                                            <button
+                                                type="button"
+                                                className="password-details-input-clear-btn"
+                                                aria-label="Очистить описание"
+                                                onClick={() => setDescriptionDraft('')}
+                                            >
+                                                <i className="bi bi-x-lg" aria-hidden />
+                                            </button>
+                                        )}
+                                    </div>
                                     <Button type="button" variant="light" className="password-details-save-btn" onClick={handleSaveDescription}>
                                         СОХРАНИТЬ
                                     </Button>
@@ -184,7 +197,7 @@ function PasswordDetails() {
                                     }
                                 >
                                     <span
-                                        className={`generator-password-value is-generated ${!showPassword ? 'is-masked' : ''}`}
+                                        className={`generator-password-value is-generated ${!showPassword ? 'is-masked' : ''} ${!showPassword && password.length > 20 ? 'is-masked-long' : ''}`}
                                     >
                                         {showPassword ? password : password.replace(/./g, '•')}
                                     </span>
@@ -216,12 +229,13 @@ function PasswordDetails() {
                                     <span className="generator-label">ДЛИНА</span>
                                     <span className="generator-length-badge">{options.length}</span>
                                 </div>
-                                <div
-                                    className="password-details-slider"
-                                    style={{ ['--pd-length-percent' as string]: `${lengthPercent}%` }}
-                                >
-                                    <span className="password-details-slider-thumb" />
-                                </div>
+                                <Form.Range
+                                    id="password-details-length-slider"
+                                    min={8}
+                                    max={32}
+                                    value={options.length}
+                                    disabled
+                                />
                                 <div className="generator-range-marks">
                                     <span>8</span>
                                     <span>32</span>
@@ -258,13 +272,42 @@ function PasswordDetails() {
                     </div>
 
                     {error && (
-                        <Alert variant="danger" className="mt-3 password-details-alert">
+                        <p className="auth-field-error mt-3 mb-0 password-details-alert" role="alert">
                             {error}
-                        </Alert>
+                        </p>
                     )}
                     </div>
                 </section>
             </main>
+            <Modal
+                show={showDeleteConfirm}
+                onHide={() => setShowDeleteConfirm(false)}
+                centered
+                className="generator-login-modal-root"
+                dialogClassName="generator-login-modal generator-login-modal--confirm"
+                contentClassName="generator-login-modal-content"
+                backdropClassName="generator-login-backdrop"
+            >
+                <Modal.Body>
+                    <button
+                        type="button"
+                        className="generator-login-modal-close"
+                        onClick={() => setShowDeleteConfirm(false)}
+                        aria-label="Закрыть"
+                    >
+                        <i className="bi bi-x-lg" />
+                    </button>
+                    <p className="generator-login-modal-text mb-3">ВЫ УВЕРЕНЫ, ЧТО ХОТИТЕ УДАЛИТЬ ПАРОЛЬ?</p>
+                    <div className="generator-confirm-modal-actions">
+                        <Button type="button" variant="light" className="generator-confirm-btn generator-confirm-btn--yes" onClick={handleDeleteConfirmed}>
+                            ДА
+                        </Button>
+                        <Button type="button" variant="light" className="generator-confirm-btn generator-confirm-btn--no" onClick={() => setShowDeleteConfirm(false)}>
+                            ОТМЕНА
+                        </Button>
+                    </div>
+                </Modal.Body>
+            </Modal>
         </>
     );
 }

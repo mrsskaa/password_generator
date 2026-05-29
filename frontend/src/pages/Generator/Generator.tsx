@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Container, Form, Modal, OverlayTrigger, Popover } from 'react-bootstrap';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -48,6 +48,8 @@ function Generator() {
         includeSymbols: false,
         excludeSimilar: true,
     });
+    const generatorCardRef = useRef<HTMLDivElement>(null);
+    const [historyMaxHeight, setHistoryMaxHeight] = useState<number | undefined>(undefined);
 
     useFlashToast();
 
@@ -67,6 +69,34 @@ function Generator() {
             setHistoryOpen(false);
         }
     }, [userId]);
+
+    useEffect(() => {
+        const card = generatorCardRef.current;
+        if (!card || !isAuthenticated || userId == null) {
+            setHistoryMaxHeight(undefined);
+            return;
+        }
+        const updateHeight = () => {
+            setHistoryMaxHeight(card.getBoundingClientRect().height);
+        };
+        updateHeight();
+        const observer = new ResizeObserver(updateHeight);
+        observer.observe(card);
+        window.addEventListener('resize', updateHeight);
+        return () => {
+            observer.disconnect();
+            window.removeEventListener('resize', updateHeight);
+        };
+    }, [
+        cardTimestamp,
+        generatedPassword,
+        historyOpen,
+        isAuthenticated,
+        length,
+        options,
+        strengthMeta,
+        userId,
+    ]);
 
     const generatorPayload: GeneratePasswordPayload = useMemo(
         () => ({
@@ -201,7 +231,10 @@ function Generator() {
                         >
                             {isAuthenticated && userId != null && (
                                 <aside className="generator-history-panel" aria-label="История генераций">
-                                    <div className="generator-history-inner">
+                                    <div
+                                        className="generator-history-inner"
+                                        style={historyMaxHeight != null ? { maxHeight: `${historyMaxHeight}px` } : undefined}
+                                    >
                                         <button
                                             type="button"
                                             className="generator-history-toggle"
@@ -231,7 +264,10 @@ function Generator() {
                             )}
 
                             <div className="generator-center-column">
-                                <div className={`generator-content-box ${cardTimestamp ? 'has-timestamp' : ''}`}>
+                                <div
+                                    ref={generatorCardRef}
+                                    className={`generator-content-box ${cardTimestamp ? 'has-timestamp' : ''}`}
+                                >
                                     {cardTimestamp && <p className="generator-card-timestamp">{cardTimestamp}</p>}
                                     <div className="generator-password-stack">
                                         <div
@@ -244,9 +280,11 @@ function Generator() {
             <span
                 className={`generator-password-value ${generatedPassword === PASSWORD_PLACEHOLDER ? 'is-placeholder' : 'is-generated'} ${
                     !showPassword && generatedPassword !== PASSWORD_PLACEHOLDER ? 'is-masked' : ''
-                }`}
+                } ${!showPassword && generatedPassword.length > 20 ? 'is-masked-long' : ''}`}
             >
-              {showPassword ? generatedPassword : generatedPassword.replace(/./g, '•')}
+              {showPassword || generatedPassword === PASSWORD_PLACEHOLDER
+                  ? generatedPassword
+                  : generatedPassword.replace(/./g, '•')}
             </span>
                                             <div className="generator-password-actions">
                                                 <button type="button" onClick={handleGenerate} className="generator-icon-btn" aria-label="Сгенерировать">
@@ -372,6 +410,7 @@ function Generator() {
                 show={showLoginPrompt}
                 onHide={() => setShowLoginPrompt(false)}
                 centered
+                className="generator-login-modal-root"
                 dialogClassName="generator-login-modal"
                 contentClassName="generator-login-modal-content"
                 backdropClassName="generator-login-backdrop"

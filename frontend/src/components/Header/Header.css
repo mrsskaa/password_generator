@@ -2,31 +2,11 @@
     box-shadow: none !important;
 }
 
-.header-navbar-toggle {
-    border-color: var(--header-icon-color);
-}
-
-.header-navbar-toggle:focus {
-    box-shadow: 0 0 0 0.2rem rgba(181, 108, 88, 0.25);
-}
-
-@media (max-width: 767.98px) {
-    .header-navbar .navbar-collapse.show,
-    .header-navbar .navbar-collapse.collapsing {
-        display: flex !important;
-        flex-direction: column;
-        align-items: stretch;
-        padding-top: 8px;
-    }
-
-    .header-navbar .header-auth-icons {
-        justify-content: center;
-        padding: 4px 0 8px;
-    }
-}
-
 .header-container {
     padding-left: 0 !important;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
 }
 
 .header-brand {
@@ -49,6 +29,7 @@ a.header-text-link {
     align-items: center;
     height: 36px;
     line-height: 1;
+    margin-right: 5px;
 }
 
 a.header-text-link:hover {
@@ -134,4 +115,63 @@ a.header-text-link:hover {
   background: var(--menu-hover-bg);
     border-radius: 15px;
   color: var(--header-icon-color);
+}
+
+@media (max-width: 767.98px) {
+    .header-brand {
+        margin-left: -8px !important;
+        margin-right: 8px !important;
+    }
+
+    .logo {
+        height: 30px;
+    }
+
+    .header-actions-desktop {
+        gap: 6px;
+        margin-right: -3px;
+        transform: translateX(-5px);
+    }
+
+    a.header-text-link {
+        font-size: 11px;
+        height: 28px;
+        padding: 0 2px;
+        margin-right: 5px;
+    }
+
+    .header-auth-menu.dropdown-menu {
+        width: 120px;
+        min-width: 120px;
+        height: auto;
+        min-height: 0;
+        right: 0 !important;
+        left: auto !important;
+        transform: translateX(8px) !important;
+    }
+
+    .header-auth-menu-item.dropdown-item {
+        font-size: 14px;
+        min-height: 36px;
+        padding: 0 8px;
+    }
+
+    .btn.header-btn,
+    .btn.header-btn:hover {
+        width: 72px;
+        height: 28px;
+        font-size: 11px;
+        border-radius: 10px;
+        padding: 0 6px;
+    }
+
+    .header-icon-btn {
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+    }
+
+    .header-auth-icons {
+        gap: 8px;
+    }
 }
