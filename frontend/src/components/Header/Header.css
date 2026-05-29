@@ -1,5 +1,11 @@
 .header-navbar {
     box-shadow: none !important;
+    position: relative;
+    z-index: 2200;
+}
+
+.header-auth-menu.dropdown-menu {
+    z-index: 2300;
 }
 
 .header-container {
@@ -119,7 +125,7 @@ a.header-text-link:hover {
 
 @media (max-width: 767.98px) {
     .header-brand {
-        margin-left: -8px !important;
+        margin-left: -18px !important;
         margin-right: 8px !important;
     }
 

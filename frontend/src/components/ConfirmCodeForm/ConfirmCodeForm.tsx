@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, Form, Nav } from 'react-bootstrap';
 import { showAppToast } from '../AppToast/AppToastProvider';
 import { useForm } from 'react-hook-form';
@@ -63,6 +63,7 @@ function ConfirmCodeForm({
     return match?.[1] ?? null;
   });
   const canResend = secondsLeft === 0 && !resendBusy;
+  const initialToastShownRef = useRef(false);
 
   useEffect(() => {
     if (!initialMessage) {
@@ -71,6 +72,10 @@ function ConfirmCodeForm({
     }
     const match = initialMessage.match(DEV_CODE_RE);
     setDevCode(match?.[1] ?? null);
+    if (initialToastShownRef.current) {
+      return;
+    }
+    initialToastShownRef.current = true;
     showAppToast(initialMessage.replace(DEV_CODE_RE, '').trim() || initialMessage);
   }, [initialMessage]);
 

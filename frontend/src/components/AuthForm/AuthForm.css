@@ -74,3 +74,37 @@ a.auth-form-head-link-text:hover {
     font-weight: 600;
 }
 
+@media (max-width: 575.98px) {
+    .auth-form-bottom {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-top: 1rem;
+    }
+
+    .auth-form-bottom-back-link-container {
+        order: 0;
+        flex: 0 0 auto;
+    }
+
+    .auth-form-submit-button-container {
+        order: 1;
+        grid-column: auto;
+        justify-self: auto;
+        width: auto;
+        flex: 0 0 auto;
+    }
+
+    .btn.auth-form-submit-button,
+    .btn.password-unlock-btn {
+        min-width: 0 !important;
+        width: auto;
+        max-width: 168px;
+        padding: 5px 14px !important;
+        min-height: 42px;
+        font-size: var(--font-size-16);
+    }
+}
+

@@ -873,7 +873,23 @@
     }
 
     .generator-label {
-        font-size: 16px;
+        font-size: 14px;
+    }
+
+    .generator-password-actions {
+        transform: translateX(5px);
+    }
+
+    .generator-password-value.is-generated:not(.is-masked),
+    .generator-password-value.is-generated.is-masked {
+        max-width: calc(100% - 96px);
+        text-overflow: clip;
+        overflow: visible;
+    }
+
+    .generator-password-value.is-generated:not(.is-masked) {
+        font-size: clamp(11px, 2.8vw, 16px);
+        letter-spacing: 0;
     }
 
     .generator-length-badge {

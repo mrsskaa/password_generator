@@ -123,30 +123,13 @@ a.auth-form-bottom-back-link:hover {
   width: max-content;
 }
 
-@media (max-width: 575.98px) {
-  .auth-form-bottom {
-    grid-template-columns: 1fr;
-    justify-items: center;
-  }
-
-  .auth-form-bottom-back-link-container {
-    justify-self: center;
-    grid-row: 2;
-  }
-
-  .auth-form-submit-button-container {
-    grid-column: 1;
-    grid-row: 1;
-  }
-}
-
 .btn.auth-form-submit-button,
 .btn.auth-form-submit-button:hover {
   padding: 5px 30px;
   background-color: var(--confirm-auth-form-btn-color);
   color: var(--text-color);
-    min-width: 240px;
-    min-height: 44px;
-    border: 1px solid var(--light-grey);
-    font-weight: 600;
+  min-width: 240px;
+  min-height: 44px;
+  border: 1px solid var(--light-grey);
+  font-weight: 600;
 }
