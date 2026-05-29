@@ -21,7 +21,6 @@ export function mapBackendUser(raw: unknown): User {
   const u = raw as Record<string, unknown>;
   return {
     id: String(u.id),
-    username: String(u.username ?? ''),
     email: u.email == null ? null : String(u.email),
     created_at: String(u.created_at ?? ''),
   };
