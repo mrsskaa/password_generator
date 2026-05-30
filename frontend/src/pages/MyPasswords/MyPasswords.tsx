@@ -115,7 +115,7 @@ function MyPasswords() {
                 className="my-passwords-search"
                 aria-label="Поиск по названию"
               />
-              <Dropdown align="end" className="my-passwords-filter-dropdown">
+              <Dropdown align="start" className="my-passwords-filter-dropdown">
                 <Dropdown.Toggle as="button" className="my-passwords-filter-btn" id="my-passwords-sort-dropdown">
                   <i className="bi bi-sliders2 my-passwords-filter-icon" aria-hidden />
                 </Dropdown.Toggle>

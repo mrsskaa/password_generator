@@ -1,11 +1,11 @@
 .header-navbar {
     box-shadow: none !important;
     position: relative;
-    z-index: 2200;
+    z-index: 1030;
 }
 
 .header-auth-menu.dropdown-menu {
-    z-index: 2300;
+    z-index: 1100;
 }
 
 .header-container {
@@ -125,8 +125,9 @@ a.header-text-link:hover {
 
 @media (max-width: 767.98px) {
     .header-brand {
-        margin-left: -18px !important;
+        margin-left: -8px !important;
         margin-right: 8px !important;
+        transform: translateX(20px);
     }
 
     .logo {
@@ -147,19 +148,21 @@ a.header-text-link:hover {
     }
 
     .header-auth-menu.dropdown-menu {
-        width: 120px;
-        min-width: 120px;
+        width: 104px;
+        min-width: 104px;
+        max-width: calc(100vw - 20px);
         height: auto;
         min-height: 0;
-        right: 0 !important;
-        left: auto !important;
-        transform: translateX(8px) !important;
+        right: auto !important;
+        left: 50% !important;
+        transform: translateX(calc(-50% - 5px)) !important;
+        padding: 4px 0;
     }
 
     .header-auth-menu-item.dropdown-item {
-        font-size: 14px;
-        min-height: 36px;
-        padding: 0 8px;
+        font-size: 12px;
+        min-height: 30px;
+        padding: 0 6px;
     }
 
     .btn.header-btn,

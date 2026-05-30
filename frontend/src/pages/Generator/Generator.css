@@ -121,7 +121,7 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     overflow-y: auto;
     min-height: 0;
     flex: 0 1 auto;
@@ -129,11 +129,11 @@
 
 .generator-history-date-btn {
     width: 100%;
-    text-align: left;
+    text-align: center;
     border: none;
     background: #fff;
     border-radius: 10px;
-    padding: 7px 10px;
+    padding: 6px 10px;
     font-size: var(--history-date-size);
     color: var(--history-text-color);
     cursor: pointer;
@@ -199,7 +199,7 @@
 }
 
 .generator-title {
-    font-size: var(--generator-title-size);
+    font-size: calc(var(--generator-title-size) + 2px);
     font-weight: 700;
     line-height: 1.05;
     margin-top: 20px;
@@ -339,7 +339,7 @@
 .generator-hint-btn {
     box-sizing: border-box;
     border: none;
-    background: transparent;
+    background: transparent !important;
     width: auto;
     height: auto;
     min-width: 0;
@@ -351,8 +351,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: var(--hint-icon-color);
-    opacity: 0.92;
+    color: #ed4c78;
+    opacity: 1;
 }
 
 .generator-hint-btn .bi {
@@ -371,6 +371,10 @@
     border-radius: 12px;
     box-shadow: 0 0 28px var(--hint-shadow);
     border: 1px solid rgba(237, 76, 120, 0.2);
+}
+
+.generator-hint-popover.popover .popover-arrow {
+    display: none !important;
 }
 
 .generator-hint-popover-body {
@@ -406,7 +410,7 @@
 
 .generator-password-value.is-placeholder {
     font-size: var(--font-size-25);
-    font-weight: 500;
+    font-weight: 600;
     white-space: nowrap;
 }
 
@@ -818,15 +822,18 @@
 
     .generator-heading {
         margin-left: 0;
+        margin-top: 10px;
     }
 
     .generator-title {
         font-size: clamp(22px, 6vw, 32px);
-        margin-top: 8px;
+        margin-top: 16px;
+        margin-bottom: 8px;
     }
 
     .generator-subtitle {
         font-size: var(--font-size-16);
+        margin-top: 0;
     }
 
     .generator-content-box {
@@ -862,10 +869,19 @@
         min-height: 56px;
         max-height: 56px;
         padding: 8px 10px;
+        align-items: center;
+        flex-wrap: nowrap;
+    }
+
+    .generator-password-box:has(.generator-password-value.is-long:not(.is-masked)) {
+        height: auto;
+        min-height: 56px;
+        max-height: none;
+        align-items: flex-start;
     }
 
     .generator-password-value {
-        max-width: calc(100% - 88px);
+        max-width: calc(100% - 72px);
     }
 
     .generator-icon-btn {
@@ -873,23 +889,68 @@
     }
 
     .generator-label {
-        font-size: 14px;
+        font-size: 15px;
     }
 
     .generator-password-actions {
-        transform: translateX(5px);
+        transform: translateX(7px);
+        margin-left: auto;
+        flex-shrink: 0;
+        gap: 4px;
+        align-self: flex-start;
+        padding-top: 1px;
+    }
+
+    .generator-password-box:not(:has(.is-long:not(.is-masked))) .generator-password-actions {
+        align-self: center;
+        padding-top: 0;
     }
 
     .generator-password-value.is-generated:not(.is-masked),
     .generator-password-value.is-generated.is-masked {
-        max-width: calc(100% - 96px);
+        max-width: calc(100% - 72px);
         text-overflow: clip;
         overflow: visible;
     }
 
-    .generator-password-value.is-generated:not(.is-masked) {
+    .generator-password-value.is-generated.is-long:not(.is-masked) {
+        flex: 1 1 auto;
+        min-width: 0;
+        white-space: normal;
+        word-break: break-all;
+        line-height: 1.2;
+    }
+
+    .generator-password-value.is-generated.is-masked.is-masked-long {
+        white-space: nowrap;
+    }
+
+    .generator-password-meta-slot {
+        min-height: 26px;
+    }
+
+    .generator-password-value.is-generated.is-compact:not(.is-masked) {
+        flex: 1 1 auto;
+        white-space: nowrap;
+        font-size: 17px;
+        letter-spacing: 0;
+    }
+
+    .generator-password-value.is-generated:not(.is-masked):not(.is-compact):not(.is-long) {
         font-size: clamp(11px, 2.8vw, 16px);
         letter-spacing: 0;
+    }
+
+    .generator-hint-btn {
+        width: auto;
+        height: auto;
+        border-radius: 0;
+        background: transparent !important;
+        color: #ed4c78;
+    }
+
+    .generator-hint-btn .bi {
+        font-size: 18px;
     }
 
     .generator-length-badge {
@@ -897,8 +958,12 @@
     }
 
     .generator-length-block {
-        margin-top: 10px;
-        margin-bottom: 18px;
+        margin-top: 4px;
+        margin-bottom: 12px;
+    }
+
+    .generator-actions {
+        margin-top: -6px;
     }
 
     .generator-range-marks {
@@ -992,10 +1057,11 @@
 
     .generator-history-date-btn {
         font-size: 14px;
-        padding: 5px 8px;
+        padding: 4px 8px 4px 4px;
+        text-align: left;
     }
 
     .generator-history-list {
-        gap: 4px;
+        gap: 3px;
     }
 }

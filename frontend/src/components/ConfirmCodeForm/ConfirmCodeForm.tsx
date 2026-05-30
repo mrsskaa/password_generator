@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Form, Nav } from 'react-bootstrap';
 import { showAppToast } from '../AppToast/AppToastProvider';
 import { useForm } from 'react-hook-form';
@@ -13,6 +13,7 @@ import './ConfirmCodeForm.css';
 
 const RESEND_INTERVAL_SEC = 60;
 const DEV_CODE_RE = /\[DEV code:\s*(\d{6})\]/i;
+const shownInitialMessageKeys = new Set<string>();
 
 interface ConfirmCodeFormProps {
   title: string;
@@ -53,6 +54,7 @@ function ConfirmCodeForm({
 
   const [secondsLeft, setSecondsLeft] = useState(RESEND_INTERVAL_SEC);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [resendSuccessMessage, setResendSuccessMessage] = useState('');
   const [resendBusy, setResendBusy] = useState(false);
   const [devCode, setDevCode] = useState<string | null>(() => {
@@ -63,7 +65,6 @@ function ConfirmCodeForm({
     return match?.[1] ?? null;
   });
   const canResend = secondsLeft === 0 && !resendBusy;
-  const initialToastShownRef = useRef(false);
 
   useEffect(() => {
     if (!initialMessage) {
@@ -72,12 +73,13 @@ function ConfirmCodeForm({
     }
     const match = initialMessage.match(DEV_CODE_RE);
     setDevCode(match?.[1] ?? null);
-    if (initialToastShownRef.current) {
+    const toastKey = `${email}:${initialMessage}`;
+    if (shownInitialMessageKeys.has(toastKey)) {
       return;
     }
-    initialToastShownRef.current = true;
+    shownInitialMessageKeys.add(toastKey);
     showAppToast(initialMessage.replace(DEV_CODE_RE, '').trim() || initialMessage);
-  }, [initialMessage]);
+  }, [email, initialMessage]);
 
   useEffect(() => {
     if (!resendSuccessMessage) {

@@ -280,7 +280,13 @@ function Generator() {
             <span
                 className={`generator-password-value ${generatedPassword === PASSWORD_PLACEHOLDER ? 'is-placeholder' : 'is-generated'} ${
                     !showPassword && generatedPassword !== PASSWORD_PLACEHOLDER ? 'is-masked' : ''
-                } ${!showPassword && generatedPassword.length > 20 ? 'is-masked-long' : ''}`}
+                } ${!showPassword && generatedPassword.length > 20 ? 'is-masked-long' : ''} ${
+                    generatedPassword !== PASSWORD_PLACEHOLDER && generatedPassword.length <= 22 ? 'is-compact' : ''
+                } ${
+                    generatedPassword !== PASSWORD_PLACEHOLDER && generatedPassword.length > 22 && showPassword
+                        ? 'is-long'
+                        : ''
+                }`}
             >
               {showPassword || generatedPassword === PASSWORD_PLACEHOLDER
                   ? generatedPassword

@@ -133,3 +133,14 @@ a.auth-form-bottom-back-link:hover {
   border: 1px solid var(--light-grey);
   font-weight: 600;
 }
+
+@media (max-width: 575.98px) {
+  .login-form .form-group.mb-3:last-of-type {
+    margin-bottom: 0.65rem !important;
+  }
+
+  .auth-form-forget-password-container {
+    margin-top: -6px;
+    margin-bottom: 2px;
+  }
+}

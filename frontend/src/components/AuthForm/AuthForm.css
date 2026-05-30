@@ -9,6 +9,8 @@
 .content-box.auth-form-container  {
   min-width: auto !important;
   max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .auth-form-head {
@@ -62,6 +64,9 @@ a.auth-form-head-link-text:hover {
     margin-top: 0.35rem;
     color: var(--form-input-invalid);
     font-size: var(--font-size-16);
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .invalid-feedback {
@@ -75,36 +80,94 @@ a.auth-form-head-link-text:hover {
 }
 
 @media (max-width: 575.98px) {
-    .auth-form-bottom {
+    .auth-form-viewport {
+        padding-top: 0 !important;
+        padding-bottom: 0.25rem !important;
+    }
+
+    .auth-form-head {
+        margin-bottom: 3%;
+    }
+
+    .auth-form-body .form-group:last-of-type {
+        margin-bottom: 0.5rem !important;
+    }
+
+    .auth-form-bottom,
+    .password-unlock-bottom,
+    .save-password-form-bottom {
         display: flex;
         flex-direction: row;
-        justify-content: center;
+        flex-wrap: nowrap;
         align-items: center;
-        gap: 12px;
+        justify-content: center;
+        gap: 8px;
         margin-top: 1rem;
+        width: 100%;
+        max-width: 100%;
+        padding: 0 10px;
+        box-sizing: border-box;
     }
 
-    .auth-form-bottom-back-link-container {
-        order: 0;
+    .auth-form-bottom-back-link-container,
+    .password-unlock-bottom .auth-form-bottom-back-link-container,
+    .save-password-form-bottom .auth-form-bottom-back-link-container {
         flex: 0 0 auto;
+        grid-column: auto;
+        grid-row: auto;
+        justify-self: auto;
     }
 
-    .auth-form-submit-button-container {
-        order: 1;
+    .auth-form-submit-button-container,
+    .password-unlock-bottom .auth-form-submit-button-container,
+    .save-password-form-bottom .auth-form-submit-button-container {
+        flex: 0 0 auto;
         grid-column: auto;
+        grid-row: auto;
         justify-self: auto;
         width: auto;
-        flex: 0 0 auto;
+    }
+
+    a.auth-form-bottom-back-link,
+    a.password-unlock-back-link {
+        font-size: var(--font-size-14);
+        line-height: 36px;
+        white-space: nowrap;
     }
 
     .btn.auth-form-submit-button,
-    .btn.password-unlock-btn {
+    .btn.password-unlock-btn,
+    .btn.save-password-submit-button {
         min-width: 0 !important;
         width: auto;
+        max-width: 150px;
+        padding: 4px 12px !important;
+        min-height: 36px;
+        height: 36px;
+        font-size: var(--font-size-14);
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .btn.auth-form-submit-button--register {
+        font-size: 11px;
+        letter-spacing: -0.04em;
+        max-width: 150px;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+
+    .auth-form-bottom,
+    .password-unlock-bottom,
+    .save-password-form-bottom {
+        margin-top: -2px;
+        gap: 6px;
+        transform: translateY(-10px);
+    }
+
+    .login-form .btn.auth-form-submit-button {
         max-width: 168px;
-        padding: 5px 14px !important;
-        min-height: 42px;
-        font-size: var(--font-size-16);
+        min-width: 132px;
     }
 }
 

@@ -130,11 +130,18 @@ body {
     
 }
 /* Специальный стиль для мобильных устройств */
-/* @media (max-width: 600px) {
-  body {
-    box-shadow: inset 0px 0px 15px 2px rgba(0, 0, 0, 0.15);
-  }
-} */
+@media (max-width: 767.98px) {
+    html {
+        background-color: var(--bg-color);
+        box-shadow:
+            inset 0 0 90px 55px rgba(140, 55, 45, 0.42),
+            inset 0 0 45px 22px rgba(167, 0, 0, 0.28);
+    }
+
+    body {
+        background-color: var(--bg-color);
+    }
+}
 /* @media (min-width: 768px) {
   body {
     box-shadow: inset 0px 0px 30px 10px rgba(0, 0, 0, 0.4);
@@ -147,4 +154,16 @@ body {
 
 .auth-form-bottom-back-link {
     text-transform: lowercase;
+}
+
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+
+.modal {
+    z-index: 1050 !important;
+}
+
+.generator-login-modal-root.modal {
+    z-index: 1055 !important;
 }

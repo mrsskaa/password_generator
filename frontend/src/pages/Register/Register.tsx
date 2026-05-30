@@ -158,7 +158,11 @@ const Register = () => {
           </Nav.Link>
         </div>
         <div className="justify-content-center auth-form-submit-button-container">
-          <Button variant="default" type="submit" className="justify-content-center auth-form-submit-button">
+          <Button
+            variant="default"
+            type="submit"
+            className="justify-content-center auth-form-submit-button auth-form-submit-button--register"
+          >
             ЗАРЕГИСТРИРОВАТЬСЯ
           </Button>
         </div>
