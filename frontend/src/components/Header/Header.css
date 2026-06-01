@@ -38,6 +38,12 @@ a.header-text-link {
     margin-right: 5px;
 }
 
+@media (min-width: 768px) {
+    a.header-text-link {
+        transform: translateX(-5px);
+    }
+}
+
 a.header-text-link:hover {
     color: var(--header-link-text-color);
     text-decoration: underline;
@@ -125,9 +131,9 @@ a.header-text-link:hover {
 
 @media (max-width: 767.98px) {
     .header-brand {
-        margin-left: -8px !important;
+        margin-left: 2px !important;
         margin-right: 8px !important;
-        transform: translateX(20px);
+        transform: translateX(30px);
     }
 
     .logo {

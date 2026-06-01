@@ -854,6 +854,24 @@
         font-size: 18px;
     }
 
+    .generator-password-value.is-placeholder {
+        font-size: clamp(9px, 2.4vw, 13px);
+        letter-spacing: 0;
+        line-height: 1.15;
+        padding-right: 4px;
+    }
+
+    .generator-password-box:has(.is-placeholder) {
+        align-items: center;
+    }
+
+    .generator-password-box:has(.is-placeholder) .generator-password-value {
+        max-width: calc(100% - 76px);
+        overflow: hidden;
+        text-overflow: clip;
+        white-space: nowrap;
+    }
+
     .generator-password-value.is-generated.is-masked {
         font-size: 16px;
         letter-spacing: 0.04em;
@@ -1057,8 +1075,12 @@
 
     .generator-history-date-btn {
         font-size: 14px;
-        padding: 4px 8px 4px 4px;
+        padding: 4px 8px 4px 6px;
         text-align: left;
+    }
+
+    .generator-history-list {
+        padding-left: 0;
     }
 
     .generator-history-list {

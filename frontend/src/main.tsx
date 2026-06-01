@@ -9,23 +9,6 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 import './index.css'
-import t1Favicon from './assets/images/T1_favicon.svg'
-
-function applyFavicon(href: string): void {
-    const relValues = ['icon', 'shortcut icon']
-    relValues.forEach((rel) => {
-        let link = document.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`)
-        if (!link) {
-            link = document.createElement('link')
-            link.rel = rel
-            document.head.appendChild(link)
-        }
-        link.type = 'image/svg+xml'
-        link.href = href
-    })
-}
-
-applyFavicon(t1Favicon)
 
 const queryClient = new QueryClient()
 

@@ -130,7 +130,7 @@ a.auth-form-head-link-text:hover {
 
     a.auth-form-bottom-back-link,
     a.password-unlock-back-link {
-        font-size: var(--font-size-14);
+        font-size: 13px;
         line-height: 36px;
         white-space: nowrap;
     }
@@ -166,8 +166,8 @@ a.auth-form-head-link-text:hover {
     }
 
     .login-form .btn.auth-form-submit-button {
-        max-width: 168px;
-        min-width: 132px;
+        max-width: 180px;
+        min-width: 148px;
     }
 }
 

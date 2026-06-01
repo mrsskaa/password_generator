@@ -174,7 +174,7 @@ export interface SavedPasswordItem {
   id: string;
   description: string;
   created_at: string;
-  settings_preview: string;
+  password_length: string;
   generation_settings: Record<string, unknown>;
 }
 
