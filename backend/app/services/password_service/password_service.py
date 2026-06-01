@@ -22,25 +22,26 @@ class PasswordService:
         self.repo = repo
 
     @staticmethod
-    def make_settings_preview(settings: dict[str, Any]) -> str:
+    def normalize_generation_settings(settings: dict[str, Any]) -> dict[str, Any]:
         if not settings:
-            return "настройки не указаны"
+            return {}
 
-        parts: list[str] = []
-        if "length" in settings:
-            parts.append(f"длина: {settings['length']}")
-        if "use_digits" in settings:
-            parts.append(f"цифры: {'да' if settings['use_digits'] else 'нет'}")
-        if "use_symbols" in settings:
-            parts.append(f"спецсимволы: {'да' if settings['use_symbols'] else 'нет'}")
-        if "use_upper" in settings:
-            parts.append(f"верхний регистр: {'да' if settings['use_upper'] else 'нет'}")
-        if "use_lower" in settings:
-            parts.append(f"нижний регистр: {'да' if settings['use_lower'] else 'нет'}")
+        normalized = dict(settings)
+        if "length" not in normalized and "password_length" in normalized:
+            normalized["length"] = normalized["password_length"]
 
-        if not parts:
-            return ", ".join(f"{key}={value}" for key, value in settings.items())
-        return ", ".join(parts)
+        field_map = {
+            "includeNumbers": "use_digits",
+            "includeSymbols": "use_symbols",
+            "includeUppercase": "use_upper",
+            "includeLowercase": "use_lower",
+            "excludeSimilar": "use_similar_symbols",
+        }
+        for source_key, target_key in field_map.items():
+            if source_key in normalized and target_key not in normalized:
+                normalized[target_key] = normalized[source_key]
+
+        return normalized
 
     @staticmethod
     def _encrypted_payload(password: SavedPassword) -> EncryptedPassword:
@@ -56,12 +57,12 @@ class PasswordService:
             id=password.id,
             description=password.description,
             created_at=password.created_at.isoformat(),
-            settings_preview=password.settings_preview,
+            password_length=password.password_length,
             generation_settings=password.generation_settings or {},
         )
 
     def create_password(self, user_id: uuid.UUID, request: PasswordPostRequest) -> PasswordGetResponse:
-        preview = self.make_settings_preview(request.generation_settings)
+        generation_settings = self.normalize_generation_settings(request.generation_settings)
         encryption_service = PasswordEncryptionService(request.code_word)
         encrypted_payload = encryption_service.encrypt(request.password)
         new_password = self.repo.create(
@@ -70,8 +71,8 @@ class PasswordService:
             salt=encrypted_payload["salt"],
             nonce=encrypted_payload["nonce"],
             description=request.description,
-            generation_settings=request.generation_settings,
-            settings_preview=preview,
+            generation_settings=generation_settings,
+            password_length=str(len(request.password)),
         )
         return self.orm_to_password_response(new_password)
 

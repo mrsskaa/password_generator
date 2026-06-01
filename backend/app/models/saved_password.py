@@ -17,7 +17,7 @@ class SavedPassword(Base):
     nonce: Mapped[str] = mapped_column(String(128), nullable=False)
     description: Mapped[str] = mapped_column(String(500), nullable=False)
     generation_settings: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
-    password_length: Mapped[str] = mapped_column(String(500), nullable=False)
+    password_length: Mapped[str] = mapped_column(String(500), nullable=False, default="0")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc)
     )

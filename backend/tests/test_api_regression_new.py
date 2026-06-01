@@ -151,7 +151,6 @@ def test_complete_user_and_password_lifecycle(client, test_db):
         "code_word": password,
         "description": "Regression test pass",
         "generation_settings": gen_payload,
-        "settings_preview": "len:12, L, U, D, S"
     }
     resp = client.post("/api/passwords", json=save_payload)
     assert resp.status_code == 201

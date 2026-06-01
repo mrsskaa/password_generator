@@ -22,7 +22,7 @@ class PasswordRepository:
         nonce: str,
         description: str,
         generation_settings: dict,
-        settings_preview: str,
+        password_length: str,
     ) -> SavedPassword:
         with self._get_session() as session:
             new_password = SavedPassword(
@@ -32,7 +32,7 @@ class PasswordRepository:
                 nonce=nonce,
                 description=description,
                 generation_settings=generation_settings,
-                settings_preview=settings_preview,
+                password_length=password_length,
             )
             session.add(new_password)
             session.commit()

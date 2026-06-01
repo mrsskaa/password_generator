@@ -72,13 +72,15 @@ class SQLAlchemyRepository:
                             "ADD COLUMN generation_settings JSON NOT NULL DEFAULT '{}'"
                         )
                     )
-                if "settings_preview" not in password_columns:
+                if "password_length" not in password_columns:
                     connection.execute(
                         text(
                             "ALTER TABLE saved_passwords "
-                            "ADD COLUMN settings_preview VARCHAR(500) NOT NULL DEFAULT 'настройки не указаны'"
+                            "ADD COLUMN password_length VARCHAR(500) NOT NULL DEFAULT '0'"
                         )
                     )
+                if "settings_preview" in password_columns:
+                    connection.execute(text("ALTER TABLE saved_passwords DROP COLUMN settings_preview"))
 
     @staticmethod
     def _to_dict(user: User) -> dict[str, Any]:

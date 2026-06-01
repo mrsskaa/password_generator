@@ -10,7 +10,7 @@ class PasswordPostRequest(BaseModel):
     password: str = Field(..., min_length=8, max_length=128)
     code_word: str = Field(..., min_length=1, max_length=128)
     description: str = Field(..., min_length=1, max_length=128)
-    generation_settings: dict[str, Any]
+    generation_settings: dict[str, Any] = Field(default_factory=dict)
 
 
 class DescriptionPatchRequest(BaseModel):
@@ -21,7 +21,7 @@ class PasswordGetResponse(BaseModel):
     id: uuid.UUID
     description: str = Field(..., min_length=1, max_length=128)
     created_at: ISO8601
-    settings_preview: str
+    password_length: str
     generation_settings: dict[str, Any] = Field(default_factory=dict)
 
 
