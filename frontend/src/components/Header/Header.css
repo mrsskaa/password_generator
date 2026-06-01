@@ -173,11 +173,13 @@ a.header-text-link:hover {
 
     .btn.header-btn,
     .btn.header-btn:hover {
-        width: 72px;
+        width: 92px !important;
+        min-width: 92px;
         height: 28px;
         font-size: 11px;
         border-radius: 10px;
-        padding: 0 6px;
+        padding: 0 10px;
+        box-sizing: border-box;
     }
 
     .header-icon-btn {
