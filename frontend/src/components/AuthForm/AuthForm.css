@@ -166,8 +166,11 @@ a.auth-form-head-link-text:hover {
     }
 
     .login-form .btn.auth-form-submit-button {
-        max-width: 180px;
-        min-width: 148px;
+        max-width: 190px !important;
+        min-width: 162px !important;
+        width: 162px !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
     }
 }
 
