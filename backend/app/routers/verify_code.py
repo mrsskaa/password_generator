@@ -26,7 +26,7 @@ async def verify_code(
 
     if not EMAIL_RE.match(email) or not CODE_RE.match(code):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Некорректный формат email или кода")
-
+    
     code_row = repository.get_password_reset_code(email=email, code=code)
     if not code_row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Код не найден")
