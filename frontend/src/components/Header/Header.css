@@ -103,7 +103,7 @@ a.header-text-link:hover {
   width: var(--menu-dropdown-width);
   min-width: var(--menu-dropdown-width);
   height: var(--menu-dropdown-height);
-  box-shadow: 0 0 28px var(--menu-shadow);
+  box-shadow: 0 0 25px var(--content-box-shadow);
   left: 50% !important;
   transform: translateX(-50%);
   color: var(--header-icon-color);
@@ -133,7 +133,7 @@ a.header-text-link:hover {
     .header-brand {
         margin-left: 2px !important;
         margin-right: 8px !important;
-        transform: translateX(30px);
+        transform: translateX(15px);
     }
 
     .logo {

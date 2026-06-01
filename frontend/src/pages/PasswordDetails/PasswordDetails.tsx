@@ -197,7 +197,7 @@ function PasswordDetails() {
                                     }
                                 >
                                     <span
-                                        className={`generator-password-value is-generated ${!showPassword ? 'is-masked' : ''} ${!showPassword && password.length > 20 ? 'is-masked-long' : ''} ${password.length > 22 && showPassword ? 'is-long' : ''}`}
+                                        className={`generator-password-value is-generated ${!showPassword ? 'is-masked' : ''} ${!showPassword && password.length > 20 ? 'is-masked-long' : ''} ${password.length <= 22 ? 'is-compact' : ''} ${password.length > 22 && showPassword ? 'is-long' : ''}`}
                                     >
                                         {showPassword ? password : password.replace(/./g, '•')}
                                     </span>
