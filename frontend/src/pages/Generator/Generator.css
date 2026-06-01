@@ -996,9 +996,13 @@
         transform: translateX(7px);
         margin-left: auto;
         flex-shrink: 0;
-        gap: 1px;
+        gap: 3px;
         align-self: flex-start;
         padding-top: 1px;
+    }
+
+    .generator-password-actions .generator-icon-btn {
+        padding: 2px 5px;
     }
 
     .generator-password-box:not(:has(.is-long:not(.is-masked))) .generator-password-actions {
