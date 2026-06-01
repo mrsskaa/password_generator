@@ -115,11 +115,11 @@ function MyPasswords() {
                 className="my-passwords-search"
                 aria-label="Поиск по названию"
               />
-              <Dropdown align="start" className="my-passwords-filter-dropdown">
+              <Dropdown align="end" className="my-passwords-filter-dropdown">
                 <Dropdown.Toggle as="button" className="my-passwords-filter-btn" id="my-passwords-sort-dropdown">
                   <i className="bi bi-sliders2 my-passwords-filter-icon" aria-hidden />
                 </Dropdown.Toggle>
-                <Dropdown.Menu className="my-passwords-filter-menu">
+                <Dropdown.Menu className="my-passwords-filter-menu" renderOnParent>
                   <Dropdown.Item
                     className={`my-passwords-filter-item ${sortOrder === 'new' ? 'is-active' : ''}`}
                     onClick={() => setSortOrder('new')}
@@ -167,7 +167,14 @@ function MyPasswords() {
                   {visibleItems.map((item) => (
                     <tr key={item.id}>
                       <td>{formatDateOnly(item.created_at)}</td>
-                      <td className="my-passwords-description-cell">{item.description}</td>
+                      <td className="my-passwords-description-cell" title={item.description}>
+                        <span className="my-passwords-description-text my-passwords-description-text--desktop">
+                          {item.description}
+                        </span>
+                        <span className="my-passwords-description-text my-passwords-description-text--mobile">
+                          {item.description.length > 10 ? `${item.description.slice(0, 10)}…` : item.description}
+                        </span>
+                      </td>
                       <td>{maskPassword()}</td>
                       <td>
                         <button
