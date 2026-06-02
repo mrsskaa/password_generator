@@ -38,7 +38,7 @@ def _pluralize_ru(value: int, one: str, few: str, many: str) -> str:
 
 def format_crack_time(seconds: float) -> str:
     if seconds < 1:
-        return "меньше 1 секунды"
+        return "менее чем 1 секунду"
     if seconds < 60:
         value = int(seconds)
         return f"{value} {_pluralize_ru(value, 'секунда', 'секунды', 'секунд')}"
@@ -52,7 +52,10 @@ def format_crack_time(seconds: float) -> str:
         value = int(seconds // DAY_SECONDS)
         return f"{value} {_pluralize_ru(value, 'день', 'дня', 'дней')}"
     value = int(seconds // YEAR_SECONDS)
-    return f"{value} {_pluralize_ru(value, 'год', 'года', 'лет')}"
+    if value <= 100:
+        return f"{value} {_pluralize_ru(value, 'год', 'года', 'лет')}"
+    else:
+        return "более чем 100 лет"
 
 
 def calculate_alphabet_size(
