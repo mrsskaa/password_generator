@@ -33,6 +33,7 @@ def patched_to_dict(user):
         "hashed_password": user.hashed_password,
         "email": user.email,
         "email_verified": user.email_verified,
+        "session_version": user.session_version,
         "created_at": user.created_at.isoformat() if hasattr(user.created_at, "isoformat") else str(user.created_at),
     }
 SQLAlchemyRepository._to_dict = staticmethod(patched_to_dict)
@@ -127,6 +128,12 @@ def test_complete_user_and_password_lifecycle(client, test_db):
     resp = client.post("/api/auth/login", json=login_payload)
     assert resp.status_code == 200
     assert "access_token" in resp.cookies
+    assert "refresh_token" in resp.cookies
+
+    resp = client.post("/api/auth/refresh")
+    assert resp.status_code == 200
+    assert "access_token" in resp.cookies
+    assert "refresh_token" in resp.cookies
 
 
     resp = client.get("/api/users/me")
@@ -193,6 +200,11 @@ def test_password_recovery_flow(client, test_db):
     code_record = test_db.get_latest_registration_code_for_email(email)
     client.post("/api/auth/register/verify-code", json={"email": email, "code": code_record["code"]})
 
+    resp = client.post("/api/auth/login", json={"email": email, "password": old_password})
+    assert resp.status_code == 200
+    assert "access_token" in resp.cookies
+    assert "refresh_token" in resp.cookies
+
 
     resp = client.post("/api/auth/forgot-password", json={"email": email})
     assert resp.status_code == 200
@@ -209,7 +221,14 @@ def test_password_recovery_flow(client, test_db):
     resp = client.post("/api/auth/reset-password", json={"new_password": new_password}, headers=headers)
     assert resp.status_code == 200
 
+    resp = client.get("/api/users/me")
+    assert resp.status_code == 401
+
+    resp = client.post("/api/auth/refresh")
+    assert resp.status_code == 401
+
 
     resp = client.post("/api/auth/login", json={"email": email, "password": new_password})
     assert resp.status_code == 200
     assert "access_token" in resp.cookies
+    assert "refresh_token" in resp.cookies

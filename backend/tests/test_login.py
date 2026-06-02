@@ -10,6 +10,7 @@ client=TestClient(app)
 def mock_auth_service():
     service = MagicMock()
     service.access_token_expire_minutes = 30
+    service.refresh_token_expire_days = 14
     app.dependency_overrides[get_auth_service] = lambda: service
     yield service
     app.dependency_overrides.clear()
@@ -23,6 +24,7 @@ def test_login_success(mock_auth_service):
     }
     mock_auth_service.authenticate_user.return_value = fake_user
     mock_auth_service.create_access_token.return_value = "fake-jwt-token"
+    mock_auth_service.create_refresh_token.return_value = "fake-refresh-token"
     payload = {"email": "test@test.com", "password": "correct_password"}
     response = client.post("/api/auth/login", json=payload)
     assert response.status_code == 200
@@ -30,6 +32,8 @@ def test_login_success(mock_auth_service):
     assert response.json()["user"]["email"] == "test@test.com"
     assert "access_token" in response.cookies
     assert response.cookies["access_token"] == "fake-jwt-token"
+    assert "refresh_token" in response.cookies
+    assert response.cookies["refresh_token"] == "fake-refresh-token"
 
 def test_login_invalid_credentials(mock_auth_service):
     mock_auth_service.authenticate_user.return_value = None
@@ -44,3 +48,4 @@ def test_logout(mock_auth_service):
     assert response.status_code == 200
     assert response.json()["message"] == "Выход выполнен"
     assert response.cookies.get("access_token") is None
+    assert response.cookies.get("refresh_token") is None

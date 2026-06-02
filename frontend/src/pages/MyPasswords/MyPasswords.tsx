@@ -119,7 +119,7 @@ function MyPasswords() {
                 <Dropdown.Toggle as="button" className="my-passwords-filter-btn" id="my-passwords-sort-dropdown">
                   <i className="bi bi-sliders2 my-passwords-filter-icon" aria-hidden />
                 </Dropdown.Toggle>
-                <Dropdown.Menu className="my-passwords-filter-menu" renderOnParent>
+                <Dropdown.Menu className="my-passwords-filter-menu">
                   <Dropdown.Item
                     className={`my-passwords-filter-item ${sortOrder === 'new' ? 'is-active' : ''}`}
                     onClick={() => setSortOrder('new')}

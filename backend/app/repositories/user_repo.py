@@ -2,7 +2,7 @@ import os
 import uuid
 from datetime import datetime, timezone
 from typing import Any
-from sqlalchemy import create_engine, delete, inspect, select, text, update
+from sqlalchemy import create_engine, delete, func, inspect, select, text, update
 from sqlalchemy.orm import sessionmaker
 from app.models.user import Base, PasswordResetCode, PendingRegistration, RegistrationCode, User
 
@@ -32,6 +32,13 @@ class SQLAlchemyRepository:
                         text(
                             "ALTER TABLE users "
                             "ADD COLUMN email_verified BOOLEAN NOT NULL DEFAULT FALSE"
+                        )
+                    )
+                if "session_version" not in user_columns:
+                    connection.execute(
+                        text(
+                            "ALTER TABLE users "
+                            "ADD COLUMN session_version INTEGER NOT NULL DEFAULT 0"
                         )
                     )
 
@@ -89,6 +96,7 @@ class SQLAlchemyRepository:
             "hashed_password": user.hashed_password,
             "email": user.email,
             "email_verified": user.email_verified,
+            "session_version": user.session_version,
             "created_at": user.created_at.isoformat(),
         }
 
@@ -122,7 +130,12 @@ class SQLAlchemyRepository:
     def update_user_password_by_email(self, email: str, hashed_password: str) -> bool:
         with self.SessionLocal() as session:
             result = session.execute(
-                update(User).where(User.email == email).values(hashed_password=hashed_password)
+                update(User)
+                .where(User.email == email)
+                .values(
+                    hashed_password=hashed_password,
+                    session_version=User.session_version + 1,
+                )
             )
             session.commit()
             return result.rowcount > 0
@@ -214,6 +227,17 @@ class SQLAlchemyRepository:
                 "expires_at": code_row.expires_at,
                 "used_at": code_row.used_at,
             }
+
+    def count_password_reset_codes_for_email_since(self, email: str, since: datetime) -> int:
+        with self.SessionLocal() as session:
+            return session.scalar(
+                select(func.count())
+                .select_from(PasswordResetCode)
+                .where(
+                    PasswordResetCode.email == email,
+                    PasswordResetCode.created_at >= since,
+                )
+            ) or 0
 
     def create_password_reset_code(self, email: str, code: str, expires_at: datetime) -> dict[str, Any]:
         with self.SessionLocal() as session:

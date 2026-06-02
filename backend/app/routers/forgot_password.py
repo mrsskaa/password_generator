@@ -15,18 +15,41 @@ logger = logging.getLogger(__name__)
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 RATE_LIMIT_SECONDS = 60
+RATE_LIMIT_WINDOW_SECONDS = 60 * 60
+RATE_LIMIT_MAX_REQUESTS = 3
 CODE_EXPIRE_MINUTES = 10
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
-def _create_reset_code(email: str, repository: SQLAlchemyRepository) -> dict[str, Any]:
+def _ensure_aware(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value
+
+
+def _enforce_reset_rate_limit(email: str, repository: SQLAlchemyRepository) -> None:
+    now = datetime.now(timezone.utc)
     latest_code = repository.get_latest_reset_code_for_email(email)
-    if latest_code and (datetime.now(timezone.utc) - latest_code["created_at"]).total_seconds() < RATE_LIMIT_SECONDS:
+    if latest_code:
+        created_at = _ensure_aware(latest_code["created_at"])
+        if (now - created_at).total_seconds() < RATE_LIMIT_SECONDS:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Слишком много запросов. Попробуйте через минуту",
+            )
+
+    window_start = now - timedelta(seconds=RATE_LIMIT_WINDOW_SECONDS)
+    requests_in_window = repository.count_password_reset_codes_for_email_since(email, window_start)
+    if requests_in_window >= RATE_LIMIT_MAX_REQUESTS:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Слишком много запросов. Попробуйте через минуту",
+            detail="Слишком много запросов. Можно запросить код восстановления максимум 3 раза в час",
         )
+
+
+def _create_reset_code(email: str, repository: SQLAlchemyRepository) -> dict[str, Any]:
+    _enforce_reset_rate_limit(email, repository)
 
     code = str(secrets.randbelow(900000) + 100000)
     return repository.create_password_reset_code(

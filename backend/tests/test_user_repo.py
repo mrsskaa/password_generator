@@ -40,10 +40,12 @@ def test_get_user_by_email(repo):
 def test_update_user_password_by_email(repo):
     email = "update@test.com"
     repo.create_user("old_hash", email)
+    before = repo.get_user_by_email(email)
     result = repo.update_user_password_by_email(email, "new_hash")
     user = repo.get_user_by_email(email)
     assert result is True
     assert user["hashed_password"] == "new_hash"
+    assert user["session_version"] == before["session_version"] + 1
     assert repo.update_user_password_by_email("not_found@test.com", "hash") is False
 
 def test_password_reset_code_flow(repo):
@@ -70,6 +72,15 @@ def test_get_latest_reset_code_for_email(repo):
     repo.create_password_reset_code(email, "code2", datetime.now(timezone.utc) + timedelta(hours=1))
     latest = repo.get_latest_reset_code_for_email(email)
     assert latest["code"] == "code2"
+
+def test_count_password_reset_codes_for_email_since(repo):
+    email = "rate-limit@test.com"
+    repo.create_user("pass", email)
+    now = datetime.now(timezone.utc)
+    repo.create_password_reset_code(email, "code1", now + timedelta(minutes=10))
+    repo.create_password_reset_code(email, "code2", now + timedelta(minutes=10))
+    assert repo.count_password_reset_codes_for_email_since(email, now - timedelta(hours=1)) == 2
+    assert repo.count_password_reset_codes_for_email_since("other@test.com", now - timedelta(hours=1)) == 0
 
 def test_delete_reset_codes_for_email(repo):
     email = "cleanup@test.com"
