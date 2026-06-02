@@ -131,7 +131,7 @@ async def verify_registration_code(
     if not code_row:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Код подтверждения не найден",
+            detail="Код подтверждения неверный",
         )
 
     if code_row["used_at"] is not None or datetime.now(timezone.utc) > code_row["expires_at"]:

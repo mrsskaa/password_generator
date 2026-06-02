@@ -29,7 +29,7 @@ async def verify_code(
     
     code_row = repository.get_password_reset_code(email=email, code=code)
     if not code_row:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Код не найден")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Код подтверждения неверный")
 
     if code_row["used_at"] is not None or datetime.now(timezone.utc) > code_row["expires_at"]:
         raise HTTPException(status_code=status.HTTP_410_GONE, detail="Код истек или уже использован")
