@@ -221,7 +221,7 @@ function Generator() {
                     <div className="generator-shell">
                         <div className="generator-heading">
                             <h1 className="generator-title">ГЕНЕРАТОР БЕЗОПАСНЫХ ПАРОЛЕЙ</h1>
-                            <p className="generator-subtitle mb-0">Создавайте надежные пароли, которые невозможно взломать</p>
+                            <p className="generator-subtitle mb-0">Создавайте надежные пароли с прогнозом времени взлома</p>
                         </div>
 
                         <div
@@ -253,7 +253,7 @@ function Generator() {
                                                 {historyEntries.map((entry) => (
                                                     <li key={entry.id} className="generator-history-list-item">
                                                         <button type="button" className="generator-history-date-btn" onClick={() => applyHistoryEntry(entry)}>
-                                                            {entry.dateLabel}
+                                                            {entry.dateTimeLabel || formatHistoryDateTime(entry.at)}
                                                         </button>
                                                     </li>
                                                 ))}

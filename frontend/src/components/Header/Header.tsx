@@ -55,10 +55,10 @@ const Header = () => {
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="header-auth-menu">
                   <Dropdown.Item as={Link} to="/" className={`header-auth-menu-item ${!isPasswordsPage ? 'is-active' : ''}`}>
-                    генератор
+                    Генератор
                   </Dropdown.Item>
                   <Dropdown.Item as={Link} to="/passwords" className={`header-auth-menu-item ${isPasswordsPage ? 'is-active' : ''}`}>
-                    мои пароли
+                    Мои пароли
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>

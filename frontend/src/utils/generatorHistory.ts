@@ -6,7 +6,7 @@ const MAX_ENTRIES = 10;
 export interface GeneratorHistoryEntry {
   id: string;
   at: string;
-  /** Короткая дата для списка */
+  /** Дата и время для списка истории */
   dateLabel: string;
   /** ДД.ММ.ГГГГ, ЧЧ:ММ для подписи на карточке */
   dateTimeLabel: string;
@@ -20,15 +20,7 @@ export interface GeneratorHistoryEntry {
 }
 
 function formatDateLabel(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) {
-    return '—';
-  }
-  return new Intl.DateTimeFormat('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }).format(d);
+  return formatHistoryDateTime(iso);
 }
 
 export function formatHistoryDateTime(iso: string): string {

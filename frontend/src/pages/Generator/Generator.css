@@ -141,6 +141,7 @@
     font-size: var(--history-date-size);
     color: var(--history-text-color);
     cursor: pointer;
+    white-space: nowrap;
 }
 
 .generator-history-date-btn:hover {
