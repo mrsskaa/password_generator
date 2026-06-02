@@ -106,6 +106,7 @@ async def resend_registration_code(
             detail="Пользователь с таким email не найден",
         )
 
+    repository.delete_registration_codes_for_email(email)
     code_row = _create_registration_code(email, repository)
     background_tasks.add_task(send_registration_code_email, to_email=email, code=code_row["code"])
     return {"message": "Код подтверждения скоро придет"}
